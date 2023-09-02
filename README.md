@@ -1,6 +1,6 @@
 # Pulsar2 User Manual
 
-[Web 预览](pulsar2-docs.readthedocs.io)
+[Web 预览](https://pulsar2-docs.readthedocs.io/zh_CN/latest/)
 
 ## 1. 项目背景
 
