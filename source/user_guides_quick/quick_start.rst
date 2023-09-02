@@ -54,7 +54,7 @@ Quick Start
 
 工具链获取途径：
 
-- [爱芯派Pro工具链](todo)
+- `百度网盘 <https://pan.baidu.com/s/1_aeGILGZCAmFrWrRXhwgKg?pwd=pmj8>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 载入 Docker Image
@@ -507,7 +507,7 @@ log 参考信息
 开发板获取
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- [爱芯派Pro](https://sipeed.com/m4ndock)
+- `爱芯派Pro(M4N-Dock) <https://sipeed.com/m4ndock>`_
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 使用 ax_run_model 工具快速测试模型推理速度
