@@ -558,7 +558,7 @@ log 参考信息
 
 .. hint::
 
-    上板运行示例已经打包放在 ``demo_onboard`` 文件夹下 :download:`点击下载示例文件 <../examples/demo_onboard.zip>`
+    上板运行示例已经打包放在 ``demo_onboard`` 文件夹下 :download:`点击下载示例文件 <https://github.com/AXERA-TECH/pulsar2-docs/releases/download/v1.9/demo_onboard.zip>`
     将下载后的文件解压, 其中 ``ax_classification`` 为预先交叉编译好的可在 **AX650 和 M76H EVB** 上运行的分类模型可执行程序 ``mobilennetv2.axmodel`` 为编译好的分类模型, ``cat.jpg`` 为测试图像.
 
 将 ``ax_classification``、 ``mobilennetv2.axmodel``、 ``cat.jpg`` 拷贝到开发板上, 如果 ``ax_classification`` 缺少可执行权限, 可以通过以下命令添加

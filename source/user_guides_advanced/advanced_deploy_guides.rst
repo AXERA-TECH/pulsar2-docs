@@ -15,7 +15,7 @@
 获取方式
 ~~~~~~~~~~~~~~~~~~~~
 
-- :download:`点击下载 <../examples/ax-samples.zip>`
+- :download:`点击下载 <https://github.com/AXERA-TECH/pulsar2-docs/releases/download/v1.9/ax-samples.zip>`
 
 ~~~~~~~~~~~~~~~~~~~~
 ax-samples 简介

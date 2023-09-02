@@ -1,0 +1,7 @@
+.DS_Store
+*.pyc
+__pycache__
+public
+build/
+.vscode/
+pre_process.log

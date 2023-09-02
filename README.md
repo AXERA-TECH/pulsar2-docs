@@ -15,7 +15,7 @@
 ### 2.1 git clone
 
 ```bash
-# 待补充 git clone https://github.com/AXERA-TECH/pulsar2-docs.git
+git clone https://github.com/AXERA-TECH/pulsar2-docs.git
 ```
 
 目录树如下:
