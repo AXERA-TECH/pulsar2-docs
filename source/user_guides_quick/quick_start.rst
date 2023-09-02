@@ -109,7 +109,7 @@ Quick Start
 
 .. hint::
 
-    本章节后续内容 **《3.4.模型编译》**、 **《3.6.仿真运行》** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <../examples/quick_start_example.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
+    本章节后续内容 **《3.4.模型编译》**、 **《3.6.仿真运行》** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <https://github.com/AXERA-TECH/pulsar2-docs/releases/download/v1.9/quick_start_example.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
 
 .. code-block:: shell
 
@@ -278,23 +278,6 @@ log 参考信息
     [19:57:24] AX Quantization Simplify Pass Running ...      Finished.
     [19:57:24] AX Parameter Quantization Pass Running ...     Finished.
     [19:57:25] AX Runtime Calibration Pass Running ...        
-    Calibration Progress(Phase 1):   0%|          | 0/32 [00:00<?, ?it/s]
-    Calibration Progress(Phase 1):   6%|▋         | 2/32 [00:00<00:02, 14.13it/s]
-    Calibration Progress(Phase 1):  12%|█▎        | 4/32 [00:00<00:01, 14.17it/s]
-    Calibration Progress(Phase 1):  19%|█▉        | 6/32 [00:00<00:01, 14.22it/s]
-    Calibration Progress(Phase 1):  25%|██▌       | 8/32 [00:00<00:01, 14.23it/s]
-    Calibration Progress(Phase 1):  31%|███▏      | 10/32 [00:00<00:01, 14.26it/s]
-    Calibration Progress(Phase 1):  38%|███▊      | 12/32 [00:00<00:01, 14.20it/s]
-    Calibration Progress(Phase 1):  44%|████▍     | 14/32 [00:00<00:01, 14.25it/s]
-    Calibration Progress(Phase 1):  50%|█████     | 16/32 [00:01<00:01, 14.29it/s]
-    Calibration Progress(Phase 1):  56%|█████▋    | 18/32 [00:01<00:00, 14.24it/s]
-    Calibration Progress(Phase 1):  62%|██████▎   | 20/32 [00:01<00:00, 14.28it/s]
-    Calibration Progress(Phase 1):  69%|██████▉   | 22/32 [00:01<00:00, 14.31it/s]
-    Calibration Progress(Phase 1):  75%|███████▌  | 24/32 [00:01<00:00, 14.32it/s]
-    Calibration Progress(Phase 1):  81%|████████▏ | 26/32 [00:01<00:00, 14.29it/s]
-    Calibration Progress(Phase 1):  88%|████████▊ | 28/32 [00:01<00:00, 13.86it/s]
-    Calibration Progress(Phase 1):  94%|█████████▍| 30/32 [00:02<00:00, 13.97it/s]
-    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:02<00:00, 14.07it/s]
     Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:02<00:00, 14.17it/s]
     Finished.
     [19:57:27] AX Passive Parameter Quantization Running ...  Finished.

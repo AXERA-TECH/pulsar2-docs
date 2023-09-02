@@ -1,6 +1,6 @@
 # Pulsar2 User Manual
 
-[Web 预览](todo)
+[Web 预览](pulsar2-docs.readthedocs.io)
 
 ## 1. 项目背景
 
@@ -26,22 +26,18 @@ git clone https://github.com/AXERA-TECH/pulsar2-docs.git
 ├── Makefile
 ├── README.md
 ├── build
-│   ├── doctrees
-│   └── html
 ├── requirements.txt
-└── source                      # 文档主体
+└── source
     ├── appendix
     ├── conf.py
     ├── doc_update_info
-    ├── examples                # 以 .zip 格式保存了一些例子, 由于git pages的限制, 在线文档不支持点击下载操作
-    ├── faq
     ├── index.rst
     ├── media
+    ├── other_tools
     ├── pulsar2
     ├── user_guides_advanced
     ├── user_guides_config
-    ├── user_guides_quick
-    └── user_guides_runtime
+    └── user_guides_quick
 ```
 
 ### 2.2 编译
