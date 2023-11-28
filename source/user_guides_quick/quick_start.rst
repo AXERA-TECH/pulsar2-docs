@@ -508,7 +508,7 @@ log 参考信息
 开发板获取
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- `爱芯派Pro(M4N-Dock) <https://sipeed.com/m4ndock>`_
+- `爱芯派Pro(M4N-Dock) <https://wiki.sipeed.com/m4ndock>`_
 - 开发板 EMMC 预装了 Debian 系统，账号密码都是 root，上电即可使用。如遇到 ssh-server 拒绝 root 用户登录，建议创建普通用户并加入 sudo 组
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
