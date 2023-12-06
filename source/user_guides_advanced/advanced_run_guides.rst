@@ -27,105 +27,117 @@ pulsar2 run
 ``pulsar2 run -h`` 可显示详细命令行参数:
 
 .. code-block:: python
-  :name: input_conf_items
-  :linenos:
+    :name: input_conf_items
+    :linenos:
 
-  root@xxx:/data# pulsar2 run --help
-  usage: pulsar2 run [-h] [--config] [--model] [--input_dir] [--output_dir]
-                     [--list] [--random_input] [--batch_size] [--enable_crun]
-                     [--enable_perlayer_output]
-  
-  optional arguments:
-    -h, --help            show this help message and exit
-    --config              config file path, supported formats: json / yaml /
-                          toml / prototxt. type: string. required: false.
-                          default:.
-    --model               run model path. type: string. required: true.
-    --input_dir           model input data in this directory. type: string.
-                          required: true. default:.
-    --output_dir          model output data directory. type: string. required:
-                          true. default:.
-    --list                list file path. type: string. required: true.
-                          default:.
-    --random_input        random input data. type: bool. required: false.
-                          default: false.
-    --batch_size          batch size to be used in dynamic inference mode. type:
-                          int. required: false. defalult: 0.
-    --enable_crun         enable crun mode. type: bool. required: false.
-                          default: false.
-    --enable_perlayer_output 
-                          enable dump perlayer output. type: bool. required:
-                          false. default: false.
+    usage: main.py run [-h] [--config] [--model] [--input_dir] [--output_dir]
+                       [--list] [--random_input] [--batch_size]
+                       [--enable_perlayer_output] [--mode] [--target_hardware]
+    
+    optional arguments:
+      -h, --help            show this help message and exit
+      --config              config file path, supported formats: json / yaml /
+                            toml / prototxt. type: string. required: false.
+                            default:.
+      --model               run model path, support ONNX, QuantAxModel and
+                            CompiledAxmodel. type: string. required: true.
+      --input_dir           model input data in this directory. type: string.
+                            required: true. default:.
+      --output_dir          model output data directory. type: string. required:
+                            true. default:.
+      --list                list file path. type: string. required: true.
+                            default:.
+      --random_input        random input data. type: bool. required: false.
+                            default: false.
+      --batch_size          batch size to be used in dynamic inference mode, only
+                            work for CompiledAxModel. type: int. required: false.
+                            defalult: 0.
+      --enable_perlayer_output 
+                            enable dump perlayer output. type: bool. required:
+                            false. default: false.
+      --mode                run mode, only work for QuantAxModel. type: enum.
+                            required: false. default: Reference. option:
+                            Reference, NPUBackend.
+      --target_hardware     target hardware, only work for QuantAxModel. type:
+                            enum. required: false. default: AX650. option: AX650,
+                            AX620E, M76H.
 
 .. data:: pulsar2 run 参数解释
   
-  --model
+    --model
 
-    - 数据类型：string
-    - 是否必选：是
-    - 描述：推理仿真的模型路径，模型支持 ``QuantAXModel`` 或者 ``AXModel`` 格式
+        - 数据类型：string
+        - 是否必选：是
+        - 描述：推理仿真的模型路径，模型支持 ``ONNX``, ``QuantAXModel`` 或者 ``AXModel`` 格式
 
-  --input_dir
+    --input_dir
 
-    - 数据类型：string
-    - 是否必选：是
-    - 描述：模型仿真输入数据文件所在的目录
+        - 数据类型：string
+        - 是否必选：是
+        - 描述：模型仿真输入数据文件所在的目录。
 
-  --output_dir
-  
-    - 数据类型：string
-    - 是否必选：是
-    - 描述：模型仿真输出数据文件所在的目录
-
-  --list
-  
-    - 数据类型：string
-    - 是否必选：否
-    - 默认值：""
-    - 描述：若未指定，则直接从 ``input_dir`` 中读取仿真输入数据，仿真结果直接写到 ``output_dir`` 中。若指定了 list 文件路径，则文件中的每一行代表一次仿真，会在 ``input_dir`` / ``output_dir`` 下寻找以行内容命名的子目录，分别用于读取仿真输入和写出仿真结果。例如：当 ``list`` 指定的文件中有一行内容为 0，仿真输入数据文件在 ``input_dir/0`` 目录下，仿真结果在 ``output_dir/0`` 目录下。
-
-  --random_input
-  
-    - 数据类型：bool
-    - 是否必选：否
-    - 默认值：false
-    - 描述：是否在 ``input_dir`` 中生成随机输入用于后续的仿真。
-
-  .. attention::
-  
-    仿真输入输出数据文件的命名方法。
-  
-    .. code-block:: python
-      :linenos:
+    --output_dir
     
-      import re
+        - 数据类型：string
+        - 是否必选：是
+        - 描述：模型仿真输出数据文件所在的目录。
+
+    --list
     
-      # 假设变量 name 代表模型输入名称
-      escaped_name = re.sub(r"[^a-zA-Z0-9_-]", "_", name)
-      file_name = escaped_name + ".bin"
+        - 数据类型：string
+        - 是否必选：否
+        - 默认值：""
+        - 描述：若未指定，则直接从 ``input_dir`` 中读取仿真输入数据，仿真结果直接写到 ``output_dir`` 中。若指定了 list 文件路径，则文件中的每一行代表一次仿真，会在 ``input_dir`` / ``output_dir`` 下寻找以行内容命名的子目录，分别用于读取仿真输入和写出仿真结果。例如：当 ``list`` 指定的文件中有一行内容为 0，仿真输入数据文件在 ``input_dir/0`` 目录下，仿真结果在 ``output_dir/0`` 目录下。
 
-  --batch_size
-  
-    - 数据类型：int
-    - 是否必选：否
-    - 默认值：0
-    - 描述：多 batch 仿真大小。
-        - 当输入模型是静态多 batch 编译出的模型时，循环运行 batch_size 次。
-        - 当输入模型是动态多 batch 编译出的模型时，会根据模型中包含的 batch 组合以及 batch_size 自动计算出仿真过程。
+    --random_input
+    
+        - 数据类型：bool
+        - 是否必选：否
+        - 默认值：false
+        - 描述：是否在 ``input_dir`` 中生成随机输入用于后续的仿真。
 
-  --enable_crun
-  
-    - 数据类型：bool
-    - 是否必选：否
-    - 默认值：false
-    - 描述：输入模型为 QuantAxmodel 类型时，使用与硬件比特对齐的方式进行仿真。
+    .. attention::
+    
+        仿真输入输出数据文件的命名方法。
+    
+        .. code-block:: python
+            :linenos:
+        
+            import re
+        
+            # 假设变量 name 代表模型输入名称
+            escaped_name = re.sub(r"[^a-zA-Z0-9_-]", "_", name)
+            file_name = escaped_name + ".bin"
 
-  --enable_perlayer_output
-  
-    - 数据类型：bool
-    - 是否必选：否
-    - 默认值：false
-    - 描述：仿真时，将中间层的输出也导出到输出目录。
+    --batch_size
+    
+        - 数据类型：int
+        - 是否必选：否
+        - 默认值：0
+        - 描述：多 batch 仿真大小，仅支持 ``CompiledAxmodel``。
+            - 当输入模型是非多 batch 编译出的模型时，循环运行 batch_size 次。
+            - 当输入模型是多 batch 编译出的模型时，会根据模型中包含的 batch 组合以及 batch_size 自动计算出仿真过程。
+
+    --enable_perlayer_output
+    
+        - 数据类型：bool
+        - 是否必选：否
+        - 默认值：false
+        - 描述：仿真时，将中间层的输出保存到输出目录。
+
+    --mode
+    
+        - 数据类型：enum
+        - 是否必选：否
+        - 默认值：Reference
+        - 描述：AX 算子的运行模式，仅支持 ``QuantAxModel``。可选：Reference / NPUBackend。
+
+    --target_hardware
+    
+        - 数据类型：enum
+        - 是否必选：否
+        - 默认值：AX650
+        - 描述：运行 AX 算子的目标后端实现，仅支持 ``QuantAxModel``。当 ``mode`` 为 ``NPUBackend`` 时生效。
 
 ~~~~~~~~~~~~~~~~~~~~~
 pulsar2-run-helper
@@ -143,60 +155,60 @@ pulsar2-run-helper
 
 .. code-block:: shell
 
-  root@xxx:/data/pulsar2-run-helper# tree -L 2
-  .
-  ├── cli_classification.py     # 分类任务的数据处理参考脚本 
-  ├── cli_detection.py          # 检测任务的数据处理参考脚本
-  ├── models
-  │   ├── mobilenetv2.axmodel   # 由 pulsar2 build 生成的 axmodel
-  │   └── yolov5s.axmodel
-  ├── pulsar2_run_helper
-  │   ├── __init__.py
-  │   ├── pipeline
-  │   ├── postprocessing.py
-  │   ├── preprocessing.py
-  │   ├── utils
-  │   └── yolort
-  ├── pyproject.toml
-  ├── README.md
-  ├── requirements.txt
-  ├── setup.cfg
-  ├── sim_images                # 仿真运行的图片
-  │   ├── cat.jpg
-  │   └── dog.jpg
-  ├── sim_inputs                # 输入数据
-  ├── sim_inputs
-  │   ├── 0
-  │   │   └── input.bin
-  │   └── input.bin
-  └── sim_outputs
-      ├── 0
-      │   └── output.bin
-      └── output.bin
+    root@xxx:/data/pulsar2-run-helper# tree -L 2
+    .
+    ├── cli_classification.py     # 分类任务的数据处理参考脚本 
+    ├── cli_detection.py          # 检测任务的数据处理参考脚本
+    ├── models
+    │   ├── mobilenetv2.axmodel   # 由 pulsar2 build 生成的 axmodel
+    │   └── yolov5s.axmodel
+    ├── pulsar2_run_helper
+    │   ├── __init__.py
+    │   ├── pipeline
+    │   ├── postprocessing.py
+    │   ├── preprocessing.py
+    │   ├── utils
+    │   └── yolort
+    ├── pyproject.toml
+    ├── README.md
+    ├── requirements.txt
+    ├── setup.cfg
+    ├── sim_images                # 仿真运行的图片
+    │   ├── cat.jpg
+    │   └── dog.jpg
+    ├── sim_inputs                # 输入数据
+    ├── sim_inputs
+    │   ├── 0
+    │   │   └── input.bin
+    │   └── input.bin
+    └── sim_outputs
+        ├── 0
+        │   └── output.bin
+        └── output.bin
 
 
 **cli_classification** 参数说明
 
 .. code-block:: shell
 
-  root@xxx:/data# python3 pulsar2-run-helper/cli_classification.py -h
-  usage: CLI tools for pre-processing and post-processing. [-h] [--image_path IMAGE_PATH] --axmodel_path AXMODEL_PATH --intermediate_path INTERMEDIATE_PATH
-                                                          [--output_path OUTPUT_PATH] [--crop_size CROP_SIZE] [--pre_processing] [--post_processing]
+    root@xxx:/data# python3 pulsar2-run-helper/cli_classification.py -h
+    usage: CLI tools for pre-processing and post-processing. [-h] [--image_path IMAGE_PATH] --axmodel_path AXMODEL_PATH --intermediate_path INTERMEDIATE_PATH
+                                                            [--output_path OUTPUT_PATH] [--crop_size CROP_SIZE] [--pre_processing] [--post_processing]
 
-  optional arguments:
-    -h, --help            show this help message and exit
-    --image_path IMAGE_PATH
-                          The path of image file.
-    --axmodel_path AXMODEL_PATH
-                          The path of compiled axmodel.
-    --intermediate_path INTERMEDIATE_PATH
-                          The path of intermediate data bin.
-    --output_path OUTPUT_PATH
-                          The path of output files.
-    --crop_size CROP_SIZE
-                          Image size for croping (default: 224).
-    --pre_processing      Do pre processing.
-    --post_processing     Do post processing.
+    optional arguments:
+      -h, --help            show this help message and exit
+      --image_path IMAGE_PATH
+                            The path of image file.
+      --axmodel_path AXMODEL_PATH
+                            The path of compiled axmodel.
+      --intermediate_path INTERMEDIATE_PATH
+                            The path of intermediate data bin.
+      --output_path OUTPUT_PATH
+                            The path of output files.
+      --crop_size CROP_SIZE
+                            Image size for croping (default: 224).
+      --pre_processing      Do pre processing.
+      --post_processing     Do post processing.
 
 **cli_detection** 参数说明
 

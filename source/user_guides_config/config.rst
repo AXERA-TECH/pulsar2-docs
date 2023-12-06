@@ -39,7 +39,7 @@
       "target_hardware": "AX650",
       // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E, npu mode can be NPU1 / NPU2. type: enum. required: false. default: NPU1.
       "npu_mode": "NPU1",
-      // change model input shape, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
+      // modify model input shape, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
       "input_shapes": "input:1x1x28x28",
       "onnx_opt": {
         // disable onnx optimization. type: bool. required: false. default: false.
@@ -56,7 +56,7 @@
           {
             // input tensor name in origin model. "DEFAULT" means input config for all input tensors. type: string. required: true.
             "tensor_name": "input",
-            // quantize calibration dataset archive file path. type: string. required: false. limitation: tar, tar.gz, zip.
+            // quantize calibration dataset archive file path. type: string. required: true. limitation: tar, tar.gz, zip.
             "calibration_dataset": "/path/to/dataset",
             // quantize calibration data format. type: enum. required: false. default: Image. option: Image, Numpy, Binary.
             "calibration_format": "Image",
@@ -73,13 +73,23 @@
             // set layer quantize precision. type: string. required: must choose between `layer_name` and `op_type`. default: .
             "layer_name": "Conv_0",
             // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
-            "data_type": "U8"
+            "data_type": "U8",
+            // quantize data type for Conv. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
+            "output_data_type": "U8"
           },
           {
             // set quantize precision by operator type. type: string. required: must choose between `layer_name` and `op_type`. default: .
             "op_type": "MaxPool",
             // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
             "data_type": "U8"
+          },
+          {
+            // start tensor names of subgraph quantization config. type: string array. required: false. default: [].
+            "start_tensor_names": ["13"],
+            // end tensor names of subgraph quantization config. type: string array. required: false. default: [].
+            "end_tensor_names": ["15"],
+            // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
+            "data_type": "U16"
           }
         ],
         // quantize calibration method. type: enum. required: false. default: MinMax. option: MinMax, Percentile, MSE.
@@ -90,12 +100,18 @@
         "precision_analysis_method": "PerLayer",
         // precision analysis mode. type: enum. required: false. default: Reference. option: Reference, NPUBackend.
         "precision_analysis_mode": "Reference",
+        // input sample data dir for precision analysis. type: string. required: false. default: .
+        "input_sample_dir": "",
         // enable highest mix precision quantization. type: bool. required: false. default: false.
         "highest_mix_precision": false,
         // conv bias data type. type: enum. required: false. default: S32. option: S32, FP32.
         "conv_bias_data_type": "S32",
+        // LayerNormalization scale data type. type: enum. required: false. default: FP32. option: FP32, S32, U32.
+        "ln_scale_data_type": "FP32",
         // refine weight threshold, should be a legal float number, like 1e-6. -1 means disable this feature. type: float. required: false. default: 1e-6. limitation: 0 or less than 0.0001.
         "refine_weight_threshold": 1e-6,
+        // enalbe smooth quant strategy for conv 1x1. type: bool. required: false. default: false.
+        "enable_smooth_quant": false,
         // tranformer opt level. type: int. required: false. default: 0. limitation: 0~2.
         "transformer_opt_level": 0
       },
@@ -137,10 +153,8 @@
           "name": "fc2.bias",
           // const tensor data array. type: list of double. required: false.
           "data": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-          // const tensor data file path. type: string. required: false.
-          "data_path": "replaced_data_file_path",
-          // const tensor data file format. type: enum. required: true if data_path is not empty. option: Numpy, Binary.
-          "data_format": "Numpy"
+          // const tensor data file path, support .bin / .npy / .txt. type: string. required: false.
+          "data_path": "replaced_data_file_path"
         }
       ],
       "quant_op_processors": [
@@ -169,7 +183,9 @@
         // compiler check level, 0: no check; 1: simulate compile result; 2: simulate and check compile result (for debug). type: int. required: false. default: 0.
         "check": 0,
         // compiler debug level. type: int. required: false. default: 0.
-        "debug": 0
+        "debug": 0,
+        // input sample data dir for compiler check. type: string. required: false. default: .
+        "input_sample_dir": ""
       }
     }
 
@@ -194,13 +210,13 @@
 
 - 精度分析计算方法，``precision_analysis_mode`` 字段。
 
-  - ``Reference`` 可以运行编译器支持的全部模型（支持包含 CPU 及 NPU 子图的模型），但是计算结果相比于最终上板结果会有少量误差（基本上差距在正负 1 内，且无系统性误差）。
-  - ``NPUBackend`` 可以运行仅包含 NPU 子图的模型，但是计算结果与上板结果比特对齐。
+    - ``Reference`` 可以运行编译器支持的全部模型（支持包含 CPU 及 NPU 子图的模型），但是计算结果相比于最终上板结果会有少量误差（基本上差距在正负 1 内，且无系统性误差）。
+    - ``NPUBackend`` 可以运行仅包含 NPU 子图的模型，但是计算结果与上板结果比特对齐。
 
 - 精度分析方法，``precision_analysis_method`` 字段。
 
-  - ``PerLayer`` 意味着每一层都采用浮点模型对应的层输入，计算每一层的输出与浮点模型输出的相似度。
-  - ``EndToEnd`` 代表首层采用浮点模型输入，然后进行完整模型的仿真，计算最终输出结果与浮点模型输出的相似度。
+    - ``PerLayer`` 意味着每一层都采用浮点模型对应的层输入，计算每一层的输出与浮点模型输出的相似度。
+    - ``EndToEnd`` 代表首层采用浮点模型输入，然后进行完整模型的仿真，计算最终输出结果与浮点模型输出的相似度。
 
 ------------------------------------
 预处理、后处理参数说明
@@ -208,25 +224,25 @@
 
 - ``input_processors`` / ``output_processors`` 配置说明
 
-  - ``tensor_name`` 需要根据模型的实际输入/输出节点名称进行设置。
-  - ``tensor_name`` 可以设置为 ``DEFAULT`` 代表配置应用于全部输入或者输出。
-  - 前缀为 ``tensor_`` 的参数代表原始模型中的输入输出属性。
-  - 前缀为 ``src_`` 的参数代表着运行时实际的输入输出属性。
-  - 工具链会根据用户的配置自动添加算子，以完成运行时输入输出与原始模型输入输出之间的转换。
+    - ``tensor_name`` 需要根据模型的实际输入/输出节点名称进行设置。
+    - ``tensor_name`` 可以设置为 ``DEFAULT`` 代表配置应用于全部输入或者输出。
+    - 前缀为 ``tensor_`` 的参数代表原始模型中的输入输出属性。
+    - 前缀为 ``src_`` 的参数代表着运行时实际的输入输出属性。
+    - 工具链会根据用户的配置自动添加算子，以完成运行时输入输出与原始模型输入输出之间的转换。
 
-    - 例如：当 ``tensor_layout`` 为 ``NCHW``，且 ``src_layout`` 为 ``NHWC`` 时，工具链会在原始模型输入之前自动添加一个 ``perm`` 属性为 [0, 3, 1, 2] 的 ``Transpose`` 算子。
+        - 例如：当 ``tensor_layout`` 为 ``NCHW``，且 ``src_layout`` 为 ``NHWC`` 时，工具链会在原始模型输入之前自动添加一个 ``perm`` 属性为 [0, 3, 1, 2] 的 ``Transpose`` 算子。
 
 - 色彩空间转换预处理
 
-  - 当 ``csc_mode`` 为 ``LimitedRange`` 或者 ``FullRange`` 且 ``src_format`` 为 ``YUV 色彩空间`` 时，工具链会根据内置的模板参数，在原始的输入前添加一个色彩空间转换算子，此时 ``csc_mat`` 配置无效；
-  - 当 ``csc_mode`` 为 ``Matrix`` 且 ``src_format`` 为 ``YUV 色彩空间`` 时，工具链会根据用户配置的 ``csc_mat`` 矩阵，在原始的输入前添加一个色彩空间转换算子，以实现在运行时将输入的 ``YUV`` 数据转换为模型计算所需的 ``BGR`` 或者 ``RGB`` 数据；
-  - 当 ``csc_mode`` 为 ``Matrix`` 时，计算流程为，先将 ``YUV / YVU 色彩空间`` 输入统一转换为 ``YUV444`` 格式，然后再乘以 ``csc_mat`` 系数矩阵。
-  - 当 ``csc_mode`` 为 ``Matrix`` 时，``bias`` (csc_mat[3] / csc_mat[7] / csc_mat[11]) 数值范围为 (-9, 8)。其余参数 (csc_mat[0-2] / csc_mat[4-6] / csc_mat[8-10]) 数值范围为 (-524289, 524288)。
+    - 当 ``csc_mode`` 为 ``LimitedRange`` 或者 ``FullRange`` 且 ``src_format`` 为 ``YUV 色彩空间`` 时，工具链会根据内置的模板参数，在原始的输入前添加一个色彩空间转换算子，此时 ``csc_mat`` 配置无效；
+    - 当 ``csc_mode`` 为 ``Matrix`` 且 ``src_format`` 为 ``YUV 色彩空间`` 时，工具链会根据用户配置的 ``csc_mat`` 矩阵，在原始的输入前添加一个色彩空间转换算子，以实现在运行时将输入的 ``YUV`` 数据转换为模型计算所需的 ``BGR`` 或者 ``RGB`` 数据；
+    - 当 ``csc_mode`` 为 ``Matrix`` 时，计算流程为，先将 ``YUV / YVU 色彩空间`` 输入统一转换为 ``YUV444`` 格式，然后再乘以 ``csc_mat`` 系数矩阵。
+    - 当 ``csc_mode`` 为 ``Matrix`` 时，``bias`` (csc_mat[3] / csc_mat[7] / csc_mat[11]) 数值范围为 (-9, 8)。其余参数 (csc_mat[0-2] / csc_mat[4-6] / csc_mat[8-10]) 数值范围为 (-524289, 524288)。
 
 - 归一化预处理
 
-  - ``input_processors`` 中的 ``mean`` / ``std`` 参数，默认为用户在量化配置中 ``calibration_mean`` / ``calibration_std`` 参数所配置的值。
-  - 如果用户希望在运行时采用不同的归一化参数，那么可以显示的配置 中的 ``mean`` / ``std`` 参数以覆盖默认值。
+    - ``input_processors`` 中的 ``mean`` / ``std`` 参数，默认为用户在量化配置中 ``calibration_mean`` / ``calibration_std`` 参数所配置的值。
+    - 如果用户希望在运行时采用不同的归一化参数，那么可以显示的配置 中的 ``mean`` / ``std`` 参数以覆盖默认值。
 
 ------------------------------------
 proto 配置定义
@@ -329,7 +345,7 @@ proto 配置定义
     message InputQuantConfig {
       // input tensor name in origin model. "DEFAULT" means input config for all input tensors. type: string. required: true.
       string tensor_name = 1;
-      // quantize calibration dataset archive file path. type: string. required: false. limitation: tar, tar.gz, zip.
+      // quantize calibration dataset archive file path. type: string. required: true. limitation: tar, tar.gz, zip.
       string calibration_dataset = 2;
       // quantize calibration data format. type: enum. required: false. default: Image. option: Image, Numpy, Binary.
       DataFormat calibration_format = 3;
@@ -344,11 +360,20 @@ proto 配置定义
     message LayerConfig {
       // set layer quantize precision. type: string. required: must choose between `layer_name` and `op_type`. default: .
       string layer_name = 1;
+    
       // set quantize precision by operator type. type: string. required: must choose between `layer_name` and `op_type`. default: .
       string op_type = 2;
     
+      // start tensor names of subgraph quantization config. type: string array. required: false. default: [].
+      repeated string start_tensor_names = 3;
+      // end tensor names of subgraph quantization config. type: string array. required: false. default: [].
+      repeated string end_tensor_names = 4;
+    
       // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
-      common.DataType data_type = 3;
+      common.DataType data_type = 5;
+    
+      // quantize data type for Conv. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
+      common.DataType output_data_type = 10;
     }
     
     message OnnxOptimizeOption {
@@ -380,8 +405,14 @@ proto 配置定义
       common.DataType conv_bias_data_type = 8;
       // refine weight threshold, should be a legal float number, like 1e-6. -1 means disable this feature. type: float. required: false. default: 1e-6. limitation: 0 or less than 0.0001.
       float refine_weight_threshold = 9;
+      // enalbe smooth quant strategy for conv 1x1. type: bool. required: false. default: false.
+      bool enable_smooth_quant = 10;
       // tranformer opt level. type: int. required: false. default: 0. limitation: 0~2.
       int32 transformer_opt_level = 20;
+      // input sample data dir for precision analysis. type: string. required: false. default: .
+      string input_sample_dir = 30;
+      // LayerNormalization scale data type. type: enum. required: false. default: FP32. option: FP32, S32, U32.
+      common.DataType ln_scale_data_type = 40;
     }
     
     message InputProcessor {
@@ -435,10 +466,8 @@ proto 配置定义
       // const tensor data array. type: list of double. required: false.
       repeated double data = 2;
     
-      // const tensor data file path. type: string. required: false.
+      // const tensor data file path, support .bin / .npy / .txt. type: string. required: false.
       string data_path = 3;
-      // const tensor data file format. type: enum. required: true if data_path is not empty. option: Numpy, Binary.
-      DataFormat data_format = 4;
     }
     
     message CompilerConfig {
@@ -449,9 +478,11 @@ proto 配置定义
       // disable ir fix, only work in multi-batch compilation. type: bool. required: false. default: false.
       bool disable_ir_fix = 3;
       // compiler check level, 0: no check; 1: simulate compile result; 2: simulate and check compile result (for debug). type: int. required: false. default: 0.
-      int32 check = 4;
+      int32 check = 5;
       // compiler debug level. type: int. required: false. default: 0.
-      int32 debug = 5;
+      int32 debug = 6;
+      // input sample data dir for compiler check. type: string. required: false. default: .
+      string input_sample_dir = 30;
     }
     
     message BuildConfig {
@@ -472,7 +503,7 @@ proto 配置定义
       // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E, npu mode can be NPU1 / NPU2. type: enum. required: false. default: NPU1.
       common.NPUMode npu_mode = 7;
     
-      // change model input shape, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
+      // modify model input shape, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
       string input_shapes = 8;
     
       OnnxOptimizeOption onnx_opt = 10;

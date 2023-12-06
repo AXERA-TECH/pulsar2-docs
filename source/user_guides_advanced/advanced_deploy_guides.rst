@@ -25,13 +25,13 @@ ax-samples 简介
 
 - 分类模型
 
-  - MobileNetv1
-  - MobileNetv2
-  - Others
+    - MobileNetv1
+    - MobileNetv2
+    - Others
 
 - 检测模型
 
-  - YOLOv5s
+    - YOLOv5s
   
 已验证硬件平台
 
@@ -43,59 +43,59 @@ ax-samples 简介
 
 .. code-block:: bash
 
-  $ tree -L 3
-  .
-  ├── 3rdparty      # ax-samples 编译依赖的第三方库      
-  │   ├── ax620e
-  │   │   ├── engine
-  │   │   ├── interpreter
-  │   │   └── libsys
-  │   ├── ax650
-  │   │   ├── ax-engine
-  │   │   ├── interpreter
-  │   │   └── libsys
-  │   ├── libopencv-4.5.5-aarch64         # aarch64 版本的 OpenCV, 用于打开测试图片，绘制执行结果
-  │   │   ├── bin
-  │   │   ├── include
-  │   │   ├── lib
-  │   │   └── share
-  │   ├── libprotobuf-3.19.4-aarch644      # axmodel 解析需要
-  │   │   ├── include
-  │   │   └── lib
-  │   └── protoc-3.19.4-aarch64           # axmodel 解析需要
-  │       └── protoc
-  ├── CMakeLists.txt
-  ├── cmake                           # cmake 工程创建模块
-  │   ├── ax620e.cmake
-  │   ├── ax650.cmake
-  │   ├── check.cmake
-  │   └── summary.cmake
-  ├── examples                        # samples 
-  │   ├── CMakeLists.txt
-  │   ├── ax620e
-  │   │   ├── ax_classification_steps.cc
-  │   │   ├── ax_yolov5s_steps.cc
-  │   │   └── middleware
-  │   ├── ax650
-  │   │   ├── ax_classification_steps.cc  # classification
-  │   │   ├── ax_yolov5s_steps.cc         # yolov5s
-  │   │   └── middleware
-  │   ├── postprocess                     # 后处理模块
-  │   │   ├── detection.hpp
-  │   │   ├── pose.hpp
-  │   │   ├── score.hpp
-  │   │   ├── topk.hpp
-  │   │   └── yolo.hpp
-  │   ├── preprocess                      # 预处理模块
-  │   │   └── common.hpp
-  │   └── utilities
-  │       ├── args.hpp
-  │       ├── cmdline.hpp
-  │       ├── file.hpp
-  │       ├── split.hpp
-  │       └── timer.hpp
-  └── toolchains
-      └── aarch64-linux-gnu.toolchain.cmake        
+    $ tree -L 3
+    .
+    ├── 3rdparty      # ax-samples 编译依赖的第三方库      
+    │   ├── ax620e
+    │   │   ├── engine
+    │   │   ├── interpreter
+    │   │   └── libsys
+    │   ├── ax650
+    │   │   ├── ax-engine
+    │   │   ├── interpreter
+    │   │   └── libsys
+    │   ├── libopencv-4.5.5-aarch64         # aarch64 版本的 OpenCV, 用于打开测试图片，绘制执行结果
+    │   │   ├── bin
+    │   │   ├── include
+    │   │   ├── lib
+    │   │   └── share
+    │   ├── libprotobuf-3.19.4-aarch644      # axmodel 解析需要
+    │   │   ├── include
+    │   │   └── lib
+    │   └── protoc-3.19.4-aarch64           # axmodel 解析需要
+    │       └── protoc
+    ├── CMakeLists.txt
+    ├── cmake                           # cmake 工程创建模块
+    │   ├── ax620e.cmake
+    │   ├── ax650.cmake
+    │   ├── check.cmake
+    │   └── summary.cmake
+    ├── examples                        # samples 
+    │   ├── CMakeLists.txt
+    │   ├── ax620e
+    │   │   ├── ax_classification_steps.cc
+    │   │   ├── ax_yolov5s_steps.cc
+    │   │   └── middleware
+    │   ├── ax650
+    │   │   ├── ax_classification_steps.cc  # classification
+    │   │   ├── ax_yolov5s_steps.cc         # yolov5s
+    │   │   └── middleware
+    │   ├── postprocess                     # 后处理模块
+    │   │   ├── detection.hpp
+    │   │   ├── pose.hpp
+    │   │   ├── score.hpp
+    │   │   ├── topk.hpp
+    │   │   └── yolo.hpp
+    │   ├── preprocess                      # 预处理模块
+    │   │   └── common.hpp
+    │   └── utilities
+    │       ├── args.hpp
+    │       ├── cmdline.hpp
+    │       ├── file.hpp
+    │       ├── split.hpp
+    │       └── timer.hpp
+    └── toolchains
+        └── aarch64-linux-gnu.toolchain.cmake        
 
 
 --------------------
@@ -117,13 +117,13 @@ ax-samples 简介
 
 .. code-block:: bash
   
-  pip install cmake
+    pip install cmake
 
 如果 **非虚拟环境** , 且系统为 ``Ubuntu``, 可以通过
 
 .. code-block:: bash
 
-  sudo apt-get install cmake
+    sudo apt-get install cmake
 
 .. _`cmake 官网`: https://cmake.org/download/
 
@@ -133,7 +133,7 @@ ax-samples 简介
 
 - step 2: 进入安装文件夹, 依次执行
 
-  .. code-block:: bash
+.. code-block:: bash
     
     ./configure
     make -j4  # 4代表电脑核数, 可以省略
@@ -141,7 +141,7 @@ ax-samples 简介
 
 - step 3: ``cmake`` 安装完毕后, 通过以下命令查看版本信息
 
-  .. code-block:: bash
+.. code-block:: bash
 
     cmake --version
 
@@ -156,21 +156,21 @@ ax-samples 简介
 
 .. code-block:: bash
 
-  # 新建文件夹并移动压缩包
-  mkdir -p ~/usr/local/lib
-  mv gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz ~/usr/local/lib
-
-  # 解压
-  cd ~/usr/local/lib
-  xz -d gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz
-  tar -xvf gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar
-
-  # 配置环境变量
-  vim ~/.bashrc
-  export PATH=$PATH:~/usr/local/lib/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin
-
-  # 环境生效
-  source ~/.bashrc
+    # 新建文件夹并移动压缩包
+    mkdir -p ~/usr/local/lib
+    mv gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz ~/usr/local/lib
+    
+    # 解压
+    cd ~/usr/local/lib
+    xz -d gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar.xz
+    tar -xvf gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu.tar
+    
+    # 配置环境变量
+    vim ~/.bashrc
+    export PATH=$PATH:~/usr/local/lib/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin
+    
+    # 环境生效
+    source ~/.bashrc
 
 ~~~~~~~~~~~~~~~~~~~~
 交叉编译
@@ -180,7 +180,7 @@ ax-samples 简介
 
 .. code-block:: bash
 
-  $ unzip ax-samples.zip
+    $ unzip ax-samples.zip
 
 **源码编译**
 
@@ -190,29 +190,29 @@ ax-samples 简介
 
 .. code-block:: bash
 
-  $ mkdir build
-  $ cd build
-  $ cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-linux-gnu.toolchain.cmake ..
-  $ make install
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-none-linux-gnu.toolchain.cmake ..
+    $ make install
 
 **AX620E**
 
 .. code-block:: bash
 
-  $ mkdir build
-  $ cd build
-  $ cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-linux-gnu.toolchain.cmake -DAXERA_TARGET_CHIP=ax620e ..
-  $ make install
+    $ mkdir build
+    $ cd build
+    $ cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/aarch64-none-linux-gnu.toolchain.cmake -DAX_TARGET_CHIP=ax620e ..
+    $ make install
 
 编译完成后，生成的可执行示例存放在 ``ax-samples/build/install/bin/`` 路径下：
 
 .. code-block:: bash
 
-  /ax-samples/build$ tree install
-  install
-  └── bin
-      ├── ax_classification
-      └── ax_yolov5s
+    /ax-samples/build$ tree install
+    install
+    └── bin
+        ├── ax_classification
+        └── ax_yolov5s
 
 --------------------
 运行示例
@@ -228,14 +228,14 @@ ax-samples 简介
 
 .. code-block:: bash
   
-  /root/sample # ls -l
-  total 26628
-  -rwxrw-r--    1 1000     1000       5722408 Nov 28 11:09 ax_classification
-  -rwxrw-r--    1 1000     1000       5930800 Nov 28 11:09 ax_yolov5s
-  -rw-rw-r--    1 1000     1000        140391 Nov  4 16:44 cat.jpg
-  -rw-------    1 1000     root        163759 Oct 17 17:18 dog.jpg
-  -rw-rw-r--    1 1000     1000       4632857 Nov 28 11:09 mobilenetv2.axmodel
-  -rw-rw-r--    1 1000     1000       7873709 Nov 28 11:09 yolov5s.axmodel
+    /root/sample # ls -l
+    total 26628
+    -rwxrw-r--    1 1000     1000       5722408 Nov 28 11:09 ax_classification
+    -rwxrw-r--    1 1000     1000       5930800 Nov 28 11:09 ax_yolov5s
+    -rw-rw-r--    1 1000     1000        140391 Nov  4 16:44 cat.jpg
+    -rw-------    1 1000     root        163759 Oct 17 17:18 dog.jpg
+    -rw-rw-r--    1 1000     1000       4632857 Nov 28 11:09 mobilenetv2.axmodel
+    -rw-rw-r--    1 1000     1000       7873709 Nov 28 11:09 yolov5s.axmodel
 
 如果提示板子空间不足, 可以通过文件夹挂载的方式解决.
 
@@ -243,7 +243,7 @@ ax-samples 简介
 
 .. hint::
 
-  由于板上空间有限, 测试时通常需要进行文件夹共享操作, 这个时候就需要将 ``ARM`` 开发板与主机之间进行共享. 这里仅以 ``MacOS`` 为例.
+    由于板上空间有限, 测试时通常需要进行文件夹共享操作, 这个时候就需要将 ``ARM`` 开发板与主机之间进行共享. 这里仅以 ``MacOS`` 为例.
 
 开发机挂载 ``ARM`` 开发板需要 ``NFS`` 服务, 而 ``MacOS`` 系统自带 ``NFS`` 服务, 只需要创建 ``/etc/exports`` 文件夹, ``nfsd`` 将自动启动并开始用于 ``exports``.
 
@@ -251,7 +251,7 @@ ax-samples 简介
 
 .. code-block:: shell
 
-  /path/your/sharing/directory -alldirs -maproot=root:wheel -rw -network xxx.xxx.xxx.xxx -mask 255.255.255.0
+    /path/your/sharing/directory -alldirs -maproot=root:wheel -rw -network xxx.xxx.xxx.xxx -mask 255.255.255.0
 
 参数释义
 
@@ -277,7 +277,7 @@ ax-samples 简介
 
 .. code-block:: bash
 
-  sudo nfsd restart
+    sudo nfsd restart
 
 如果配置成功, 可以使用
 
@@ -303,62 +303,51 @@ ax-samples 简介
 
 .. code-block:: bash
 
-  /root/sample # ./ax_classification -m mobilenetv2.axmodel -i cat.jpg --repeat 100
-  --------------------------------------
-  model file : mobilenetv2.axmodel
-  image file : cat.jpg
-  img_h, img_w : 224 224
-  --------------------------------------
-  [AX_SYS_LOG] AX_SYS_Log2ConsoleThread_Start
-  Engine creating handle is done.
-  Engine creating context is done.
-  Engine get io info is done.
-  Engine alloc io is done.
-  Engine push input is done.
-  --------------------------------------
-  topk cost time:0.10 ms
-  9.7735, 285
-  9.2452, 283
-  8.9811, 281
-  8.7169, 282
-  7.5283, 463
-  --------------------------------------
-  Repeat 100 times, avg time 0.78 ms, max_time 0.78 ms, min_time 0.77 ms
-  --------------------------------------
-  [AX_SYS_LOG] AX_Log2ConsoleRoutine terminated!!!
-  [AX_SYS_LOG] Waiting thread(281473600864432) to exit
-  [AX_SYS_LOG] join thread(281473600864432) ret:0
+    /root/sample # ./ax_classification -m mobilenetv2.axmodel -i cat.jpg --repeat 100
+    --------------------------------------
+    model file : mobilenetv2.axmodel
+    image file : cat.jpg
+    img_h, img_w : 224 224
+    --------------------------------------
+    Engine creating handle is done.
+    Engine creating context is done.
+    Engine get io info is done.
+    Engine alloc io is done.
+    Engine push input is done.
+    --------------------------------------
+    topk cost time:0.10 ms
+    9.7735, 285
+    9.2452, 283
+    8.9811, 281
+    8.7169, 282
+    7.5283, 463
+    --------------------------------------
+    Repeat 100 times, avg time 0.78 ms, max_time 0.78 ms, min_time 0.77 ms
+    --------------------------------------
 
 **检测模型**
 
 .. code-block:: bash
 
-  /root/sample # ./ax_yolov5s -m yolov5s.axmodel -i dog.jpg -r 100
-  --------------------------------------
-  model file : yolov5s.axmodel
-  image file : dog.jpg
-  img_h, img_w : 640 640
-  --------------------------------------
-  [Axera version]: libax_sys.so V1.9.0_20230406160728 Apr  6 2023 16:51:34 JK
-  [AX_SYS_LOG] AX_SYS_Log2ConsoleThread_Start
-  Engine creating handle is done.
-  Engine creating context is done.
-  Engine get io info is done.
-  Engine alloc io is done.
-  Engine push input is done.
-  --------------------------------------
-  post process cost time:1.66 ms
-  --------------------------------------
-  Repeat 100 times, avg time 7.67 ms, max_time 7.68 ms, min_time 7.67 ms
-  --------------------------------------
-  detection num: 4
-  16:  93%, [ 182,  291,  411,  721], dog
-  2:  72%, [ 626,  101,  919,  231], car
-  1:  60%, [ 212,  158,  760,  558], bicycle
-  7:  46%, [ 628,  101,  916,  232], truck
-  --------------------------------------
-  [AX_SYS_LOG] AX_Log2ConsoleRoutine terminated!!!
-  [AX_SYS_LOG] Waiting thread(281472993067328) to exit
-  [AX_SYS_LOG] join thread(281472993067328) ret:0
-  __sys_logctl_deinit!!!
-  --------------------------------------
+    /root/sample # ./ax_yolov5s -m yolov5s.axmodel -i dog.jpg -r 100
+    --------------------------------------
+    model file : yolov5s.axmodel
+    image file : dog.jpg
+    img_h, img_w : 640 640
+    --------------------------------------
+    Engine creating handle is done.
+    Engine creating context is done.
+    Engine get io info is done.
+    Engine alloc io is done.
+    Engine push input is done.
+    --------------------------------------
+    post process cost time:1.66 ms
+    --------------------------------------
+    Repeat 100 times, avg time 7.67 ms, max_time 7.68 ms, min_time 7.67 ms
+    --------------------------------------
+    detection num: 4
+    16:  93%, [ 182,  291,  411,  721], dog
+    2:  72%, [ 626,  101,  919,  231], car
+    1:  60%, [ 212,  158,  760,  558], bicycle
+    7:  46%, [ 628,  101,  916,  232], truck
+    --------------------------------------

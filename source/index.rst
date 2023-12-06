@@ -15,6 +15,7 @@ AXera Pulsar2 工具链指导手册
   doc_update_info/update_info.md
   pulsar2/introduction.rst
   user_guides_quick/quick_start.md
+  user_guides_quick/quick_start_ax620e.md
   user_guides_advanced/advanced_build_guides.rst
   user_guides_advanced/advanced_run_guides.rst
   user_guides_advanced/advanced_deploy_guides.rst
@@ -29,4 +30,5 @@ AXera Pulsar2 工具链指导手册
   :name: appendix
 
   appendix/op_support_list.rst
+  appendix/op_support_list_ax620e.rst
   appendix/precision_debug_guides.rst

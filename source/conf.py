@@ -25,7 +25,7 @@ copyright = '2023, AXera 爱芯元智'
 author = 'AXera-Tech'
 
 # The full version, including alpha/beta/rc tags
-release = 'V1.9'
+release = 'V2.3'
 
 # -- General configuration ---------------------------------------------------
 
