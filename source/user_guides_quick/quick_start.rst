@@ -110,7 +110,7 @@ Quick Start
 
 .. hint::
 
-    本章节后续内容 **《3.4.模型编译》**、 **《3.6.仿真运行》** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <https://github.com/AXERA-TECH/pulsar2-docs/releases/download/v1.9/quick_start_example.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
+    本章节后续内容 **《3.4.模型编译》**、 **《3.6.仿真运行》** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <https://github.com/xiguadong/assets/releases/download/v0.1/quick_start_example.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
 
 .. code-block:: shell
 
@@ -508,7 +508,8 @@ log 参考信息
 开发板获取
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- `爱芯派Pro(M4N-Dock) <https://sipeed.com/m4ndock>`_
+- `爱芯派Pro(M4N-Dock) <https://wiki.sipeed.com/m4ndock>`_
+- 开发板 EMMC 预装了 Debian 系统，账号密码都是 root，上电即可使用。如遇到 ssh-server 拒绝 root 用户登录，建议创建普通用户并加入 sudo 组
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 使用 ax_run_model 工具快速测试模型推理速度
