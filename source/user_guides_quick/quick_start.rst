@@ -54,7 +54,7 @@ Quick Start
 
 工具链获取途径：
 
-- `百度网盘 <https://pan.baidu.com/s/1_aeGILGZCAmFrWrRXhwgKg?pwd=pmj8>`_
+- `百度网盘 <https://pan.baidu.com/s/1lVo-HhuF4F4Q79vtMzDXew?pwd=pqo2>`_
 - `Google Drive <https://drive.google.com/file/d/1-NW7ExBXj5-nTha40iwYshjNJb74Zfer/view?usp=drive_link>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
