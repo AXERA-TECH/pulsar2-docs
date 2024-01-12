@@ -5,7 +5,6 @@ Quick Start(AX620E)
 **本章节适用于以下平台：**
 
 - AX630C
-- AX620AV200
 - AX620Q
 
 本章节针对将依次介绍:
@@ -60,7 +59,7 @@ Quick Start(AX620E)
 
 工具链获取途径：
 
-- `百度网盘 <https://pan.baidu.com/s/1lVo-HhuF4F4Q79vtMzDXew?pwd=pqo2>`_
+- `百度网盘 <https://pan.baidu.com/s/14qbZGOjfhIB10HH0BYylmQ?pwd=5m7t>`_
 - `Google Drive <https://drive.google.com/file/d/1-NW7ExBXj5-nTha40iwYshjNJb74Zfer/view?usp=drive_link>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
