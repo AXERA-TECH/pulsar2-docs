@@ -55,7 +55,7 @@ Quick Start
 工具链获取途径：
 
 - `百度网盘 <https://pan.baidu.com/s/14qbZGOjfhIB10HH0BYylmQ?pwd=5m7t>`_
-- `Google Drive <https://drive.google.com/file/d/1-NW7ExBXj5-nTha40iwYshjNJb74Zfer/view?usp=drive_link>`_
+- `Google Drive <https://drive.google.com/file/d/1-swyrBX2BTkA2goD_AjDafcCmX7UPXrb/view?usp=sharing>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 载入 Docker Image
