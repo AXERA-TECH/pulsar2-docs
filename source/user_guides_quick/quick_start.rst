@@ -50,12 +50,12 @@ Quick Start
 
 .. hint::
 
-   实际操作时，请务必将 ${version} 替换为对应的工具链版本号, 当前社区版本为 ``ax_pulsar2_2.4.tar.gz``
+   实际操作时，请务必将 ${version} 替换为对应的工具链版本号, 当前社区版本为 ``ax_pulsar2_2.5.tar.gz``
 
 工具链获取途径：
 
-- `百度网盘 <https://pan.baidu.com/s/14qbZGOjfhIB10HH0BYylmQ?pwd=5m7t>`_
-- `Google Drive <https://drive.google.com/file/d/1-swyrBX2BTkA2goD_AjDafcCmX7UPXrb/view?usp=sharing>`_
+- `百度网盘 <https://pan.baidu.com/s/1FazlPdW79wQWVY-Qn--qVQ?pwd=sbru>`_
+- `Google Drive <https://drive.google.com/drive/folders/1gJFkHw2gyW-7B9xTdpH_w72Ly2PQ7nsi?usp=sharing>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 载入 Docker Image
