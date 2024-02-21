@@ -115,7 +115,7 @@ Quick Start(AX620E)
 
 .. hint::
 
-    本章节后续内容 **《4.4.模型编译》**、 **《4.6.仿真运行》** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <https://github.com/AXERA-TECH/pulsar2-docs/releases/download/v1.9/demo_onboard.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
+    本章节后续内容 **《4.4.模型编译》**、 **《4.6.仿真运行》** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <https://github.com/xiguadong/assets/releases/download/v0.1/quick_start_example.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
 
 .. code-block:: shell
 
