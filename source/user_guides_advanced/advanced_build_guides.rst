@@ -27,117 +27,133 @@
   :name: pulsar_build_help
   :linenos:
 
-    usage: pulsar2 build [-h] [--config] [--input] [--output_dir] [--output_name]
-                         [--work_dir] [--model_type] [--target_hardware]
-                         [--npu_mode] [--input_shapes]
-                         [--onnx_opt.disable_onnx_optimization]
-                         [--onnx_opt.enable_onnxsim] [--onnx_opt.model_check]
-                         [--onnx_opt.disable_transformation_check]
-                         [--quant.calibration_method] [--quant.precision_analysis]
-                         [--quant.precision_analysis_method]
-                         [--quant.precision_analysis_mode]
-                         [--quant.highest_mix_precision]
-                         [--quant.conv_bias_data_type]
-                         [--quant.refine_weight_threshold]
-                         [--quant.enable_smooth_quant]
-                         [--quant.transformer_opt_level]
-                         [--quant.input_sample_dir] [--quant.ln_scale_data_type]
-                         [--compiler.static_batch_sizes [...]]
-                         [--compiler.max_dynamic_batch_size]
-                         [--compiler.disable_ir_fix] [--compiler.check]
-                         [--compiler.debug] [--compiler.input_sample_dir]
-    
-    optional arguments:
-      -h, --help            show this help message and exit
-      --config              config file path, supported formats: json / yaml /
-                            toml / prototxt. type: string. required: false.
-                            default:.
-      --input               input model file path. type: string. required: true.
-      --output_dir          axmodel output directory. type: string. required:
-                            true.
-      --output_name         rename output axmodel. type: string. required: false.
-                            default: compiled.axmodel.
-      --work_dir            temporary data output directory. type: string.
-                            required: false. default: same with ${output_dir}.
-      --model_type          input model type. type: enum. required: false.
-                            default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
-      --target_hardware     target hardware. type: enum. required: false. default:
-                            AX650. option: AX650, AX620E, M76H.
-      --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
-                            can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
-                            AX620E, npu mode can be NPU1 / NPU2. type: enum.
-                            required: false. default: NPU1.
-      --input_shapes        modify model input shape, this feature will take
-                            effect before the `input_processors` configuration.
-                            format: input1:1x3x224x224;input2:1x1x112x112. type:
-                            string. required: false. default: .
-      --onnx_opt.disable_onnx_optimization 
-                            disable onnx optimization. type: bool. required:
-                            false. default: false.
-      --onnx_opt.enable_onnxsim 
-                            enable onnx simplify by
-                            https://github.com/daquexian/onnx-simplifier. type:
-                            bool. required: false. default: false.
-      --onnx_opt.model_check 
-                            enable model check. type: bool. required: false.
-                            default: false.
-      --onnx_opt.disable_transformation_check 
-                            disable transformation check. type: bool. required:
-                            false. default: false.
-      --quant.calibration_method 
-                            quantize calibration method. type: enum. required:
-                            false. default: MinMax. option: MinMax, Percentile,
-                            MSE.
-      --quant.precision_analysis 
-                            enable quantization precision analysis. type: bool.
-                            required: false. default: false.
-      --quant.precision_analysis_method 
-                            precision analysis method. type: enum. required:
-                            false. default: PerLayer. option: PerLayer, EndToEnd.
-      --quant.precision_analysis_mode 
-                            precision analysis mode. type: enum. required: false.
-                            default: Reference. option: Reference, NPUBackend.
-      --quant.highest_mix_precision 
-                            enable highest mix precision quantization. type: bool.
-                            required: false. default: false.
-      --quant.conv_bias_data_type 
-                            conv bias data type. type: enum. required: false.
-                            default: S32. option: S32, FP32.
-      --quant.refine_weight_threshold 
-                            refine weight threshold, should be a legal float
-                            number, like 1e-6. -1 means disable this feature.
-                            type: float. required: false. default: 1e-6.
-                            limitation: 0 or less than 0.0001.
-      --quant.enable_smooth_quant 
-                            enalbe smooth quant strategy for conv 1x1. type: bool.
-                            required: false. default: false.
-      --quant.transformer_opt_level 
-                            tranformer opt level. type: int. required: false.
-                            default: 0. limitation: 0~2.
-      --quant.input_sample_dir 
-                            input sample data dir for precision analysis. type:
-                            string. required: false. default: .
-      --quant.ln_scale_data_type 
-                            LayerNormalization scale data type. type: enum.
-                            required: false. default: FP32. option: FP32, S32,
-                            U32.
-      --compiler.static_batch_sizes [ ...]
-                            static batch sizes. type: int array. required: false.
-                            default: [].
-      --compiler.max_dynamic_batch_size 
-                            max dynamic batch. type: int, required: false.
-                            default: 0.
-      --compiler.disable_ir_fix 
-                            disable ir fix, only work in multi-batch compilation.
-                            type: bool. required: false. default: false.
-      --compiler.check      compiler check level, 0: no check; 1: simulate compile
-                            result; 2: simulate and check compile result (for
-                            debug). type: int. required: false. default: 0.
-      --compiler.debug      compiler debug level. type: int. required: false.
-                            default: 0.
-      --compiler.input_sample_dir 
-                            input sample data dir for compiler check. type:
-                            string. required: false. default: .
+    usage: main.py build [-h] [--config] [--input] [--output_dir] [--output_name]
+                          [--work_dir] [--model_type] [--target_hardware]
+                          [--npu_mode] [--input_shapes]
+                          [--onnx_opt.disable_onnx_optimization]
+                          [--onnx_opt.enable_onnxsim] [--onnx_opt.model_check]
+                          [--onnx_opt.disable_transformation_check]
+                          [--onnx_opt.save_tensors_data]
+                          [--quant.calibration_method] [--quant.precision_analysis]
+                          [--quant.precision_analysis_method]
+                          [--quant.precision_analysis_mode]
+                          [--quant.highest_mix_precision]
+                          [--quant.conv_bias_data_type]
+                          [--quant.refine_weight_threshold]
+                          [--quant.enable_smooth_quant]
+                          [--quant.transformer_opt_level]
+                          [--quant.input_sample_dir] [--quant.ln_scale_data_type]
+                          [--quant.check] [--quant.disable_auto_refine_scale]
+                          [--compiler.static_batch_sizes [...]]
+                          [--compiler.max_dynamic_batch_size]
+                          [--compiler.disable_ir_fix] [--compiler.check]
+                          [--compiler.check_mode] [--compiler.debug]
+                          [--compiler.input_sample_dir]
+     optional arguments:
+       -h, --help            show this help message and exit
+       --config              config file path, supported formats: json / yaml /
+                             toml / prototxt. type: string. required: false.
+                             default:.
+       --input               input model file path. type: string. required: true.
+       --output_dir          axmodel output directory. type: string. required:
+                             true.
+       --output_name         rename output axmodel. type: string. required: false.
+                             default: compiled.axmodel.
+       --work_dir            temporary data output directory. type: string.
+                             required: false. default: same with ${output_dir}.
+       --model_type          input model type. type: enum. required: false.
+                             default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
+       --target_hardware     target hardware. type: enum. required: false. default:
+                             AX650. option: AX650, AX620E, M76H.
+       --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
+                             can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
+                             AX620E, npu mode can be NPU1 / NPU2. type: enum.
+                             required: false. default: NPU1.
+       --input_shapes        modify model input shape of input model, this feature
+                             will take effect before the `input_processors`
+                             configuration. format:
+                             input1:1x3x224x224;input2:1x1x112x112. type: string.
+                             required: false. default: .
+       --onnx_opt.disable_onnx_optimization 
+                             disable onnx optimization. type: bool. required:
+                             false. default: false.
+       --onnx_opt.enable_onnxsim 
+                             enable onnx simplify by
+                             https://github.com/daquexian/onnx-simplifier. type:
+                             bool. required: false. default: false.
+       --onnx_opt.model_check 
+                             enable model check. type: bool. required: false.
+                             default: false.
+       --onnx_opt.disable_transformation_check 
+                             disable transformation check. type: bool. required:
+                             false. default: false.
+       --onnx_opt.save_tensors_data 
+                             save tensors data to optimize memory footprint. type:
+                             bool. required: false. default: false.
+       --quant.calibration_method 
+                             quantize calibration method. type: enum. required:
+                             false. default: MinMax. option: MinMax, Percentile,
+                             MSE.
+       --quant.precision_analysis 
+                             enable quantization precision analysis. type: bool.
+                             required: false. default: false.
+       --quant.precision_analysis_method 
+                             precision analysis method. type: enum. required:
+                             false. default: PerLayer. option: PerLayer, EndToEnd.
+       --quant.precision_analysis_mode 
+                             precision analysis mode. type: enum. required: false.
+                             default: Reference. option: Reference, NPUBackend.
+       --quant.highest_mix_precision 
+                             enable highest mix precision quantization. type: bool.
+                             required: false. default: false.
+       --quant.conv_bias_data_type 
+                             conv bias data type. type: enum. required: false.
+                             default: S32. option: S32, FP32.
+       --quant.refine_weight_threshold 
+                             refine weight threshold, should be a legal float
+                             number, like 1e-6. -1 means disable this feature.
+                             type: float. required: false. default: 1e-6.
+                             limitation: 0 or less than 0.0001.
+       --quant.enable_smooth_quant 
+                             enalbe smooth quant strategy for conv 1x1. type: bool.
+                             required: false. default: false.
+       --quant.transformer_opt_level 
+                             tranformer opt level. type: int. required: false.
+                             default: 0. limitation: 0~2.
+       --quant.input_sample_dir 
+                             input sample data dir for precision analysis. type:
+                             string. required: false. default: .
+       --quant.ln_scale_data_type 
+                             LayerNormalization scale data type. type: enum.
+                             required: false. default: FP32. option: FP32, S32,
+                             U32.
+       --quant.check         quant check level, 0: no check; 1: check node dtype.
+                             type: int. required: false. default: 0.
+       --quant.disable_auto_refine_scale 
+                             refine weight scale and input scale, type: bool.
+                             required: false. default: false.
+       --compiler.static_batch_sizes [ ...]
+                             static batch sizes. type: int array. required: false.
+                             default: [].
+       --compiler.max_dynamic_batch_size 
+                             max dynamic batch. type: int, required: false.
+                             default: 0.
+       --compiler.disable_ir_fix 
+                             disable ir fix, only work in multi-batch compilation.
+                             type: bool. required: false. default: false.
+       --compiler.check      compiler check level, 0: no check; 1: assert all close; 
+                             2: assert all equal. type: int. required: false. 
+                             default: 0.
+       --compiler.check_mode 
+                             compiler check mode, CheckOutput: only check model
+                             output; CheckPerLayer: check model intermediate tensor
+                             and output. type: enum. required: false. default:
+                             CheckOutput. option: CheckOutput, CheckPerLayer.
+       --compiler.debug      compiler debug level. type: int. required: false.
+                             default: 0.
+       --compiler.input_sample_dir 
+                             input sample data dir for compiler check. type:
+                             string. required: false. default: .
 
 .. hint::
 
@@ -346,7 +362,14 @@
             - 数据类型：int
             - 是否必选：否
             - 默认值：0
-            - 描述：是否通过仿真检查编译结果的正确性，0 代表不做任何检查；1 代表检查编译结果是否可以正确运行；2 代表检查模型的输出数据是否正确
+            - 描述：是否通过仿真检查编译结果的正确性，0 代表不做任何检查；1 代表 all close 检查；2 代表 all equal 检查。
+
+        - check_mode
+
+            - 数据类型：enum
+            - 是否必选：否
+            - 默认值：0
+            - 描述：对分模式，CheckOutput 代表只对结果进行对分。CheckPerLayer 代表逐层对分。
 
         - input_sample_dir
 
@@ -698,6 +721,9 @@ NPU 双核模式
 
     如果配置文件中 ``"precision_analysis": false``，编译命令包含 ``--quant.precision_analysis 1``，此时依然会开启精度对比功能。
 
+
+.. _custom_calib_dataset:
+
 ------------------------------------
 加载自定义数据集详解
 ------------------------------------
@@ -742,8 +768,6 @@ NPU 双核模式
             "tensor_name": "input",
             "calibration_dataset": "./dataset/npy_dataset.tar",
             "calibration_size": 10,
-            "calibration_mean": [103.939, 116.779, 123.68],
-            "calibration_std": [58.0, 58.0, 58.0],
             "calibration_format": "Numpy", # 修改为 Numpy 或者 Binary, 默认是Image
           }
         ],
@@ -778,6 +802,92 @@ NPU 双核模式
     └───────┴──────────────────┴───────────────────┴─────────────┴───────────────┴──────────────────────────────────────────────────────────────┴────────────────────┘
     ...
 
+------------------------------------
+多输入模型配置量化数据集
+------------------------------------
+
+多输入的模型，不同输入需要不同的校准集，可以通过修改配置实现。
+
+字段 ``input_configs`` 支持配置多个输入， 通过 ``tensor_name`` 指定模型的输入名，以下为一个配置示例：
+
+.. code-block:: shell
+
+    {
+      "quant": {
+        "input_configs": [
+          {
+            "tensor_name": "input1", # 输入 1
+            "calibration_dataset": "input1_dataset.tar",
+            "calibration_size": 10,
+            "calibration_mean": [103.939, 116.779, 123.68],
+            "calibration_std": [58.0, 58.0, 58.0],
+            "calibration_format": "Image", # 
+          },
+          {
+            "tensor_name": "input2", # 输入 2
+            "calibration_dataset": "input2_dataset.tar",
+            "calibration_size": 10,
+            "calibration_mean": [103.939, 116.779, 123.68],
+            "calibration_std": [58.0, 58.0, 58.0],
+            "calibration_format": "Image", 
+          },
+        ],
+      }
+    }
+
+-------------------------------------------
+多输入模型配置量化数据集(NumpyObject)
+-------------------------------------------
+
+多输入的模型，不同输入需要不同的校准集，也可以通过使用 `NumpyObject` 实现， 
+
+字段 ``input_configs`` 支持配置多个输入， 通过 ``tensor_name`` 指定模型的输入名，以下为一个配置示例：
+
+.. code-block:: shell
+
+    {
+      "quant": {
+        "input_configs": [
+          {
+            "tensor_name": "DEFUALT", 
+            "calibration_dataset": "dataset.tar",
+            "calibration_size": -1,
+            "calibration_format": "NumpyObject", # 数据类型
+          },
+
+        ],
+      }
+    }
+
+~~~~~~~~~~~~~~~~
+准备数据集
+~~~~~~~~~~~~~~~~
+
+`NumpyObject` 是 `Numpy` 提供的一种字典数据类型。 字典数据与模型中 `input` 对应，其中 `key` 为模型的 `input` 名。
+`value` 为较准数据，类型和形状要与相应的 `input` 相同，即做完预处理后直接输入到模型的数据， 格式为 `numpy.ndarray` 。
+`value` 的数据处理与 :ref:`《加载自定义数据集详解》 <custom_calib_dataset>` 相同。
+
+假设模型有两个输入如下图：
+
+.. figure:: ../media/multy_inputs.png
+        :alt: pipeline
+        :align: center
+
+下面是一个最简单的生成示例代码：
+
+.. code-block:: python
+
+    import numpy as np
+
+    calib_data = {}
+    calib_data["rgb"] = np.random.randn(1, 2, 3, 224, 224).astype(np.float32)
+    calib_data["inst_emb"] = np.random.randn(1, 384).astype(np.float32)
+
+    np.save("data.npy", calib_data)
+
+在生产环境中，建议调用推理代码的 `dataloader` ， 对其进行遍历， 将遍历得到的数据转成 `Numpy.ndarray` 类型后按照字典保存为 `NumpyObject` ， 就可以直接获取到做完预处理后的数据。
+
+
 .. _mix_precision_quantization:
 
 ------------------------------------
@@ -790,7 +900,7 @@ NPU 双核模式
 配置
 ~~~~~~~~~~~~~~~~
 
-修改 ``quant.layer_configs`` 字段，目前量化精度支持的枚举： ``U8`` ， ``U16`` 。
+修改 ``quant.layer_configs`` 字段，目前量化精度支持的枚举： ``U8`` ， ``U16`` ， ``FP32``。
 以下为一个配置示例：
 
 .. code-block:: shell
@@ -819,8 +929,8 @@ NPU 双核模式
             },
             {
               # 指定 conv2_1_linear_bn 与 relu2_2_dwise 之间子图内包含的算子量化精度
-              "start_tensor_names": "conv2_1_linear_bn",
-              "end_tensor_names": "relu2_2_dwise",
+              "start_tensor_names": ["conv2_1_linear_bn"], # string of list
+              "end_tensor_names": ["relu2_2_dwise"],       # string of list
               "data_type": "U16"
             }
         ],
@@ -842,9 +952,77 @@ NPU 双核模式
       }
     }
 
+~~~~~~~~~~~~~~~~
+子图配置说明
+~~~~~~~~~~~~~~~~
+
+配置 ``某个子图`` 为指定的类型时，需要注意 ``start_tensor_names`` 和 ``end_tensor_names`` 指定的是 ``tensor_name``， 而非 ``node_name``。
+
+.. figure:: ../media/nodename_vs_tensorname.png
+        :alt: pipeline
+        :align: center
+
+如果想配置整个模型为某个量化类型，可以将 ``start_tensor_names`` 和 ``end_tensor_names`` 设置成 ``[''DEFAULT'']``，下面是一个示例：
+
+.. code-block:: shell
+
+    {
+      "layer_configs": [ 
+          {
+              "start_tensor_names": ["DEFAULT"], # string of list
+              "end_tensor_names": ["DEFAULT"],   # string of list
+              "data_type": "U16"
+          }
+        ]
+    }
+
+
+``Conv`` 类型算子，不支持配置 ``data_type`` 为 ``FP32``，但是可以单独配置其输出支持 ``FP32``，通过如下配置实现：
+
+.. code-block:: shell
+
+    {
+      "layer_configs": [ 
+          {
+            "op_type": "Conv", 
+            "data_type": "U8",
+            "output_data_type": "FP32", # 配置输出为FP32, 该配置目前只对Conv算子生效
+          }
+        ]
+    }
+
+下面是配置整个模型除了 ``Conv`` 外其余算子为 ``FP32`` 量化类型的config:
+
+.. code-block:: shell
+
+    {
+      "layer_configs": [ 
+          {
+            "op_type": "Conv", 
+            "data_type": "U8",
+            "output_data_type": "FP32", # 配置输出为FP32, 该配置目前只对Conv算子生效
+          },
+          {
+              "start_tensor_names": ["DEFAULT"], # string of list
+              "end_tensor_names": ["DEFAULT"],   # string of list
+              "data_type": "FP32"
+          }
+        ]
+    }
+
+
 .. note::
 
-    如果对于一个算子来说，同时存在 ``layer_name`` 与 ``op_type`` 两个量化精度配置，那么 ``layer_name`` 配置优先级更高。
+    对于一个算子来说，可能同时存在 ``指定算子`` 或者 ``一类算子`` 或者 ``某个子图`` 三个量化精度配置，优先级为：
+    ``指定算子`` > ``一类算子`` > ``某个子图``
+
+.. attention::
+
+    目前 ``FP32`` 配置支持的算子有限，已经验证过的算子有 ``LeayRelu`` ``Sigmoid`` ``Relu`` ``Add`` ``Mul`` ``Div``
+    ``Sub`` ``Concat`` ``Softmax``。
+
+
+
 
 ~~~~~~~~~~~~~~~~
 编译与结果
@@ -916,16 +1094,16 @@ NPU 双核模式
 .. _change_input_size:
 
 ------------------------------------
-输入尺寸修改
+修改原始模型输入尺寸
 ------------------------------------
 
 通过修改配置文件，可以在模型转换过程中修改各输入的尺寸。
 
 接下来以 ``mobilenetv2`` 为基础，将模型输入修改为 ``384*384``
 
-1. 命令行方式，增加参数：``--input_shapes data:1x3x384x384``
+- 命令行方式，增加参数：``--input_shapes data:1x3x384x384``
 
-1. 配置文件方式，在根节点增加参数：
+- 配置文件方式，在根节点增加参数：
 
 .. code-block:: shell
 
@@ -944,9 +1122,65 @@ NPU 双核模式
 
 .. note::
 
-    模型输入尺寸修改作用在输入预处理之前。
+    模型输入尺寸修改作用在量化之前，量化数据集的尺寸需要与修改后的尺寸保持一致。
 
     多组输入之间用半角分号分隔，详情参考参数详解部分。
+
+.. _multi_input_size:
+
+------------------------------------
+配置模型额外输入尺寸
+------------------------------------
+
+通过配置在模型编译过程中，除原始模型的主尺寸之外，可以输出额外其他若干组尺寸。这些尺寸都会保存在同一个 ``compiled.axmodel`` 中。
+
+多组尺寸之间会复用同一组权重数据（量化工具将会在模型原始尺寸的基础上进行量化），用户需要自行评估量化时尺寸与推理时尺寸不同而可能导致的精度问题。
+
+接下来将以 ``mobilenetv2`` 为例，在原输入尺寸 ``224*224`` 的基础上，额外增加一个尺寸 ``384*384``，然后通过 ``pulsar2 run`` 工具选择尺寸进行仿真。
+
+- 修改配置文件，在 ``input_processors`` 节点中，对输入配置一个 ``src_extra_shapes`` 子节点：
+
+.. code-block:: shell
+
+    {
+      ...
+      "input_processors": [
+        {
+          "tensor_name": "DEFAULT",
+          "tensor_format": "BGR",
+          "src_format": "BGR",
+          "src_dtype": "U8",
+          "src_layout": "NHWC",
+          "src_extra_shapes": [
+            {
+              "shape": [1, 3, 384, 384]
+            }
+          ],
+          "csc_mode": "NoCSC",
+          "csc_mat": [
+            1.164, 2.017, 0, -276.8, 1.164, -0.392, -0.813, 135.616, 1.164, 0,
+            1.596, -221.912
+          ]
+        }
+      ],
+      ...
+    }
+
+- 模型编译编译过程中，出现以下日志可以确认配置生效：
+
+.. code-block:: shell
+
+    2024-01-01 21:27:02.082 | INFO     | yamain.command.build:compile_ptq_model:973 - extra input shape, index: 1, shape: {'data': (1, 3, 384, 384)}
+
+- 编译结束以后，``compiled.axmodel`` 中将会包含两个独立尺寸的子图，可以单独进行推理。
+
+.. figure:: ../media/multi_shape_compiled_axmodel.png
+    :alt: multi_shape
+    :align: center
+
+- ``pulsar2 run`` 包含 ``--group_index`` 参数，用于选择不同尺寸的子图进行仿真，该参数默认值为 0，对应原始分辨率的子图（224*224）。1 对应额外分辨率的子图（384*384）。
+
+- ``AXEngine`` 推理包含额外输入尺寸的模型时选择不同尺寸的方式，请参考 ``AXEngine 文档``。
 
 .. _op_attr_patch:
 
@@ -1144,4 +1378,26 @@ Quantized ONNX 模型导入
       "compiler": {
         "check": 0
       }
+    }
+
+
+------------------------------------
+色彩空间转换配置
+------------------------------------
+
+支持客户通过配置在模型中添加色彩空间转换功能，由 ``NPU`` 完成从 ``YUV`` 色彩空间到 ``RGB`` 色彩空间的转换。详细配置请参考 :ref:`《预处理、后处理参数说明》 <processing_arg_details>`
+
+.. code-block:: shell
+  
+    {
+      "input_processors": [
+        {
+          "tensor_name": "DEFAULT",
+          "tensor_format": "BGR",     
+          "src_format": "YUV420SP",   # 指定编译后模型的输入色彩空间
+          "src_dtype": "U8",
+          "src_layout": "NHWC",
+          "csc_mode": "LimitedRange"
+        }
+      ]
     }

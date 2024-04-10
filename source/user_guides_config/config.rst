@@ -39,7 +39,7 @@
       "target_hardware": "AX650",
       // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E, npu mode can be NPU1 / NPU2. type: enum. required: false. default: NPU1.
       "npu_mode": "NPU1",
-      // modify model input shape, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
+      // modify model input shape of input model, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
       "input_shapes": "input:1x1x28x28",
       "onnx_opt": {
         // disable onnx optimization. type: bool. required: false. default: false.
@@ -49,7 +49,9 @@
         // enable model check. type: bool. required: false. default: false.
         "model_check": false,
         // disable transformation check. type: bool. required: false. default: false.
-        "disable_transformation_check": false
+        "disable_transformation_check": false,
+        // save tensors data to optimize memory footprint. type: bool. required: false. default: false.
+        "save_tensors_data": false
       },
       "quant": {
         "input_configs": [
@@ -72,15 +74,17 @@
           {
             // set layer quantize precision. type: string. required: must choose between `layer_name` and `op_type`. default: .
             "layer_name": "Conv_0",
-            // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
+            // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
             "data_type": "U8",
             // quantize data type for Conv. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
-            "output_data_type": "U8"
+            "output_data_type": "U8",
+            // quantize weight type for Conv. type: enum. required: false. default: S8. option: S8, FP32.
+            "weight_data_type": "S8"
           },
           {
             // set quantize precision by operator type. type: string. required: must choose between `layer_name` and `op_type`. default: .
             "op_type": "MaxPool",
-            // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
+            // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
             "data_type": "U8"
           },
           {
@@ -88,7 +92,7 @@
             "start_tensor_names": ["13"],
             // end tensor names of subgraph quantization config. type: string array. required: false. default: [].
             "end_tensor_names": ["15"],
-            // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
+            // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
             "data_type": "U16"
           }
         ],
@@ -113,7 +117,11 @@
         // enalbe smooth quant strategy for conv 1x1. type: bool. required: false. default: false.
         "enable_smooth_quant": false,
         // tranformer opt level. type: int. required: false. default: 0. limitation: 0~2.
-        "transformer_opt_level": 0
+        "transformer_opt_level": 0,
+        // quant check level, 0: no check; 1: check node dtype. type: int. required: false. default: 0.
+        "check": 0,
+        // refine weight scale and input scale, type: bool. required: false. default: false.
+        "disable_auto_refine_scale": false
       },
       "input_processors": [
         {
@@ -129,6 +137,10 @@
           "src_layout": "NHWC",
           // input data type in runtime. type: enum. required: false. default: FP32. option: U8, S8, U16, S16, U32, S32, FP16, FP32.
           "src_dtype": "U8",
+    
+          // extra compiler shapes for this input. src_extra_shapes size of every input should be the same. shape at the same index of every input will be treated as a input group which can inference independently at runtime. type: list of Shape. required: false. default [].
+          "src_extra_shapes": [],
+    
           // color space mode. type: enum. required: false. default: NoCSC. option: NoCSC, Matrix, FullRange, LimitedRange.
           "csc_mode": "NoCSC",
           // color space conversion matrix, 12 elements array that represents a 3x4 matrix. type: float array. required: false. default: [].
@@ -144,7 +156,9 @@
           // output tensor name in origin model. "DEFAULT" means processor for all output tensors. type: string. required: true.
           "tensor_name": "output",
           // permute the output tensor. type: int32 array. required: false. default: [].
-          "dst_perm": [0, 1]
+          "dst_perm": [0, 1],
+          // output data type. type: enum. required: false. default: FP32. option: FP32, U8.
+          "output_dtype": "FP32"
         }
       ],
       "const_processors": [
@@ -217,6 +231,9 @@
 
     - ``PerLayer`` 意味着每一层都采用浮点模型对应的层输入，计算每一层的输出与浮点模型输出的相似度。
     - ``EndToEnd`` 代表首层采用浮点模型输入，然后进行完整模型的仿真，计算最终输出结果与浮点模型输出的相似度。
+
+
+.. _processing_arg_details:
 
 ------------------------------------
 预处理、后处理参数说明
@@ -369,8 +386,11 @@ proto 配置定义
       // end tensor names of subgraph quantization config. type: string array. required: false. default: [].
       repeated string end_tensor_names = 4;
     
-      // quantize data type. type: enum. required: false. default: U8. option: U8, U16.
+      // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
       common.DataType data_type = 5;
+    
+      // quantize weight type for Conv. type: enum. required: false. default: S8. option: S8, FP32.
+      common.DataType weight_data_type = 6;
     
       // quantize data type for Conv. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
       common.DataType output_data_type = 10;
@@ -413,6 +433,10 @@ proto 配置定义
       string input_sample_dir = 30;
       // LayerNormalization scale data type. type: enum. required: false. default: FP32. option: FP32, S32, U32.
       common.DataType ln_scale_data_type = 40;
+      // quant check level, 0: no check; 1: check node dtype. type: int. required: false. default: 0.
+      int32 check = 50;
+      // refine weight scale and input scale, type: bool. required: false. default: false.
+      bool disable_auto_refine_scale = 60;
     }
     
     message InputProcessor {
@@ -430,6 +454,9 @@ proto 配置定义
       common.Layout src_layout = 5;
       // input data type in runtime. type: enum. required: false. default: FP32. option: U8, S8, U16, S16, U32, S32, FP16, FP32.
       common.DataType src_dtype = 6;
+    
+      // extra compiler shapes for this input. src_extra_shapes size of every input should be the same. shape at the same index of every input will be treated as a input group which can inference independently at runtime. type: list of Shape. required: false. default [].
+      repeated common.Shape src_extra_shapes = 11;
     
       // color space mode. type: enum. required: false. default: NoCSC. option: NoCSC, Matrix, FullRange, LimitedRange.
       CSCMode csc_mode = 7;
@@ -449,6 +476,9 @@ proto 配置定义
     
       // permute the output tensor. type: int32 array. required: false. default: [].
       repeated int32 dst_perm = 3;
+    
+      // output data type. type: enum. required: false. default: FP32. option: FP32, U8.
+      common.DataType output_dtype = 4;
     }
     
     message OpProcessor {
@@ -503,7 +533,7 @@ proto 配置定义
       // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E, npu mode can be NPU1 / NPU2. type: enum. required: false. default: NPU1.
       common.NPUMode npu_mode = 7;
     
-      // modify model input shape, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
+      // modify model input shape of input model, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
       string input_shapes = 8;
     
       OnnxOptimizeOption onnx_opt = 10;

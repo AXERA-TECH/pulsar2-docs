@@ -242,7 +242,7 @@ Quick Start(AX620E)
 
 .. code-block:: shell
 
-    pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json --target_hardware AX620E
+    pulsar2 build --target_hardware AX620E --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
 
 .. warning::
 
@@ -259,7 +259,7 @@ log 参考信息
 
 .. code-block::
 
-    $ pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json --target_hardware AX620E
+    $ pulsar2 build --target_hardware AX620E --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
     2023-07-29 14:23:01.757 | WARNING  | yamain.command.build:fill_default:313 - ignore input csc config because of src_format is AutoColorSpace or src_format and tensor_format are the same
     Building onnx ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
     2023-07-29 14:23:07.806 | INFO     | yamain.command.build:build:424 - save optimized onnx to [output/frontend/optimized.onnx]
@@ -509,14 +509,14 @@ log 参考信息
 开发板运行
 ----------------------
 
-本章节介绍如何在 ``AX630C`` ``AX620AV200`` ``AX620Q`` 开发板上运行通过 :ref:`《模型编译》 <model_compile_20e>` 章节获取 ``compiled.axmodel`` 模型. 
+本章节介绍如何在 ``AX630C`` ``AX620Q`` 开发板上运行通过 :ref:`《模型编译》 <model_compile_20e>` 章节获取 ``compiled.axmodel`` 模型. 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 开发板获取
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - 通过企业途径向 AXera 签署 NDA 后获取 **AX630C DEMO Board**.
-- 爱芯派Zero (开发中……)
+- 爱芯派Zero
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 使用 ax_run_model 工具快速测试模型推理速度
@@ -528,54 +528,37 @@ log 参考信息
 
 .. code-block:: shell
 
-    /root # ax_run_model -m mobilenetv2.axmodel -w 3 -r 10
-    Run AxModel:
-          model: mobilenetv2.axmodel
-            type: HalfOCM
-            vnpu: Enable
-        affinity: 0b11
-          warmup: 3
-          repeat: 10
-          batch: { auto: 1 }
-    vnpu 0 quota: max
-    vnpu 1 quota: 1.0 TOPS
-      vnpu 0 bw: max
-      vnpu 1 bw: max
-    vnpu latency: 0
-    pulsar2 ver: 1.8 4c70a98c
-      engine ver: 2.2.1b
-        tool ver: 2.1.0b
-        cmm size: 4422232 Bytes
-    ------------------------------------------------------
-    min =   1.933 ms   max =   1.999 ms   avg =   1.946 ms
-    ------------------------------------------------------
+    /root # ax_run_model -m /opt/data/npu/models/mobilenetv2.axmodel -w 3 -r 10
+      Run AxModel:
+            model: /opt/data/npu/models/mobilenetv2.axmodel
+             type: Half
+             vnpu: Disable
+         affinity: 0b01
+           warmup: 3
+           repeat: 10
+            batch: { auto: 0 }
+      pulsar2 ver: 1.8-beta1 6a7e59de
+       engine ver: 2.6.3sp
+         tool ver: 2.3.3sp
+         cmm size: 4414192 Bytes
+      ------------------------------------------------------
+      min =   1.093 ms   max =   1.098 ms   avg =   1.096 ms
+      ------------------------------------------------------
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-使用 ax_classification 工具测试单张图片推理结果
+使用 sample_npu_classification 示例测试单张图片推理结果
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. hint::
 
-    上板运行示例已经打包放在 ``demo_onboard_ax620e`` 文件夹下 :download:`点击下载示例文件 <../examples/demo_onboard_ax620e.zip>`
-    将下载后的文件解压, 其中 ``ax_classification`` 为预先交叉编译好的可在 **AX630C DEMO Board** 上运行的分类模型可执行程序 ``mobilennetv2.axmodel`` 为编译好的分类模型, ``cat.jpg`` 为测试图像.
+    该运行示例已经预装在开发板的文件系统中，其源文件位于 SDK 的 ``msp/sample/npu`` 路径下文件夹下。将 ``mobilennetv2.axmodel`` 拷贝到开发板上，使用 ``sample_npu_classification`` 进行测试。
 
-将 ``ax_classification``、 ``mobilennetv2.axmodel``、 ``cat.jpg`` 拷贝到开发板上, 如果 ``ax_classification`` 缺少可执行权限, 可以通过以下命令添加
-
-.. code-block:: shell
-
-    /root/sample # chmod a+x ax_classification  # 添加执行权限
-    /root/sample # ls -l
-    total 15344
-    -rwx--x--x    1 root     root       5704472 Aug 25 11:04 ax_classification
-    -rw-------    1 root     root        140391 Aug 25 11:05 cat.jpg
-    -rw-------    1 root     root       3922461 Aug 25 11:05 mobilenetv2.axmodel
-
-``ax_classification`` 输入参数说明: 
+``sample_npu_classification`` 输入参数说明: 
 
 .. code-block:: shell
 
-    /root/sample # ./ ax_classification --help
-    usage: ax_classification --model=string --image=string [options] ...
+    /root # sample_npu_classification --help
+    usage: sample_npu_classification --model=string --image=string [options] ...
     options:
       -m, --model     joint file(a.k.a. joint model) (string)
       -i, --image     image file (string)
@@ -583,14 +566,14 @@ log 参考信息
       -r, --repeat    repeat count (int [=1])
       -?, --help      print this message
 
-通过执行 ``ax_classification`` 程序实现分类模型板上运行, 运行结果如下:
+通过执行 ``sample_npu_classification`` 程序实现分类模型板上运行, 运行结果如下:
 
 .. code-block:: shell
 
-    /root/sample # ./ax_classification -m mobilenetv2.axmodel -i cat.jpg -r 100
+    /root # sample_npu_classification -m mobilenetv2.axmodel -i /opt/data/npu/images/cat.jpg -r 100
     --------------------------------------
     model file : mobilenetv2.axmodel
-    image file : ../images/cat.jpg
+    image file : /opt/data/npu/images/cat.jpg
     img_h, img_w : 224 224
     --------------------------------------
     Engine creating handle is done.
@@ -606,7 +589,7 @@ log 参考信息
     8.0566, 283
     6.8679, 463
     --------------------------------------
-    Repeat 100 times, avg time 1.93 ms, max_time 1.95 ms, min_time 1.93 ms
+    Repeat 100 times, avg time 1.09 ms, max_time 1.10 ms, min_time 1.09 ms
     --------------------------------------
 
 - 从这里可知，同一个 ``mobilenetv2.axmodel`` 模型在开发板上运行的结果与 :ref:`《仿真运行》 <model_simulator_20e>` 的结果一致；

@@ -4,11 +4,11 @@
 模型评测工具使用说明
 =======================
 
-为了方便用户测评模型，在开发板上预制了 ``ax_run_model`` 工具（位于 /opt/bin/ax_run_model），此工具有若干参数，可以很方便地测试模型速度和精度。
+为了方便用户测评模型，在开发板上预制了 ``ax_run_model`` 工具，此工具有若干参数，可以很方便地测试模型速度和精度。
 
    .. code:: bash
 
-      root@AXERA:~# ax_run_model
+      root@~# ax_run_model
       usage: ax_run_model --model=string [options] ...
          options:
          -m, --model                path to a model file (string)
@@ -48,7 +48,7 @@
 
     - 数据类型：int
     - 是否必选：否
-    - 描述：指定要测试的循环次数，然后显示min/max/avg的速度
+    - 描述：指定要测试的循环次数，然后显示 min/max/avg 的速度
 
   --warmup 
   
@@ -60,13 +60,13 @@
   
     - 数据类型：int
     - 是否必选：否
-    - 描述：亲和性的mask值，大于1(0b001)，小于7(0b111)
+    - 描述：亲和性的 mask 值，大于 1(0b001)，小于 7(0b111)
 
   --vnpu
   
     - 数据类型：int
     - 是否必选：否
-    - 描述：虚拟npu模式；0 禁用虚拟npu；1标准切分模式；2大小核模式
+    - 描述：虚拟npu模式；0 禁用虚拟 npu；1 标准切分模式；2 大小核模式
 
   --batch 
   
@@ -96,25 +96,25 @@
   
     - 数据类型：string
     - 是否必选：否
-    - 描述：指定输入路径参数--input-folder是由文件夹组成的
+    - 描述：指定输入路径 --input-folder 是由文件夹组成的，参数不指定也默认生效，后续废弃
 
   --outputs-is-folder
   
     - 数据类型：string
     - 是否必选：否
-    - 描述：指定输出径参数--out-folder是由文件夹组成的
+    - 描述：指定输出径 --out-folder 是由文件夹组成的，参数不指定也默认生效，后续废弃
 
   --use-tensor-name
   
     - 数据类型：string
     - 是否必选：否
-    - 描述：指定按模型输入输出名字查找激励文件，不设置是按索引查找
-  
+    - 描述：指定按模型输入输出名字查找激励文件，不设置是按索引查找，参数不指定也默认生效，后续废弃
+
   --verify
   
     - 数据类型：string
     - 是否必选：否
-    - 描述：指定不保存模型输出且指定的目录输出文件已存在，进行逐byte比较
+    - 描述：指定不保存模型输出且指定的目录输出文件已存在，进行逐 byte 比较
 
 -----------------------------
 使用示例
@@ -124,8 +124,7 @@
 
    .. code:: bash
 
-      root@AXERA:~# ax_run_model -m /opt/data/npu/models/yolov5s.axmodel -w 10 -r 100
-      [Axera version]: libax_sys.so V1.13.0 Apr 26 2023 16:24:35
+      root@~# ax_run_model -m /opt/data/npu/models/yolov5s.axmodel -w 10 -r 100
       Run AxModel:
             model: /opt/data/npu/models/yolov5s.axmodel
              type: NPU1
@@ -135,7 +134,7 @@
            warmup: 10
             batch: 1
       pulsar2 ver: 1.2-patch2 7e6b2b5f
-       engine ver: [Axera version]: libax_engine.so V1.13.0 Apr 26 2023 16:48:53 1.1.0
+       engine ver: V1.13.0 Apr 26 2023 16:48:53 1.1.0
          tool ver: 1.0.0
          cmm size: 12730188 Bytes
       ------------------------------------------------------
@@ -143,7 +142,7 @@
       ------------------------------------------------------
 
 
-从打印的 log 可以看出，VNPU 被初始化成 standard 模式，此时NPU被分作三份；并且这次测速时亲和性设置为亲和序号最大的那个模型。
+从打印的 log 可以看出，VNPU 被初始化成 standard 模式，此时 NPU 被分作三份；并且这次测速时亲和性设置为亲和序号最大的那个模型。
 
 通过设置亲和性，可以很方便地在不编写代码的情况下，同时跑多个模型进行测速。
 
@@ -151,50 +150,11 @@
 
 另一个很常见的需求是转完了模型，想要知道板子上的精度如何，这可以通过精度的参数进行测试。
 
-以分类模型为例，说明目录结构和参数的使用，这里以两个目录结构举例。
-
-下面是模式一：
+以分类模型为例，说明目录结构和参数的使用，这里以典型的一个目录结构举例：
 
    .. code:: bash
 
-      root@AXERA:~# tree /opt/data/npu/temp/
-      /opt/data/npu/temp/
-      |-- input
-      |   `-- 0.bin
-      |-- list.txt
-      |-- mobilenet_v1.axmodel
-      `-- output
-         `-- 0.bin
-
-      2 directories, 4 files
-
-
-下面是模式二：
-
-   .. code:: bash
-
-      root@AXERA:~# tree /opt/data/npu/temp/
-      /opt/data/npu/temp/
-      |-- input
-      |   `-- 0
-      |       `-- 0.bin
-      |-- list.txt
-      |-- mobilenet_v1.axmodel
-      `-- output
-         `-- 0
-            `-- 0.bin
-
-      4 directories, 4 files
-
-这是非常常见的两类测试精度的目录结构.
-* 模式一比较简单，输入和输出都全部包含在同一个文件夹里，特别适合单输入单输出的模型；
-* 模式二则将每一组模型激励作为一个文件夹，特别适合多输入多输出的模型。
-
-此外，将模式二稍加变化，将激励的文件按tensor的名字命名，则有模式三的目录结构如下：
-
-   .. code:: bash
-
-      root@AXERA:~# tree /opt/data/npu/temp/
+      root@~# tree /opt/data/npu/temp/
       /opt/data/npu/temp/
       |-- input
       |   `-- 0
@@ -209,36 +169,31 @@
 
 测试精度时必须的参数是 ``-m -i -o -l``，分别指定模型、输入文件夹、输出文件夹、和待测试的输入列表。
 
-* 模式一比较简单，无需附加其他参数；
-* 模式二因为输入和输出都是文件夹，则需要附加参数 ``--inputs-is-folder和--outputs-is-folder`` 参数；
-* 模式三在模式二的参数基础上，还需要附加参数 ``--use-tensor-name`` 才能运行，需要注意的是， ``--use-tensor-name`` 参数同时影响输入和输出。
-
 此外，这三个模式的输出文件夹都非空，在运行命令时输出文件夹的已有文件会被覆盖；但如果是已经从 ``Pulsar2`` 仿真拿到的输出 ``golden`` 文件，
 则可以通过附加 ``--verify`` 参数不覆写输出文件，而是读取输出文件夹的已有文件，和当前模型的输出在内存中进行逐位比较，这个模式在怀疑仿真和上板精度不对齐时特别有用。
 
-参数 ``-l`` 指定的激励列表在这三种模式下都是一样的：
+参数 ``-l`` 指定激励文件夹列表：
 
    .. code:: bash
 
-      root@AXERA:~# cat /opt/data/npu/temp/list.txt
+      root@~# cat /opt/data/npu/temp/list.txt
       0
-      root@AXERA:~#
+      root@~#
 
 
-也就是这三种模式下，指定的都是唯一一个激励文件(夹)。这个参数在数据集很大时非常有用，比如输入文件夹是完整的 ``ImageNet`` 数据集，文件非常多；
-但这次测试时只希望测10个文件验证一下，如果没有异常再跑全量的测试，那么这样的需求可以通过创建两个 ``list.txt`` 完成，一个list里保存的只有10行激励，一个list文件里是全部的激励。
-以下是模式三，并且进行模型 ``verify`` 的需求进行举例， ``ax_run_model`` 参数运行示例如下：
+也就是在示例中，指定的是唯一一个激励文件夹。这个参数在数据集很大时非常有用，比如输入文件夹是完整的 ``ImageNet`` 数据集，文件非常多；
+但这次测试时只希望测 10 个文件验证一下，如果没有异常再跑全量的测试，那么这样的需求可以通过创建两个 ``list.txt`` 完成，一个list里保存的只有 10 行激励，一个list文件里是全部的激励。
+以下是 ``verify`` 的需求进行举例， ``ax_run_model`` 参数运行示例如下：
 
    .. code:: bash
 
-      root@AXERA:~# ax_run_model -m /opt/data/npu/temp/mobilenet_v1.axmodel -i /opt/data/npu/temp/input/ -o /opt/data/npu/temp/output/ -l /opt/data/npu/temp/list.txt --inputs-is-folder --outputs-is-folder --use-tensor-name --verify
-      [Axera version]: libax_sys.so V1.13.0 Apr 26 2023 16:24:35
+      root@~# ax_run_model -m /opt/data/npu/temp/mobilenet_v1.axmodel -i /opt/data/npu/temp/input/ -o /opt/data/npu/temp/output/ -l /opt/data/npu/temp/list.txt --verify
        total found {1} input drive folders.
        infer model, total 1/1. Done.
        ------------------------------------------------------
        min =   3.347 ms   max =   3.347 ms   avg =   3.347 ms
        ------------------------------------------------------
 
-      root@AXERA:~#
+      root@~#
 
-可以看出，这个模型在这组输入输出binary文件下，输出是逐位对齐的。如果没有对齐，打印会报告没有对齐的 ``byte`` 偏移量。
+可以看出，这个模型在这组输入输出 binary 文件下，输出是逐位对齐的。如果没有对齐，打印会报告没有对齐的 ``byte`` 偏移量。
