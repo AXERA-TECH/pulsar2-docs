@@ -21,11 +21,11 @@ import sphinxcontrib.mermaid
 # -- Project information -----------------------------------------------------
 
 project = 'Pulsar2'
-copyright = '2024, AXera 爱芯元智'
+copyright = '2024, AXERA Semiconductor Co., Ltd. All rights reserved'
 author = 'AXera-Tech'
 
 # The full version, including alpha/beta/rc tags
-release = 'V2.6'
+release = 'V3.0'
 
 # -- General configuration ---------------------------------------------------
 

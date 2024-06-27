@@ -34,7 +34,6 @@ pulsar2 run
                        [--list] [--random_input] [--batch_size]
                        [--enable_perlayer_output] [--dump_with_stride]
                        [--group_index] [--mode] [--target_hardware]
-    
     optional arguments:
       -h, --help            show this help message and exit
       --config              config file path, supported formats: json / yaml /

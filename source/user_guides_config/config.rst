@@ -60,7 +60,7 @@
             "tensor_name": "input",
             // quantize calibration dataset archive file path. type: string. required: true. limitation: tar, tar.gz, zip.
             "calibration_dataset": "/path/to/dataset",
-            // quantize calibration data format. type: enum. required: false. default: Image. option: Image, Numpy, Binary.
+            // quantize calibration data format. type: enum. required: false. default: Image. option: Image, Numpy, Binary, NumpyObject.
             "calibration_format": "Image",
             // quantize calibration data size is min(${calibration_size}, size of ${calibration_dataset}), "-1" means load all dataset. type: int. required: false. default: 32.
             "calibration_size": 32,
@@ -72,7 +72,7 @@
         ],
         "layer_configs": [
           {
-            // set layer quantize precision. type: string. required: must choose between `layer_name` and `op_type`. default: .
+            // set layer quantize precision. type: string. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: .
             "layer_name": "Conv_0",
             // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
             "data_type": "U8",
@@ -82,8 +82,24 @@
             "weight_data_type": "S8"
           },
           {
-            // set quantize precision by operator type. type: string. required: must choose between `layer_name` and `op_type`. default: .
+            // set quantize precision by operator type. type: string. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: .
             "op_type": "MaxPool",
+            // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
+            "data_type": "U8"
+          },
+          {
+            // set layer quantize precision by layers name. type: enum. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: [].
+            "layer_names": ["Conv_2"],
+            // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
+            "data_type": "U8",
+            // quantize data type for Conv. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
+            "output_data_type": "U8",
+            // quantize weight type for Conv. type: enum. required: false. default: S8. option: S8, FP32.
+            "weight_data_type": "S8"
+          },
+          {
+            // set quantize precision by operator types. type: enum. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: [].
+            "op_types": ["Gemm"],
             // quantize data type. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
             "data_type": "U8"
           },
@@ -137,10 +153,8 @@
           "src_layout": "NHWC",
           // input data type in runtime. type: enum. required: false. default: FP32. option: U8, S8, U16, S16, U32, S32, FP16, FP32.
           "src_dtype": "U8",
-    
           // extra compiler shapes for this input. src_extra_shapes size of every input should be the same. shape at the same index of every input will be treated as a input group which can inference independently at runtime. type: list of Shape. required: false. default [].
           "src_extra_shapes": [],
-    
           // color space mode. type: enum. required: false. default: NoCSC. option: NoCSC, Matrix, FullRange, LimitedRange.
           "csc_mode": "NoCSC",
           // color space conversion matrix, 12 elements array that represents a 3x4 matrix. type: float array. required: false. default: [].
@@ -148,7 +162,15 @@
           // mean parameter of normlization in runtime. type: float array. required: false. default: same with ${quant.input_configs.calibration_mean}.
           "mean": [],
           // std parameter of normlization in runtime. type: float array. required: false. default: same with ${quant.input_configs.calibration_std}.
-          "std": []
+          "std": [],
+          // list containing the number of start and end pad values for axis when padding. type: int32 array. required: false. default: [].
+          "padding": [],
+          // padding mode. type: string. required: false. default: constant.
+          "padding_mode": "constant",
+          // padding constant value. type: int32. required: false. default: 0.
+          "padding_constant_value": 0,
+          // list containing the number of start and end pad values for axis when slicing. type: int32 array. required: false. default: [].
+          "slicing": []
         }
       ],
       "output_processors": [
@@ -194,8 +216,18 @@
         "max_dynamic_batch_size": 0,
         // disable ir fix, only work in multi-batch compilation. type: bool. required: false. default: false.
         "disable_ir_fix": false,
-        // compiler check level, 0: no check; 1: simulate compile result; 2: simulate and check compile result (for debug). type: int. required: false. default: 0.
+        // compiler check level, 0: no check; 1: assert all close; 2: assert all equal; 3: check cosine simularity. type: int. required: false. default: 0.
         "check": 0,
+        // compiler check mode, CheckOutput: only check model output; CheckPerLayer: check model intermediate tensor and output. type: enum. required: false. default: CheckOutput. option: CheckOutput, CheckPerLayer.
+        "check_mode": "CheckOutput",
+        // relative tolerance when check level is 1. type: float. required: false. default: 1e-5.
+        "check_rtol": 1e-5,
+        // absolute tolerance when check level is 1. type: float. required: false. default: 0.
+        "check_atol": 0,
+        // cosine simularity threshold when check level is 3. type: float. required: false. default: 0.999.
+        "check_cosine_simularity": 0.999,
+        // tensor black list for per layer check, support regex. type: list of string. required: false. default: [].
+        "check_tensor_black_list": [],
         // compiler debug level. type: int. required: false. default: 0.
         "debug": 0,
         // input sample data dir for compiler check. type: string. required: false. default: .
@@ -260,6 +292,27 @@
 
     - ``input_processors`` 中的 ``mean`` / ``std`` 参数，默认为用户在量化配置中 ``calibration_mean`` / ``calibration_std`` 参数所配置的值。
     - 如果用户希望在运行时采用不同的归一化参数，那么可以显示的配置 中的 ``mean`` / ``std`` 参数以覆盖默认值。
+
+- 数据预处理中的填充 (Pad) 和切片 (Slice) 操作
+
+    配置示例:
+
+    .. code-block:: shell
+
+        {
+          ...
+          "input_processors": [
+            {
+              "slicing": [0, 0, 0, 0, 0, 1, 0, 1]
+            }
+          ],
+          ...
+        }
+
+    - ``padding`` 此字段表示在数据预处理对特定轴进行填充时，每个轴的开始和结束部分应填充的长度。以 32 位整型数组的形式表示，如果未设置，则使用默认值，即空列表，表示不进行填充。
+    - ``padding_mode`` 这个字段指定了填充的模式。它是一个字符串类型，可能的值决定了填充值的生成方式。默认值为 "constant"，表示使用常数值进行填充。目前仅支持 "constant" 模式填充。
+    - ``padding_constant_value`` 此字段指定了在填充模式为 "constant" 时使用的常数值。它是一个 32 位整型。表示用于填充的固定值。默认值值为 0。
+    - ``slicing`` 此字段表示在数据预处理对特定轴进行切片时，每个轴的开始和结束部分应切片的长度。以 32 位整型数组的形式表示的，如果未设置，则使用默认值，即空列表，表示不进行切片。
 
 ------------------------------------
 proto 配置定义
@@ -346,10 +399,16 @@ proto 配置定义
       NPUBackend = 1;
     }
     
+    enum CheckMode {
+      CheckOutput = 0;
+      CheckPerLayer = 1;
+    }
+    
     enum DataFormat {
       Image = 0;
       Numpy = 1;
       Binary = 2;
+      NumpyObject = 3;
     }
     
     enum CSCMode {
@@ -364,7 +423,7 @@ proto 配置定义
       string tensor_name = 1;
       // quantize calibration dataset archive file path. type: string. required: true. limitation: tar, tar.gz, zip.
       string calibration_dataset = 2;
-      // quantize calibration data format. type: enum. required: false. default: Image. option: Image, Numpy, Binary.
+      // quantize calibration data format. type: enum. required: false. default: Image. option: Image, Numpy, Binary, NumpyObject.
       DataFormat calibration_format = 3;
       // quantize calibration data size is min(${calibration_size}, size of ${calibration_dataset}), "-1" means load all dataset. type: int. required: false. default: 32.
       int32 calibration_size = 4;
@@ -375,10 +434,10 @@ proto 配置定义
     }
     
     message LayerConfig {
-      // set layer quantize precision. type: string. required: must choose between `layer_name` and `op_type`. default: .
+      // set layer quantize precision. type: string. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: .
       string layer_name = 1;
     
-      // set quantize precision by operator type. type: string. required: must choose between `layer_name` and `op_type`. default: .
+      // set quantize precision by operator type. type: string. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: .
       string op_type = 2;
     
       // start tensor names of subgraph quantization config. type: string array. required: false. default: [].
@@ -391,6 +450,12 @@ proto 配置定义
     
       // quantize weight type for Conv. type: enum. required: false. default: S8. option: S8, FP32.
       common.DataType weight_data_type = 6;
+    
+      // set layer quantize precision by layers name. type: enum. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: [].
+      repeated string layer_names = 7;
+    
+      // set quantize precision by operator types. type: enum. required: must choose between `layer_name` and `op_type` and `layer_names` and `op_types`. default: [].
+      repeated string op_types = 8;
     
       // quantize data type for Conv. type: enum. required: false. default: U8. option: U8, S8, U16, S16, FP32.
       common.DataType output_data_type = 10;
@@ -405,6 +470,8 @@ proto 配置定义
       bool model_check = 3;
       // disable transformation check. type: bool. required: false. default: false.
       bool disable_transformation_check = 4;
+      // save tensors data to optimize memory footprint. type: bool. required: false. default: false.
+      bool save_tensors_data = 5;
     }
     
     message QuantConfig {
@@ -442,22 +509,22 @@ proto 配置定义
     message InputProcessor {
       // input tensor name in origin model. "DEFAULT" means processor for all input tensors. type: string. required: true.
       string tensor_name = 1;
-    
+
       // input tensor format in origin model. type: enum. required: false. default: AutoColorSpace. option: AutoColorSpace, BGR, RGB, GRAY.
       common.ColorSpace tensor_format = 2;
       // input tensor layout in origin model. type: enum. required: false. default: NCHW. option: NHWC, NCHW.
       common.Layout tensor_layout = 3;
-    
+
       // input format in runtime. type: enum. required: false. default: AutoColorSpace. option: AutoColorSpace, GRAY, BGR, RGB, YUYV422, UYVY422, YUV420SP, YVU420SP.
       common.ColorSpace src_format = 4;
       // input layout in runtime; if `src_format` is YUV/YVU, `src_layout` will be changed to NHWC. type: enum. required: false. default: NCHW. option: NHWC, NCHW.
       common.Layout src_layout = 5;
       // input data type in runtime. type: enum. required: false. default: FP32. option: U8, S8, U16, S16, U32, S32, FP16, FP32.
       common.DataType src_dtype = 6;
-    
+
       // extra compiler shapes for this input. src_extra_shapes size of every input should be the same. shape at the same index of every input will be treated as a input group which can inference independently at runtime. type: list of Shape. required: false. default [].
       repeated common.Shape src_extra_shapes = 11;
-    
+
       // color space mode. type: enum. required: false. default: NoCSC. option: NoCSC, Matrix, FullRange, LimitedRange.
       CSCMode csc_mode = 7;
       // color space conversion matrix, 12 elements array that represents a 3x4 matrix. type: float array. required: false. default: [].
@@ -466,6 +533,14 @@ proto 配置定义
       repeated float mean = 9;
       // std parameter of normlization in runtime. type: float array. required: false. default: same with ${quant.input_configs.calibration_std}.
       repeated float std = 10;
+      // list containing the number of start and end pad values for axis when padding. type: int32 array. required: false. default: [].
+      repeated int32 padding = 20;
+      // padding mode. type: string. required: false. default: constant.
+      string padding_mode = 21;
+      // padding constant value. type: int32. required: false. default: 0.
+      int32 padding_constant_value = 22;
+      // list containing the number of start and end pad values for axis when slicing. type: int32 array. required: false. default: [].
+      repeated int32 slicing = 30;
     }
     
     message OutputProcessor {
@@ -507,10 +582,20 @@ proto 配置定义
       int32 max_dynamic_batch_size = 2;
       // disable ir fix, only work in multi-batch compilation. type: bool. required: false. default: false.
       bool disable_ir_fix = 3;
-      // compiler check level, 0: no check; 1: simulate compile result; 2: simulate and check compile result (for debug). type: int. required: false. default: 0.
+      // compiler check level, 0: no check; 1: assert all close; 2: assert all equal; 3: check cosine simularity. type: int. required: false. default: 0.
       int32 check = 5;
+      // compiler check mode, CheckOutput: only check model output; CheckPerLayer: check model intermediate tensor and output. type: enum. required: false. default: CheckOutput. option: CheckOutput, CheckPerLayer.
+      CheckMode check_mode = 7;
       // compiler debug level. type: int. required: false. default: 0.
       int32 debug = 6;
+      // relative tolerance when check level is 1. type: float. required: false. default: 1e-5.
+      float check_rtol = 8;
+      // absolute tolerance when check level is 1. type: float. required: false. default: 0.
+      float check_atol = 9;
+      // cosine simularity threshold when check level is 3. type: float. required: false. default: 0.999.
+      float check_cosine_simularity = 10;
+      // tensor black list for per layer check, support regex. type: list of string. required: false. default: [].
+      repeated string check_tensor_black_list = 11;
       // input sample data dir for compiler check. type: string. required: false. default: .
       string input_sample_dir = 30;
     }

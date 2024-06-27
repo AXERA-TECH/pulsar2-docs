@@ -141,4 +141,3 @@
 请参考我们在 github 上的开源项目：
 
 - `AX-Samples <https://github.com/AXERA-TECH/ax-samples>`_
-- `AX-Pipeline <https://github.com/AXERA-TECH/ax-pipeline>`_

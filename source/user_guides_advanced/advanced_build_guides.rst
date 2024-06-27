@@ -28,132 +28,147 @@
   :linenos:
 
     usage: main.py build [-h] [--config] [--input] [--output_dir] [--output_name]
-                          [--work_dir] [--model_type] [--target_hardware]
-                          [--npu_mode] [--input_shapes]
-                          [--onnx_opt.disable_onnx_optimization]
-                          [--onnx_opt.enable_onnxsim] [--onnx_opt.model_check]
-                          [--onnx_opt.disable_transformation_check]
-                          [--onnx_opt.save_tensors_data]
-                          [--quant.calibration_method] [--quant.precision_analysis]
-                          [--quant.precision_analysis_method]
-                          [--quant.precision_analysis_mode]
-                          [--quant.highest_mix_precision]
-                          [--quant.conv_bias_data_type]
-                          [--quant.refine_weight_threshold]
-                          [--quant.enable_smooth_quant]
-                          [--quant.transformer_opt_level]
-                          [--quant.input_sample_dir] [--quant.ln_scale_data_type]
-                          [--quant.check] [--quant.disable_auto_refine_scale]
-                          [--compiler.static_batch_sizes [...]]
-                          [--compiler.max_dynamic_batch_size]
-                          [--compiler.disable_ir_fix] [--compiler.check]
-                          [--compiler.check_mode] [--compiler.debug]
-                          [--compiler.input_sample_dir]
-     optional arguments:
-       -h, --help            show this help message and exit
-       --config              config file path, supported formats: json / yaml /
-                             toml / prototxt. type: string. required: false.
-                             default:.
-       --input               input model file path. type: string. required: true.
-       --output_dir          axmodel output directory. type: string. required:
-                             true.
-       --output_name         rename output axmodel. type: string. required: false.
-                             default: compiled.axmodel.
-       --work_dir            temporary data output directory. type: string.
-                             required: false. default: same with ${output_dir}.
-       --model_type          input model type. type: enum. required: false.
-                             default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
-       --target_hardware     target hardware. type: enum. required: false. default:
-                             AX650. option: AX650, AX620E, M76H.
-       --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
-                             can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
-                             AX620E, npu mode can be NPU1 / NPU2. type: enum.
-                             required: false. default: NPU1.
-       --input_shapes        modify model input shape of input model, this feature
-                             will take effect before the `input_processors`
-                             configuration. format:
-                             input1:1x3x224x224;input2:1x1x112x112. type: string.
-                             required: false. default: .
-       --onnx_opt.disable_onnx_optimization 
-                             disable onnx optimization. type: bool. required:
-                             false. default: false.
-       --onnx_opt.enable_onnxsim 
-                             enable onnx simplify by
-                             https://github.com/daquexian/onnx-simplifier. type:
-                             bool. required: false. default: false.
-       --onnx_opt.model_check 
-                             enable model check. type: bool. required: false.
-                             default: false.
-       --onnx_opt.disable_transformation_check 
-                             disable transformation check. type: bool. required:
-                             false. default: false.
-       --onnx_opt.save_tensors_data 
-                             save tensors data to optimize memory footprint. type:
-                             bool. required: false. default: false.
-       --quant.calibration_method 
-                             quantize calibration method. type: enum. required:
-                             false. default: MinMax. option: MinMax, Percentile,
-                             MSE.
-       --quant.precision_analysis 
-                             enable quantization precision analysis. type: bool.
-                             required: false. default: false.
-       --quant.precision_analysis_method 
-                             precision analysis method. type: enum. required:
-                             false. default: PerLayer. option: PerLayer, EndToEnd.
-       --quant.precision_analysis_mode 
-                             precision analysis mode. type: enum. required: false.
-                             default: Reference. option: Reference, NPUBackend.
-       --quant.highest_mix_precision 
-                             enable highest mix precision quantization. type: bool.
-                             required: false. default: false.
-       --quant.conv_bias_data_type 
-                             conv bias data type. type: enum. required: false.
-                             default: S32. option: S32, FP32.
-       --quant.refine_weight_threshold 
-                             refine weight threshold, should be a legal float
-                             number, like 1e-6. -1 means disable this feature.
-                             type: float. required: false. default: 1e-6.
-                             limitation: 0 or less than 0.0001.
-       --quant.enable_smooth_quant 
-                             enalbe smooth quant strategy for conv 1x1. type: bool.
-                             required: false. default: false.
-       --quant.transformer_opt_level 
-                             tranformer opt level. type: int. required: false.
-                             default: 0. limitation: 0~2.
-       --quant.input_sample_dir 
-                             input sample data dir for precision analysis. type:
-                             string. required: false. default: .
-       --quant.ln_scale_data_type 
-                             LayerNormalization scale data type. type: enum.
-                             required: false. default: FP32. option: FP32, S32,
-                             U32.
-       --quant.check         quant check level, 0: no check; 1: check node dtype.
-                             type: int. required: false. default: 0.
-       --quant.disable_auto_refine_scale 
-                             refine weight scale and input scale, type: bool.
-                             required: false. default: false.
-       --compiler.static_batch_sizes [ ...]
-                             static batch sizes. type: int array. required: false.
-                             default: [].
-       --compiler.max_dynamic_batch_size 
-                             max dynamic batch. type: int, required: false.
-                             default: 0.
-       --compiler.disable_ir_fix 
-                             disable ir fix, only work in multi-batch compilation.
-                             type: bool. required: false. default: false.
-       --compiler.check      compiler check level, 0: no check; 1: assert all close; 
-                             2: assert all equal. type: int. required: false. 
-                             default: 0.
-       --compiler.check_mode 
-                             compiler check mode, CheckOutput: only check model
-                             output; CheckPerLayer: check model intermediate tensor
-                             and output. type: enum. required: false. default:
-                             CheckOutput. option: CheckOutput, CheckPerLayer.
-       --compiler.debug      compiler debug level. type: int. required: false.
-                             default: 0.
-       --compiler.input_sample_dir 
-                             input sample data dir for compiler check. type:
-                             string. required: false. default: .
+                         [--work_dir] [--model_type] [--target_hardware]
+                         [--npu_mode] [--input_shapes]
+                         [--onnx_opt.disable_onnx_optimization]
+                         [--onnx_opt.enable_onnxsim] [--onnx_opt.model_check]
+                         [--onnx_opt.disable_transformation_check]
+                         [--onnx_opt.save_tensors_data]
+                         [--quant.calibration_method] [--quant.precision_analysis]
+                         [--quant.precision_analysis_method]
+                         [--quant.precision_analysis_mode]
+                         [--quant.highest_mix_precision]
+                         [--quant.conv_bias_data_type]
+                         [--quant.refine_weight_threshold]
+                         [--quant.enable_smooth_quant]
+                         [--quant.transformer_opt_level]
+                         [--quant.input_sample_dir] [--quant.ln_scale_data_type]
+                         [--quant.check] [--quant.disable_auto_refine_scale]
+                         [--compiler.static_batch_sizes [...]]
+                         [--compiler.max_dynamic_batch_size]
+                         [--compiler.disable_ir_fix] [--compiler.check]
+                         [--compiler.check_mode] [--compiler.debug]
+                         [--compiler.check_rtol] [--compiler.check_atol]
+                         [--compiler.check_cosine_simularity]
+                         [--compiler.check_tensor_black_list [...]]
+                         [--compiler.input_sample_dir]
+    optional arguments:
+      -h, --help            show this help message and exit
+      --config              config file path, supported formats: json / yaml /
+                            toml / prototxt. type: string. required: false.
+                            default:.
+      --input               input model file path. type: string. required: true.
+      --output_dir          axmodel output directory. type: string. required:
+                            true.
+      --output_name         rename output axmodel. type: string. required: false.
+                            default: compiled.axmodel.
+      --work_dir            temporary data output directory. type: string.
+                            required: false. default: same with ${output_dir}.
+      --model_type          input model type. type: enum. required: false.
+                            default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
+      --target_hardware     target hardware. type: enum. required: false. default:
+                            AX650. option: AX650, AX620E, M76H.
+      --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
+                            can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
+                            AX620E, npu mode can be NPU1 / NPU2. type: enum.
+                            required: false. default: NPU1.
+      --input_shapes        modify model input shape of input model, this feature
+                            will take effect before the `input_processors`
+                            configuration. format:
+                            input1:1x3x224x224;input2:1x1x112x112. type: string.
+                            required: false. default: .
+      --onnx_opt.disable_onnx_optimization 
+                            disable onnx optimization. type: bool. required:
+                            false. default: false.
+      --onnx_opt.enable_onnxsim 
+                            enable onnx simplify by
+                            https://github.com/daquexian/onnx-simplifier. type:
+                            bool. required: false. default: false.
+      --onnx_opt.model_check 
+                            enable model check. type: bool. required: false.
+                            default: false.
+      --onnx_opt.disable_transformation_check 
+                            disable transformation check. type: bool. required:
+                            false. default: false.
+      --onnx_opt.save_tensors_data 
+                            save tensors data to optimize memory footprint. type:
+                            bool. required: false. default: false.
+      --quant.calibration_method 
+                            quantize calibration method. type: enum. required:
+                            false. default: MinMax. option: MinMax, Percentile,
+                            MSE.
+      --quant.precision_analysis 
+                            enable quantization precision analysis. type: bool.
+                            required: false. default: false.
+      --quant.precision_analysis_method 
+                            precision analysis method. type: enum. required:
+                            false. default: PerLayer. option: PerLayer, EndToEnd.
+      --quant.precision_analysis_mode 
+                            precision analysis mode. type: enum. required: false.
+                            default: Reference. option: Reference, NPUBackend.
+      --quant.highest_mix_precision 
+                            enable highest mix precision quantization. type: bool.
+                            required: false. default: false.
+      --quant.conv_bias_data_type 
+                            conv bias data type. type: enum. required: false.
+                            default: S32. option: S32, FP32.
+      --quant.refine_weight_threshold 
+                            refine weight threshold, should be a legal float
+                            number, like 1e-6. -1 means disable this feature.
+                            type: float. required: false. default: 1e-6.
+                            limitation: 0 or less than 0.0001.
+      --quant.enable_smooth_quant 
+                            enalbe smooth quant strategy for conv 1x1. type: bool.
+                            required: false. default: false.
+      --quant.transformer_opt_level 
+                            tranformer opt level. type: int. required: false.
+                            default: 0. limitation: 0~2.
+      --quant.input_sample_dir 
+                            input sample data dir for precision analysis. type:
+                            string. required: false. default: .
+      --quant.ln_scale_data_type 
+                            LayerNormalization scale data type. type: enum.
+                            required: false. default: FP32. option: FP32, S32,
+                            U32.
+      --quant.check         quant check level, 0: no check; 1: check node dtype.
+                            type: int. required: false. default: 0.
+      --quant.disable_auto_refine_scale 
+                            refine weight scale and input scale, type: bool.
+                            required: false. default: false.
+      --compiler.static_batch_sizes [ ...]
+                            static batch sizes. type: int array. required: false.
+                            default: [].
+      --compiler.max_dynamic_batch_size 
+                            max dynamic batch. type: int, required: false.
+                            default: 0.
+      --compiler.disable_ir_fix 
+                            disable ir fix, only work in multi-batch compilation.
+                            type: bool. required: false. default: false.
+      --compiler.check      compiler check level, 0: no check; 1: assert all
+                            close; 2: assert all equal; 3: check cosine
+                            simularity. type: int. required: false. default: 0.
+      --compiler.check_mode 
+                            compiler check mode, CheckOutput: only check model
+                            output; CheckPerLayer: check model intermediate tensor
+                            and output. type: enum. required: false. default:
+                            CheckOutput. option: CheckOutput, CheckPerLayer.
+      --compiler.debug      compiler debug level. type: int. required: false.
+                            default: 0.
+      --compiler.check_rtol 
+                            relative tolerance when check level is 1. type: float.
+                            required: false. default: 1e-5.
+      --compiler.check_atol 
+                            absolute tolerance when check level is 1. type: float.
+                            required: false. default: 0.
+      --compiler.check_cosine_simularity 
+                            cosine simularity threshold when check level is 3.
+                            type: float. required: false. default: 0.999.
+      --compiler.check_tensor_black_list [ ...]
+                            tensor black list for per layer check, support regex.
+                            type: list of string. required: false. default: [].
+      --compiler.input_sample_dir 
+                            input sample data dir for compiler check. type:
+                            string. required: false. default: .
 
 .. hint::
 
@@ -340,7 +355,7 @@
 
             - 数据类型：list of int
             - 是否必选：否
-            - 默认值：0
+            - 默认值：[]
             - 描述：编译器按照用户提供 batch 组合进行编译，基于这一组 batch 模型，可以在运行时支持任意 batch_size 输入的高效推理。详情参考：:ref:`《静态多 batch 模式》 <multi_batch_static_compile>`。
 
         - max_dynamic_batch_size
@@ -362,7 +377,7 @@
             - 数据类型：int
             - 是否必选：否
             - 默认值：0
-            - 描述：是否通过仿真检查编译结果的正确性，0 代表不做任何检查；1 代表 all close 检查；2 代表 all equal 检查。
+            - 描述：是否通过仿真检查编译结果的正确性，0 代表不做任何检查；1 代表 all close 检查；2 代表 all equal 检查；3 代表 tensor cosine 相似度检查。
 
         - check_mode
 
@@ -370,6 +385,34 @@
             - 是否必选：否
             - 默认值：0
             - 描述：对分模式，CheckOutput 代表只对结果进行对分。CheckPerLayer 代表逐层对分。
+
+        - check_rtol
+
+            - 数据类型：float
+            - 是否必选：否
+            - 默认值：1e-5
+            - 描述：当 --compiler.check 参数为 1 时生效，相对误差参数。
+
+        - check_atol
+
+            - 数据类型：float
+            - 是否必选：否
+            - 默认值：0
+            - 描述：当 --compiler.check 参数为 1 时生效，绝对误差参数。
+
+        - check_cosine_simularity
+
+            - 数据类型：float
+            - 是否必选：否
+            - 默认值：0.999
+            - 描述：当 --compiler.check 参数为 3 时生效，tensor cosine 相似度检查阈值。
+
+        - check_tensor_black_list
+
+            - 数据类型：list of string
+            - 是否必选：否
+            - 默认值：[]
+            - 描述：不参与检查的 tensor 列表，支持正则表达式匹配。
 
         - input_sample_dir
 
