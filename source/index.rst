@@ -33,3 +33,4 @@ AXera Pulsar2 工具链指导手册
   appendix/op_support_list_ax650.rst
   appendix/op_support_list_ax620e.rst
   appendix/precision_debug_guides.rst
+  appendix/build_llm.rst
