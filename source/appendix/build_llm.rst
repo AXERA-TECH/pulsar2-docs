@@ -80,7 +80,7 @@ log 参考信息
 
 .. code-block::
 
-    pulsar2 llm_build --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16-test/ --kv_cache_len 1023 --model_config config/qwen2-0.5B.json --hidden_state_type bf16 --weight_type s8
+    root@gpux2:/data/ax-llm-build# pulsar2 llm_build --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/ --kv_cache_len 1023 --model_config config/qwen2-0.5B.json --hidden_state_type bf16 --weight_type s8
     Config(
         model_name='Qwen/Qwen2-0.5B-Instruct',
         model_type='qwen',
@@ -97,11 +97,12 @@ log 参考信息
         norm_type='rms_norm',
         hidden_act='silu'
     )
-    2024-06-27 17:53:14.286 | SUCCESS  | yamain.command.llm_build:llm_build:89 - prepare llm model done!
-    building llm decode layers   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 24/24 0:00:22
-    building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:00:56
-    2024-06-27 17:54:33.201 | SUCCESS  | yamain.command.llm_build:llm_build:134 - build llm model done!
-    2024-06-27 17:54:50.767 | SUCCESS  | yamain.command.llm_build:llm_build:283 - check llm model done!
+    2024-07-01 11:17:08.009 | SUCCESS  | yamain.command.llm_build:llm_build:85 - prepare llm model done!
+    building llm decode layers   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 24/24 0:03:59
+    building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:01:24
+    2024-07-01 11:22:31.941 | SUCCESS  | yamain.command.llm_build:llm_build:128 - build llm model done!
+    2024-07-01 11:22:56.925 | SUCCESS  | yamain.command.llm_build:llm_build:277 - check llm model done!
+
 
 .. note::
 
@@ -110,7 +111,7 @@ log 参考信息
         - Intel(R) Xeon(R) Gold 6336Y CPU @ 2.40GHz
         - Memory 32G
 
-    全流程耗时大约 ``78s`` , 不同配置的主机转换时间略有差异.
+    全流程耗时大约 ``5 minutes`` , 不同配置的主机转换时间略有差异.
 
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -121,9 +122,7 @@ embed 提取和优化
 
     python tools/extract_embed.py --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/
     python tools/embed-process.py --input Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.npy --output Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.float32.bin
-    --------------
-    (151936, 896)
-    --------------
+    chmod +x ./tools/fp32_to_bf16
     ./tools/fp32_to_bf16 Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.float32.bin Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.bfloat16.bin
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
