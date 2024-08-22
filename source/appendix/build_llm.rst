@@ -2,13 +2,17 @@
 大模型编译(实验阶段)
 ======================
 
-**本章节适用于以下平台：**
+**本章节适用于平台**
 
 - AX650N
 - AX630C
 
 本章节介绍如何将 Huggingface 上的模型转换的基本操作, 使用 ``pulsar2`` 工具将从 Huggingface 下载的项目中 ``*.safetensor`` 或 ``pytorch_model.bin``  模型编译成 ``axmodel`` 模型. 请先参考 :ref:`《开发环境准备》 <dev_env_prepare>` 章节完成开发环境搭建. 
 本节示例模型为 ``Qwen2-0.5B-Instruct``.
+
+**版本约束**
+
+Pulsar2 3.0 以上版本已内置 llm build 相关模块。
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 命令说明
@@ -126,9 +130,7 @@ embed 提取和优化
 
     python tools/extract_embed.py --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/
     python tools/embed-process.py --input Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.npy --output Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.float32.bin
-    --------------
-    (151936, 896)
-    --------------
+    chmod +x ./tools/fp32_to_bf16
     ./tools/fp32_to_bf16 Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.float32.bin Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.bfloat16.bin
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
