@@ -31,9 +31,10 @@ pulsar2 run
     :linenos:
 
     usage: main.py run [-h] [--config] [--model] [--input_dir] [--output_dir]
-                       [--list] [--random_input] [--batch_size]
-                       [--enable_perlayer_output] [--dump_with_stride]
+                       [--list] [--random_input ] [--batch_size]
+                       [--enable_perlayer_output ] [--dump_with_stride ]
                        [--group_index] [--mode] [--target_hardware]
+    
     optional arguments:
       -h, --help            show this help message and exit
       --config              config file path, supported formats: json / yaml /
@@ -47,15 +48,15 @@ pulsar2 run
                             true. default:.
       --list                list file path. type: string. required: true.
                             default:.
-      --random_input        random input data. type: bool. required: false.
+      --random_input []     random input data. type: bool. required: false.
                             default: false.
       --batch_size          batch size to be used in dynamic inference mode, only
                             work for CompiledAxModel. type: int. required: false.
                             defalult: 0.
-      --enable_perlayer_output 
+      --enable_perlayer_output []
                             enable dump perlayer output. type: bool. required:
                             false. default: false.
-      --dump_with_stride 
+      --dump_with_stride []
       --group_index 
       --mode                run mode, only work for QuantAxModel. type: enum.
                             required: false. default: Reference. option:

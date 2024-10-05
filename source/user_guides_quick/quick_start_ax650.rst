@@ -12,7 +12,7 @@ Quick Start(AX650)
 本节示例模型为开源模型 ``MobileNetv2``.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-命令说明
+Pulsar2 工具链命令说明
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Pulsar2`` 工具链中的功能指令以 ``pulsar2`` 开头, 与用户强相关的命令为 ``pulsar2 build`` , ``pulsar2 run`` 以及 ``pulsar2 version``. 
@@ -33,7 +33,7 @@ Quick Start(AX650)
       -h, --help           show this help message and exit
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-配置文件说明
+模型编译配置文件说明
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``/data/config/`` 路径下的 ``mobilenet_v2_build_config.json`` 展示:
@@ -108,41 +108,78 @@ log 参考信息
 
 .. code-block::
 
-    2024-06-16 23:54:28.782 | WARNING  | yamain.command.build:fill_default:297 - apply default output processor configuration to ['output']
-    2024-06-16 23:54:28.783 | WARNING  | yamain.command.build:fill_default:355 - ignore input csc config because of src_format is AutoColorSpace or src_format and tensor_format are the same
-    2024-06-16 23:54:28.784 | INFO     | yamain.common.util:extract_archive:181 - extract [dataset/imagenet-32-images.tar] to [output/quant/dataset/input]...
+    2024-09-25 11:45:26.533 | WARNING  | yamain.command.build:fill_default:300 - apply default output processor configuration to ['output']
+    2024-09-25 11:45:26.533 | WARNING  | yamain.command.build:fill_default:364 - ignore input csc config because of src_format is AutoColorSpace or src_format and tensor_format are the same
+    2024-09-25 11:45:26.534 | INFO     | yamain.common.util:extract_archive:181 - extract [dataset/imagenet-32-images.tar] to [output/quant/dataset/input]...
     32 File(s) Loaded.
     Building onnx ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
-    2024-06-16 23:54:29.861 | INFO     | yamain.command.build:quant:784 - save optimized onnx to [output/frontend/optimized.onnx]
+    2024-09-25 11:45:27.422 | INFO     | yamain.command.build:quant:797 - save optimized onnx to [output/frontend/optimized.onnx]
                                    Quant Config Table                               
     ┏━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┓
     ┃       ┃           ┃ Dataset   ┃ Data      ┃ Tensor    ┃           ┃          ┃
     ┃ Input ┃ Shape     ┃ Directory ┃ Format    ┃ Format    ┃ Mean      ┃ Std      ┃
     ┡━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━━┩
-    │ input │ [1, 3,    │ input     │ Image     │ BGR       │ [103.939… │ [58.0,   │
+    │ input │ [1, 3,    │ output/q… │ Image     │ BGR       │ [103.939… │ [58.0,   │
     │       │ 224, 224] │           │           │           │ 116.7789… │ 58.0,    │
     │       │           │           │           │           │ 123.6800… │ 58.0]    │
     └───────┴───────────┴───────────┴───────────┴───────────┴───────────┴──────────┘
     Transformer optimize level: 0
     32 File(s) Loaded.
-    [23:54:30] AX Set Float Op Table Pass Running ...         
-    [23:54:30] AX Set MixPrecision Pass Running ...           
-    [23:54:30] AX Set LN Quant dtype Quant Pass Running ...   
-    [23:54:30] AX Topk Operation Format Pass Running ...      
-    [23:54:30] AX Reset Mul Config Pass Running ...           
-    [23:54:30] AX Refine Operation Config Pass Running ...    
-    [23:54:30] AX Tanh Operation Format Pass Running ...      
-    [23:54:30] AX Confused Op Refine Pass Running ...         
-    [23:54:31] AX Quantization Fusion Pass Running ...        
-    [23:54:31] AX Quantization Simplify Pass Running ...      
-    [23:54:31] AX Parameter Quantization Pass Running ...     
-    [23:54:31] AX Runtime Calibration Pass Running ...        
-    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.84it/s]
-    [23:54:35] AX Quantization Alignment Pass Running ...     
-    [23:54:35] AX Refine Int Parameter Pass Running ...       
-    [23:54:35] AX Refine Scale Pass Running ...               
-    [23:54:35] AX Passive Parameter Quantization Running ...  
-    [23:54:35] AX Parameter Baking Pass Running ...           
+    
+    Stastic Inf tensor:   0%|          | 0/1 [00:00<?, ?it/s]
+    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  9.09it/s]
+    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  9.06it/s]
+    [11:45:28] AX Set Float Op Table Pass Running ...         
+    [11:45:28] AX Set MixPrecision Pass Running ...           
+    [11:45:28] AX Set LN Quant dtype Quant Pass Running ...   
+    [11:45:28] AX Reset Mul Config Pass Running ...           
+    [11:45:28] AX Refine Operation Config Pass Running ...    
+    [11:45:28] AX Tanh Operation Format Pass Running ...      
+    [11:45:28] AX Confused Op Refine Pass Running ...         
+    [11:45:28] AX Quantization Fusion Pass Running ...        
+    [11:45:28] AX Quantization Simplify Pass Running ...      
+    [11:45:28] AX Parameter Quantization Pass Running ...     
+    [11:45:29] AX Runtime Calibration Pass Running ...        
+    
+    Calibration Progress(Phase 1):   0%|          | 0/32 [00:00<?, ?it/s]
+    Calibration Progress(Phase 1):   3%|▎         | 1/32 [00:00<00:03,  9.10it/s]
+    Calibration Progress(Phase 1):   6%|▋         | 2/32 [00:00<00:03,  9.09it/s]
+    Calibration Progress(Phase 1):   9%|▉         | 3/32 [00:00<00:03,  9.05it/s]
+    Calibration Progress(Phase 1):  12%|█▎        | 4/32 [00:00<00:03,  9.02it/s]
+    Calibration Progress(Phase 1):  16%|█▌        | 5/32 [00:00<00:02,  9.00it/s]
+    Calibration Progress(Phase 1):  19%|█▉        | 6/32 [00:00<00:02,  8.96it/s]
+    Calibration Progress(Phase 1):  22%|██▏       | 7/32 [00:00<00:02,  9.03it/s]
+    Calibration Progress(Phase 1):  25%|██▌       | 8/32 [00:00<00:02,  9.03it/s]
+    Calibration Progress(Phase 1):  28%|██▊       | 9/32 [00:00<00:02,  9.03it/s]
+    Calibration Progress(Phase 1):  31%|███▏      | 10/32 [00:01<00:02,  9.02it/s]
+    Calibration Progress(Phase 1):  34%|███▍      | 11/32 [00:01<00:02,  9.00it/s]
+    Calibration Progress(Phase 1):  38%|███▊      | 12/32 [00:01<00:02,  8.94it/s]
+    Calibration Progress(Phase 1):  41%|████      | 13/32 [00:01<00:02,  8.95it/s]
+    Calibration Progress(Phase 1):  44%|████▍     | 14/32 [00:01<00:02,  8.96it/s]
+    Calibration Progress(Phase 1):  47%|████▋     | 15/32 [00:01<00:01,  8.92it/s]
+    Calibration Progress(Phase 1):  50%|█████     | 16/32 [00:01<00:01,  8.89it/s]
+    Calibration Progress(Phase 1):  53%|█████▎    | 17/32 [00:01<00:01,  8.90it/s]
+    Calibration Progress(Phase 1):  56%|█████▋    | 18/32 [00:02<00:01,  8.89it/s]
+    Calibration Progress(Phase 1):  59%|█████▉    | 19/32 [00:02<00:01,  8.86it/s]
+    Calibration Progress(Phase 1):  62%|██████▎   | 20/32 [00:02<00:01,  8.93it/s]
+    Calibration Progress(Phase 1):  66%|██████▌   | 21/32 [00:02<00:01,  8.90it/s]
+    Calibration Progress(Phase 1):  69%|██████▉   | 22/32 [00:02<00:01,  8.93it/s]
+    Calibration Progress(Phase 1):  72%|███████▏  | 23/32 [00:02<00:01,  8.91it/s]
+    Calibration Progress(Phase 1):  75%|███████▌  | 24/32 [00:02<00:00,  8.89it/s]
+    Calibration Progress(Phase 1):  78%|███████▊  | 25/32 [00:02<00:00,  8.91it/s]
+    Calibration Progress(Phase 1):  81%|████████▏ | 26/32 [00:02<00:00,  8.87it/s]
+    Calibration Progress(Phase 1):  84%|████████▍ | 27/32 [00:03<00:00,  8.89it/s]
+    Calibration Progress(Phase 1):  88%|████████▊ | 28/32 [00:03<00:00,  8.91it/s]
+    Calibration Progress(Phase 1):  91%|█████████ | 29/32 [00:03<00:00,  8.86it/s]
+    Calibration Progress(Phase 1):  94%|█████████▍| 30/32 [00:03<00:00,  8.85it/s]
+    Calibration Progress(Phase 1):  97%|█████████▋| 31/32 [00:03<00:00,  8.77it/s]
+    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.74it/s]
+    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.91it/s]
+    [11:45:32] AX Quantization Alignment Pass Running ...     
+    [11:45:32] AX Refine Int Parameter Pass Running ...       
+    [11:45:33] AX Refine Scale Pass Running ...               
+    [11:45:33] AX Passive Parameter Quantization Running ...  
+    [11:45:33] AX Parameter Baking Pass Running ...           
     --------- Network Snapshot ---------
     Num of Op:                    [100]
     Num of Quantized Op:          [100]
@@ -157,22 +194,24 @@ log 参考信息
     PASSIVE_BAKED:                [53]
     FP32:                         [70]
     Network Quantization Finished.
-    quant.axmodel export success: output/quant/quant_axmodel.onnx
-    ===>export input/output data to folder: output/quant/debug/test_data_set_0
-    ===>export input/output data to folder: output/quant/debug/io
+    quant.axmodel export success: 
+    	/data/deploy/data/quick_start_example/output/quant/quant_axmodel.onnx
+    	/data/deploy/data/quick_start_example/output/quant/quant_axmodel.data
+    ===>export pb data to folder: output/quant/debug/test_data_set_0
+    ===>export io data to folder: output/quant/debug/io
     Building native ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
-    2024-06-16 23:54:36.162 | INFO     | yamain.command.build:compile_ptq_model:1022 - group 0 compiler transformation
-    2024-06-16 23:54:36.163 | WARNING  | yamain.command.load_model:pre_process:593 - preprocess tensor [input]
-    2024-06-16 23:54:36.163 | INFO     | yamain.command.load_model:pre_process:594 - tensor: input, (1, 224, 224, 3), U8
-    2024-06-16 23:54:36.164 | INFO     | yamain.command.load_model:pre_process:594 - op: op:pre_dequant_1, AxDequantizeLinear, {'const_inputs': {'x_zeropoint': array(0, dtype=int32), 'x_scale': array(1., dtype=float32)}, 'output_dtype': <class 'numpy.float32'>, 'quant_method': 0}
-    2024-06-16 23:54:36.164 | INFO     | yamain.command.load_model:pre_process:594 - tensor: tensor:pre_norm_1, (1, 224, 224, 3), FP32
-    2024-06-16 23:54:36.164 | INFO     | yamain.command.load_model:pre_process:594 - op: op:pre_norm_1, AxNormalize, {'dim': 3, 'mean': [103.93900299072266, 116.77899932861328, 123.68000030517578], 'std': [58.0, 58.0, 58.0], 'output_dtype': FP32}
-    2024-06-16 23:54:36.164 | INFO     | yamain.command.load_model:pre_process:594 - tensor: tensor:pre_transpose_1, (1, 224, 224, 3), FP32
-    2024-06-16 23:54:36.164 | INFO     | yamain.command.load_model:pre_process:594 - op: op:pre_transpose_1, AxTranspose, {'perm': [0, 3, 1, 2]}
-    2024-06-16 23:54:36.164 | WARNING  | yamain.command.load_model:post_process:612 - postprocess tensor [output]
-    2024-06-16 23:54:36.367 | INFO     | yamain.command.build:compile_ptq_model:1042 - QuantAxModel macs: 280,262,480
-    2024-06-16 23:54:36.374 | INFO     | yamain.command.build:compile_ptq_model:1108 - subgraph [0], group: 0, type: GraphType.NPU
-    2024-06-16 23:54:36.394 | INFO     | yasched.test_onepass:test_onepass_ir:3140 - schedule npu subgraph [0]
+    2024-09-25 11:45:33.944 | INFO     | yamain.command.build:compile_ptq_model:1035 - group 0 compiler transformation
+    2024-09-25 11:45:33.946 | WARNING  | yamain.command.load_model:pre_process:608 - preprocess tensor [input]
+    2024-09-25 11:45:33.946 | INFO     | yamain.command.load_model:pre_process:609 - tensor: input, (1, 224, 224, 3), U8
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_dequant_1, AxDequantizeLinear, {'const_inputs': {'x_zeropoint': array(0, dtype=int32), 'x_scale': array(1., dtype=float32)}, 'output_dtype': <class 'numpy.float32'>, 'quant_method': 0}
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - tensor: tensor:pre_norm_1, (1, 224, 224, 3), FP32
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_norm_1, AxNormalize, {'dim': 3, 'mean': [103.93900299072266, 116.77899932861328, 123.68000030517578], 'std': [58.0, 58.0, 58.0], 'output_dtype': FP32}
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - tensor: tensor:pre_transpose_1, (1, 224, 224, 3), FP32
+    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_transpose_1, AxTranspose, {'perm': [0, 3, 1, 2]}
+    2024-09-25 11:45:33.947 | WARNING  | yamain.command.load_model:post_process:630 - postprocess tensor [output]
+    2024-09-25 11:45:34.159 | INFO     | yamain.command.build:compile_ptq_model:1060 - QuantAxModel macs: 280,262,480
+    2024-09-25 11:45:34.169 | INFO     | yamain.command.build:compile_ptq_model:1132 - subgraph [0], group: 0, type: GraphType.NPU
+    2024-09-25 11:45:34.187 | INFO     | yasched.test_onepass:test_onepass_ir:3221 - schedule npu subgraph [0]
     tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68/68 0:00:00
     <frozen backend.ax650npu.oprimpl.normalize>:186: RuntimeWarning: divide by zero encountered in divide
     <frozen backend.ax650npu.oprimpl.normalize>:187: RuntimeWarning: invalid value encountered in divide
@@ -185,10 +224,11 @@ log 参考信息
     assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
     assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
     assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
-    2024-06-16 23:54:38.657 | INFO     | yasched.test_onepass:results2model:2484 - clear job deps
-    2024-06-16 23:54:38.657 | INFO     | yasched.test_onepass:results2model:2485 - max_cycle = 450,154
+    2024-09-25 11:45:36.467 | INFO     | yasched.test_onepass:results2model:2541 - clear job deps
+    2024-09-25 11:45:36.467 | INFO     | yasched.test_onepass:results2model:2542 - max_cycle = 450,154
     build jobs   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
-    2024-06-16 23:54:40.220 | INFO     | yamain.command.build:compile_ptq_model:1118 - fuse 1 subgraph(s)
+    2024-09-25 11:45:36.796 | INFO     | yamain.command.build:compile_npu_subgraph:1332 - assembel model [subgraph_npu_0]
+    2024-09-25 11:45:38.075 | INFO     | yamain.command.build:compile_ptq_model:1142 - fuse 1 subgraph(s)
 
 .. note::
 
@@ -200,7 +240,7 @@ log 参考信息
     全流程耗时大约 ``11s`` , 不同配置的主机转换时间略有差异.
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-输出文件说明
+模型编译输出文件说明
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: shell  
@@ -233,10 +273,10 @@ log 参考信息
         :align: center
 
 ----------------------
-信息查询
+模型信息查询
 ----------------------
 
-可以通过 ``onnx inspect --io ${axmodel/onnx_path}`` 来查看 ``axmodel`` 模型的输入输出信息，还有其他 ``-m -n -t`` 参数可以查看模型里的 ``meta / node / tensor`` 信息。
+可以通过 ``onnx inspect --io ${axmodel/onnx_path}`` 来查看编译后 ``axmodel`` 模型的输入输出信息，还有其他 ``-m -n -t`` 参数可以查看模型里的 ``meta / node / tensor`` 信息。
 
 .. code-block:: shell
 
@@ -283,17 +323,17 @@ log 参考信息
 
 .. _model_simulator:
 
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 仿真运行
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 本章节介绍 ``axmodel`` 仿真运行的基本操作, 使用 ``pulsar2 run`` 命令可以直接在 ``PC`` 上直接运行由 ``pulsar2 build`` 生成的 ``axmodel`` 模型，无需上板运行即可快速得到网络模型的运行结果。
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 仿真运行准备
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
-仿真运行时需要的 ``前处理`` 和 ``后处理`` 工具已包含在 ``pulsar2-run-helper`` 文件夹中。
+某些模型只能支持特定的输入数据格式，模型的输出数据也是以模组特定的格式输出的。在模型仿真运行前，需要把输入数据转换成模型支持的数据格式，这部分数据操作称为 ``前处理`` 。在模型仿真运行后，需要把输出数据转换成工具可以分析查看的数据格式，这部分数据操作称为 ``后处理`` 。仿真运行时需要的 ``前处理`` 和 ``后处理`` 工具已包含在 ``pulsar2-run-helper`` 文件夹中。
 
 ``pulsar2-run-helper`` 文件夹内容如下所示：
 
@@ -311,9 +351,9 @@ log 参考信息
     -rw-r--r-- 1 root root   29 Dec  2 12:23 requirements.txt
     -rw-r--r-- 1 root root  308 Dec  2 12:23 setup.cfg
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-仿真运行 ``mobilenetv2``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
+仿真运行示例 ``mobilenetv2``
+^^^^^^^^^^^^^^^^^^^^^
 
 将 :ref:`《编译执行》 <model_compile>` 章节生成的 ``compiled.axmodel`` 拷贝 ``pulsar2-run-helper/models`` 路径下，并更名为 ``mobilenetv2.axmodel``
 
@@ -321,9 +361,9 @@ log 参考信息
 
     root@xxx:/data# cp output/compiled.axmodel pulsar2-run-helper/models/mobilenetv2.axmodel
 
-^^^^^^^^^^^^^^^^^^^^^
+----------------------
 输入数据准备
-^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 进入 ``pulsar2-run-helper`` 目录，使用 ``cli_classification.py`` 脚本将 ``cat.jpg`` 处理成 ``mobilenetv2.axmodel`` 所需要的输入数据格式。
 
@@ -333,9 +373,9 @@ log 参考信息
     root@xxx:~/data/pulsar2-run-helper# python3 cli_classification.py --pre_processing --image_path sim_images/cat.jpg --axmodel_path models/mobilenetv2.axmodel --intermediate_path sim_inputs/0
     [I] Write [input] to 'sim_inputs/0/input.bin' successfully.
 
-^^^^^^^^^^^^^^^^^^^^^
+----------------------
 仿真模型推理
-^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 运行 ``pulsar2 run`` 命令，将 ``input.bin`` 作为 ``mobilenetv2.axmodel`` 的输入数据并执行推理计算，输出 ``output.bin`` 推理结果。
 
@@ -347,9 +387,9 @@ log 参考信息
     write [output] to [sim_outputs/0/output.bin] successfully
     >>> [0] finish
 
-^^^^^^^^^^^^^^^^^^^^^
+----------------------
 输出数据处理
-^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 使用 ``cli_classification.py`` 脚本对仿真模型推理输出的 ``output.bin`` 数据进行后处理，得到最终计算结果。
 
@@ -365,21 +405,21 @@ log 参考信息
 
 .. _onboard_running:
 
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 开发板运行
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 本章节介绍如何在 ``AX650`` ``M76H`` 开发板上运行通过 :ref:`《编译执行》 <model_compile>` 章节获取 ``compiled.axmodel`` 模型. 
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 开发板获取
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
 - 通过企业途径向 AXera 签署 NDA 后获取 **AX650 或 M76H EVB**.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 使用 ax_run_model 工具快速测试模型推理速度
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
 为了方便用户测评模型，在开发板上预制了 :ref:`ax_run_model <ax_run_model>` 工具，此工具有若干参数，可以很方便地测试模型速度和精度。
 
@@ -405,9 +445,9 @@ log 参考信息
       min =   0.719 ms   max =   0.726 ms   avg =   0.721 ms
       ------------------------------------------------------
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 使用 sample_npu_classification 示例测试单张图片推理结果
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^
 
 .. hint::
 

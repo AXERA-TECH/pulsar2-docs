@@ -147,14 +147,16 @@
           "tensor_format": "AutoColorSpace",
           // input tensor layout in origin model. type: enum. required: false. default: NCHW. option: NHWC, NCHW.
           "tensor_layout": "NCHW",
-          // input format in runtime. type: enum. required: false. default: AutoColorSpace. option: AutoColorSpace, GRAY, BGR, RGB, YUYV422, UYVY422, YUV420SP, YVU420SP.
+          // input format in runtime. type: enum. required: false. default: AutoColorSpace. option: AutoColorSpace, GRAY, BGR, RGB, YUYV422, UYVY422, YUV420SP, YVU420SP, RAW.
           "src_format": "AutoColorSpace",
           // input layout in runtime; if `src_format` is YUV/YVU, `src_layout` will be changed to NHWC. type: enum. required: false. default: NCHW. option: NHWC, NCHW.
           "src_layout": "NHWC",
           // input data type in runtime. type: enum. required: false. default: FP32. option: U8, S8, U16, S16, U32, S32, FP16, FP32.
           "src_dtype": "U8",
+    
           // extra compiler shapes for this input. src_extra_shapes size of every input should be the same. shape at the same index of every input will be treated as a input group which can inference independently at runtime. type: list of Shape. required: false. default [].
           "src_extra_shapes": [],
+    
           // color space mode. type: enum. required: false. default: NoCSC. option: NoCSC, Matrix, FullRange, LimitedRange.
           "csc_mode": "NoCSC",
           // color space conversion matrix, 12 elements array that represents a 3x4 matrix. type: float array. required: false. default: [].
@@ -218,6 +220,8 @@
         "disable_ir_fix": false,
         // compiler check level, 0: no check; 1: assert all close; 2: assert all equal; 3: check cosine simularity. type: int. required: false. default: 0.
         "check": 0,
+        // dump npu perf information for profiling. type: bool. required: false. default: false.
+        "npu_perf": false,
         // compiler check mode, CheckOutput: only check model output; CheckPerLayer: check model intermediate tensor and output. type: enum. required: false. default: CheckOutput. option: CheckOutput, CheckPerLayer.
         "check_mode": "CheckOutput",
         // relative tolerance when check level is 1. type: float. required: false. default: 1e-5.
@@ -228,8 +232,6 @@
         "check_cosine_simularity": 0.999,
         // tensor black list for per layer check, support regex. type: list of string. required: false. default: [].
         "check_tensor_black_list": [],
-        // compiler debug level. type: int. required: false. default: 0.
-        "debug": 0,
         // input sample data dir for compiler check. type: string. required: false. default: .
         "input_sample_dir": ""
       }
@@ -509,22 +511,22 @@ proto 配置定义
     message InputProcessor {
       // input tensor name in origin model. "DEFAULT" means processor for all input tensors. type: string. required: true.
       string tensor_name = 1;
-
+    
       // input tensor format in origin model. type: enum. required: false. default: AutoColorSpace. option: AutoColorSpace, BGR, RGB, GRAY.
       common.ColorSpace tensor_format = 2;
       // input tensor layout in origin model. type: enum. required: false. default: NCHW. option: NHWC, NCHW.
       common.Layout tensor_layout = 3;
-
-      // input format in runtime. type: enum. required: false. default: AutoColorSpace. option: AutoColorSpace, GRAY, BGR, RGB, YUYV422, UYVY422, YUV420SP, YVU420SP.
+    
+      // input format in runtime. type: enum. required: false. default: AutoColorSpace. option: AutoColorSpace, GRAY, BGR, RGB, YUYV422, UYVY422, YUV420SP, YVU420SP, RAW.
       common.ColorSpace src_format = 4;
       // input layout in runtime; if `src_format` is YUV/YVU, `src_layout` will be changed to NHWC. type: enum. required: false. default: NCHW. option: NHWC, NCHW.
       common.Layout src_layout = 5;
       // input data type in runtime. type: enum. required: false. default: FP32. option: U8, S8, U16, S16, U32, S32, FP16, FP32.
       common.DataType src_dtype = 6;
-
+    
       // extra compiler shapes for this input. src_extra_shapes size of every input should be the same. shape at the same index of every input will be treated as a input group which can inference independently at runtime. type: list of Shape. required: false. default [].
       repeated common.Shape src_extra_shapes = 11;
-
+    
       // color space mode. type: enum. required: false. default: NoCSC. option: NoCSC, Matrix, FullRange, LimitedRange.
       CSCMode csc_mode = 7;
       // color space conversion matrix, 12 elements array that represents a 3x4 matrix. type: float array. required: false. default: [].
@@ -584,10 +586,10 @@ proto 配置定义
       bool disable_ir_fix = 3;
       // compiler check level, 0: no check; 1: assert all close; 2: assert all equal; 3: check cosine simularity. type: int. required: false. default: 0.
       int32 check = 5;
+      // dump npu perf information for profiling. type: bool. required: false. default: false.
+      bool npu_perf = 6;
       // compiler check mode, CheckOutput: only check model output; CheckPerLayer: check model intermediate tensor and output. type: enum. required: false. default: CheckOutput. option: CheckOutput, CheckPerLayer.
       CheckMode check_mode = 7;
-      // compiler debug level. type: int. required: false. default: 0.
-      int32 debug = 6;
       // relative tolerance when check level is 1. type: float. required: false. default: 1e-5.
       float check_rtol = 8;
       // absolute tolerance when check level is 1. type: float. required: false. default: 0.

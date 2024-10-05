@@ -25,7 +25,7 @@ copyright = '2024, AXERA Semiconductor Co., Ltd. All rights reserved'
 author = 'AXera-Tech'
 
 # The full version, including alpha/beta/rc tags
-release = 'V3.0'
+release = 'V3.2'
 
 # -- General configuration ---------------------------------------------------
 
