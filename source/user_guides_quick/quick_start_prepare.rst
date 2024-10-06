@@ -40,7 +40,7 @@
 工具链获取途径：
 
 - `百度网盘 <https://pan.baidu.com/s/1FazlPdW79wQWVY-Qn--qVQ?pwd=sbru>`_
-- `Google Drive <https://drive.google.com/drive/folders/1gJFkHw2gyW-7B9xTdpH_w72Ly2PQ7nsi?usp=sharing>`_
+- `Google Drive <https://drive.google.com/drive/folders/10rfQIAm5ktjJ1bRMsHbUanbAplIn3ium?usp=sharing>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 载入 Docker Image
