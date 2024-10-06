@@ -7,12 +7,23 @@
 - AX650N
 - AX630C
 
+**已验证模型**
+
+- Llama2、Llama3、Llama3.2
+- TinyLlama-1.1B
+- Qwen1.5、Qwen2、Qwen2.5
+- Phi2、Phi3
+- MiniCPM
+- SmolLM
+- ChatGLM3
+- OpenBuddy
+
 本章节介绍如何将 Huggingface 上的模型转换的基本操作, 使用 ``pulsar2`` 工具将从 Huggingface 下载的项目中 ``*.safetensor`` 或 ``pytorch_model.bin``  模型编译成 ``axmodel`` 模型. 请先参考 :ref:`《开发环境准备》 <dev_env_prepare>` 章节完成开发环境搭建. 
 本节示例模型为 ``Qwen2-0.5B-Instruct``.
 
 **版本约束**
 
-Pulsar2 3.0 以上版本已内置 llm build 相关模块。
+本文档基于 Pulsar2 3.2 版本进行编写。
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 命令说明
@@ -23,9 +34,10 @@ Pulsar2 3.0 以上版本已内置 llm build 相关模块。
 .. code-block:: shell
 
     root@xxx:/data# pulsar2 llm_build --help
-    usage: pulsar2 llm_build [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--parallel PARALLEL] [--model_config MODEL_CONFIG]
-                            [--kv_cache_len KV_CACHE_LEN] [--post_topk POST_TOPK] [--post_weight_type {bf16,s8}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4}] [-c CHECK_LEVEL]
-                            [--chip {AX620E,AX650}]
+    usage: pulsar2 llm_build [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN]
+                            [--parallel PARALLEL] [--model_config MODEL_CONFIG] [--kv_cache_len KV_CACHE_LEN]
+                            [--post_topk POST_TOPK] [--post_weight_type {bf16,s8}] [-t {fp16,bf16,fp32}]
+                            [-w {fp16,bf16,fp32,s8,s4}] [-c CHECK_LEVEL] [--chip {AX620E,AX650}] [--prompt PROMPT]
 
     optional arguments:
     -h, --help            show this help message and exit
@@ -52,6 +64,7 @@ Pulsar2 3.0 以上版本已内置 llm build 相关模块。
                             check level 0:run 1:layer_check 2: cal 1+1
     --chip {AX620E,AX650}
                             chip
+    --prompt PROMPT       prompt for check_level==2
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -128,10 +141,9 @@ embed 提取和优化
 
 .. code-block:: shell  
 
-    python tools/extract_embed.py --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/
-    python tools/embed-process.py --input Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.npy --output Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.float32.bin
     chmod +x ./tools/fp32_to_bf16
-    ./tools/fp32_to_bf16 Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.float32.bin Qwen/Qwen2-0.5B-w8a16/model.embed_tokens.weight.bfloat16.bin
+    chmod +x ./tools/embed_process.sh
+    ./tools/embed_process.sh Qwen/Qwen2-0.5B-Instruct/ Qwen/Qwen2-0.5B-w8a16/
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 输出文件说明
@@ -142,8 +154,8 @@ embed 提取和优化
     root@xxx:/data/ax-llm-build# tree Qwen/Qwen2-0.5B-w8a16
     Qwen/Qwen2-0.5B-w8a16
     ├── model.embed_tokens.weight.bfloat16.bin
-    ├── model.embed_tokens.weight.float32.bin
-    ├── model.embed_tokens.weight.npy
+    ├── model.embed_tokens.weight.float32.bin # 临时文件，可删掉
+    ├── model.embed_tokens.weight.npy # 临时文件，可删掉 
     ├── qwen2_p128_l0_together.axmodel
     ├── qwen2_p128_l10_together.axmodel
     ├── qwen2_p128_l11_together.axmodel
@@ -206,10 +218,216 @@ embed 提取和优化
     
     [N][                             Run][ 603]: hit eos,avg 27.22 token/s
 
+板端运行程序编译流程，请参考我们在 github 上的开源项目：
+
+- `AX-LLM <https://github.com/AXERA-TECH/ax-llm>`_
+
+
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Tokenizer 解析器说明
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+ax-llm 项目中的 Tokenizer 解析器采用本地模块与 HTTP Server 两种方案，其中本地方案又尝试了 sentencepiece、tiktoken 两种方案。
+但是我们在实际调试过程中发现 sentencepiece 对于不同 LLM 模型的 special tokens 支持不友好，需要用户自行处理 special tokens 的拆分，容易导致板端 token id 与 transformers 库中的 AutoTokenizer 获得的 token id 存在差异，最终影响 LLM 的输出结果正确性。
+因此我们建议前期调试的时候使用 Tokenizer HTTP Server 的方式直接调用 transformers 库中的 AutoTokenizer 模块进行测试。 
+
+Tokenizer HTTP Server 的特点：
+
+* 保证 token id 正确
+* 方便添加 chat template
+* 支持本地、远端部署
+* 支持多用户接入
+
+以在网盘中已提供基于 Qwen2.5 3B 的相关文件为例
+
+.. code-block:: shell
+
+    root@xxx:/data/ax-llm-build# tree qwen2.5-3b-prefill-ax650/
+    qwen2.5-3b-prefill-ax650/
+    ├── main_prefill
+    ├── qwen2.5-3B-prefill-ax650
+    │   ├── model.embed_tokens.weight.bfloat16.bin
+    │   ├── qwen2_p128_l0_together.axmodel
+        ...
+    │   ├── qwen2_p128_l12_together.axmodel
+    │   └── qwen2_post.axmodel
+    ├── qwen2.5_tokenizer
+    │   ├── merges.txt
+    │   ├── tokenizer_config.json
+    │   ├── tokenizer.json
+    │   └── vocab.json
+    ├── qwen2.5_tokenizer.py
+    ├── qwen.tiktoken
+    ├── readme.txt
+    └── run_qwen2.5_3B_prefill_ax650.sh
+
+* qwen2.5_tokenizer：是 tokenizer 相关文件，从 Qwen/Qwen2.5-3B-Instruct/ 中提取
+* qwen2.5_tokenizer.py：是用 python 实现的 Tokenizer HTTP Server
+
+运行说明如下：
+
+* python qwen2.5_tokenizer.py --host xxx.xxx.xxx.xxx --port 12345，其中 --host xxx.xxx.xxx.xxx 设置 tokenizer解析服务器的 IP 地址，确保 AX650N 能正常访问该地址。可以在具备 python 环境的 AX650N 本地运行
+* 修改 run_qwen2.5_3B_prefill_ax650.sh 中 --filename_tokenizer_model 的 IP 信息和步骤1中的一致
+* 运行 run_qwen2.5_3B_prefill_ax650.sh 即可
+
+.. code-block:: shell
+
+    root@xxx:/data/ax-llm-build# cat qwen2.5-3b-prefill-ax650/run_qwen2.5_3B_prefill_ax650.sh
+    ./main_prefill \
+    --template_filename_axmodel "qwen2.5-3B-prefill-ax650/qwen2_p128_l%d_together.axmodel" \
+    --axmodel_num 36 \
+    --tokenizer_type 2 \
+    --filename_tokenizer_model http://xxx.xxx.xxx.xxx:12345 \
+    --bos 0 --eos 0 \
+    --filename_post_axmodel "qwen2.5-3B-prefill-ax650/qwen2_post.axmodel" \
+    --filename_tokens_embed "qwen2.5-3B-prefill-ax650/model.embed_tokens.weight.bfloat16.bin" \
+    --tokens_embed_num 151936 \
+    --tokens_embed_size 2048 \
+    --use_mmap_load_embed 1 \
+    --live_print 1 \
+    --continue 1 \
+    --prompt "$1"
+
 ~~~~~~~~~~~~~~~~~~~~~~~
 其他示例
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-请参考我们在 github 上的开源项目：
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+MiniCPM-V 2.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+（待补充）
 
-- `AX-LLM <https://github.com/AXERA-TECH/ax-llm>`_
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+调试说明
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``pulsar2 llm_build`` 通过在编译命令中使用 ``--check_level`` 启动调试精度调试功能
+
+* ``--check_level 1``：测试第一层的相似度
+* ``--check_level 2``：指定 prompt 输入的内容，用于仿真运行编译生成的模型文件。
+
+^^^^^^^^^^^^^^^^^^^^^
+--check_level 1
+^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: shell
+
+    pulsar2 llm_build --check_level 1 --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/ --kv_cache_len 1023 --hidden_state_type bf16 --prefill_len 128 --chip AX650 
+
+LOG：
+
+.. code-block:: shell
+
+    pulsar2 llm_build --check_level 1 --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/ --kv_cache_len 1023 --hidden_state_type bf16 --prefill_len 128 --chip AX650 --parallel 8
+    Config(
+        model_name='Qwen2-0.5B-Instruct',
+        model_type='qwen2',
+        num_hidden_layers=24,
+        num_attention_heads=14,
+        num_key_value_heads=2,
+        hidden_size=896,
+        intermediate_size=4864,
+        vocab_size=151936,
+        rope_theta=1000000.0,
+        max_position_embeddings=32768,
+        rope_partial_factor=1.0,
+        rms_norm_eps=1e-06,
+        norm_type='rms_norm',
+        hidden_act='silu',
+        hidden_act_param=0.03,
+        scale_depth=1.4,
+        scale_emb=1,
+        dim_model_base=256
+    )
+    2024-10-07 01:23:28.414 | SUCCESS  | yamain.command.llm_build:llm_build:101 - prepare llm model done!
+    building llm decode layers   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 24/24 0:00:39
+    building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:01:26
+    2024-10-07 01:25:34.765 | SUCCESS  | yamain.command.llm_build:llm_build:170 - build llm model done!
+    2024-10-07 01:25:38.740 | INFO     | yamain.command.llm_build:llm_build:294 - decode layer0_gt layer0_got cos_sim is: 0.9986067835921196
+    2024-10-07 01:25:45.421 | INFO     | yamain.command.llm_build:llm_build:325 - prefill layer0_gt layer0_got cos_sim is: 0.9986067835921196
+    2024-10-07 01:25:45.421 | SUCCESS  | yamain.command.llm_build:llm_build:349 - check llm model done!
+
+^^^^^^^^^^^^^^^^^^^^^
+--check_level 2
+^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: shell
+
+    pulsar2 llm_build --check_level 2 --prompt "<|im_start|>user\n1+1=?<|im_end|>\n<|im_start|>assistant\n" --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/ --kv_cache_len 1023 --hidden_state_type bf16 --prefill_len 128 --chip AX650 
+
+由于会打印每一层（hidden_layer）的调试信息，信息量有点大，这里就只显示比较关键的一些内容。
+
+.. code-block:: shell
+
+    pulsar2 llm_build --check_level 2 --prompt "<|im_start|>user\n1+1=?<|im_end|>\n<|im_start|>assistant\n" --input_path Qwen/Qwen2-0.5B-Instruct/ --output_path Qwen/Qwen2-0.5B-w8a16/ --kv_cache_len 1023 --hidden_state_type bf16 --prefill_len 128 --chip AX650
+    Config(
+        model_name='Qwen2-0.5B-Instruct',
+        model_type='qwen2',
+        num_hidden_layers=24,
+        num_attention_heads=14,
+        num_key_value_heads=2,
+        hidden_size=896,
+        intermediate_size=4864,
+        vocab_size=151936,
+        rope_theta=1000000.0,
+        max_position_embeddings=32768,
+        rope_partial_factor=1.0,
+        rms_norm_eps=1e-06,
+        norm_type='rms_norm',
+        hidden_act='silu',
+        hidden_act_param=0.03,
+        scale_depth=1.4,
+        scale_emb=1,
+        dim_model_base=256
+    )
+    2024-10-07 01:04:57.881 | SUCCESS  | yamain.command.llm_build:llm_build:101 - prepare llm model done!
+    building llm decode layers   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 24/24 0:00:39
+    building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:01:26
+    2024-10-07 01:07:04.398 | SUCCESS  | yamain.command.llm_build:llm_build:170 - build llm model done!
+    Special tokens have been added in the vocabulary, make sure the associated word embeddings are fine-tuned or trained.
+    load Qwen/Qwen2-0.5B-w8a16/qwen2_p128_l0_together
+    load Qwen/Qwen2-0.5B-w8a16/qwen2_p128_l1_together
+    ...
+    load Qwen/Qwen2-0.5B-w8a16/qwen2_p128_l22_together
+    load Qwen/Qwen2-0.5B-w8a16/qwen2_p128_l23_together
+    2024-10-07 01:07:05.499 | INFO     | yasched.llm_utils:run:497 - simulate layer 0
+    2024-10-07 01:07:11.902 | INFO     | yasched.llm_utils:run:503 - end simulate
+    [[[-0.24707 0.0883789 -0.232422 ... -0.294922 0.0644531 -0.65625]
+    [0.0649414 -0.183594 -0.251953 ... -0.248047 -0.0231934 -0.138672]
+    [0.0766602 -0.0961914 0.152344 ... -0.0125732 0.106445 0.15625]
+    ...
+    [-0.0737305 -0.210938 -0.455078 ... -0.640625 0.0429688 -0.263672]
+    [-0.0737305 -0.210938 -0.455078 ... -0.640625 0.0429688 -0.263672]
+    [-0.0737305 -0.210938 -0.455078 ... -0.640625 0.0429688 -0.263672]]]
+    2024-10-07 01:07:11.903 | INFO     | yasched.llm_utils:run:497 - simulate layer 1
+    ...
+    2024-10-07 01:09:35.992 | INFO     | yasched.llm_utils:run:497 - simulate layer 23
+    2024-10-07 01:09:42.591 | INFO     | yasched.llm_utils:run:503 - end simulate
+    [[[-1.25 0.222656 2.375 ... 2.07812 -0.410156 1.84375]
+    [-0.289062 -1.08594 0.234375 ... 1.07812 -0.257812 -1.96094]
+    [-0.0839844 -0.542969 0.636719 ... 3.21875 -0.351562 -2.01562]
+    ...
+    [-3.21875 -0.478516 1.42188 ... 4.8125 1.21875 -0.294922]
+    [-3.21875 -0.478516 1.42188 ... 4.8125 1.21875 -0.294922]
+    [-3.21875 -0.478516 1.42188 ... 4.8125 1.21875 -0.294922]]]
+    2
+    posibile ('\n', 0.0),('答案', 0.0),('Result', 0.0),('0', 0.0),('3', 0.0),('2', 1.0),('1', 0.0),('Answer', 0.0),('\\', 0.0),('4', 0.0)
+    load Qwen/Qwen2-0.5B-w8a16/qwen2_p128_l0_together
+    load Qwen/Qwen2-0.5B-w8a16/qwen2_p128_l1_together
+    load Qwen/Qwen2-0.5B-w8a16/qwen2_p128_l2_together
+    ...
+    start_indice = 12
+    2024-10-07 01:10:37.005 | INFO     | yasched.llm_utils:run:556 - simulate layer 23
+    2024-10-07 01:10:38.859 | INFO     | yasched.llm_utils:run:562 - end simulate
+    [-0.310547 -2.21875 0.871094 -1.86719 -0.546875]
+    start_indice = 12
+    <|im_end|>
+    posibile ('\n', 0.0),('\\t', 0.0),('<|im_start|>', 0.0),(' \\', 0.0),('.', 0.0),('\n\n', 0.0),(' ', 0.0),('\\', 0.0),('<|im_end|>', 1.0),('\\n', 0.0)
+    ====================================================================================================
+    <|im_start|>user\n1+1=?<|im_end|>\n<|im_start|>assistant\n2<|im_end|>
+    ====================================================================================================
+    hit eos!
+    2024-10-07 01:10:51.637 | SUCCESS  | yamain.command.llm_build:llm_build:349 - check llm model done!
+
+
+
