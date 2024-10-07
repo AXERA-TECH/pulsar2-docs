@@ -295,7 +295,90 @@ Tokenizer HTTP Server 的特点：
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 MiniCPM-V 2.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-（待补充）
+
+下载 MiniCPM-V 2.0
+
+
+.. code-block:: shell
+
+    cd ax-llm-build
+    pip install -U huggingface_hub
+    huggingface-cli download --resume-download openbmb/MiniCPM-V-2 --local-dir openbmb/MiniCPM-V-2
+
+
+编译执行
+
+
+.. code-block:: shell
+
+    pulsar2 llm_build --input_path openbmb/MiniCPM-V-2/ --output_path openbmb/MiniCPM-V-2-ax650 --kv_cache_len 1023 --hidden_state_type bf16 --prefill_len 128 --chip AX650
+
+log 参考信息
+
+.. code-block::
+
+    pulsar2 llm_build --input_path openbmb/MiniCPM-V-2/ --output_path openbmb/MiniCPM-V-2-ax650 --kv_cache_len 1023 --hidden_state_type bf16 --prefill_len 128 --chip AX650 --parallel 8
+    Config(
+        model_name='openbmb/MiniCPM-V-2',
+        model_type='minicpmv',
+        num_hidden_layers=40,
+        num_attention_heads=36,
+        num_key_value_heads=36,
+        hidden_size=2304,
+        intermediate_size=5760,
+        vocab_size=122753,
+        rope_theta=10000.0,
+        max_position_embeddings=4096,
+        rope_partial_factor=1.0,
+        rms_norm_eps=1e-05,
+        norm_type='rms_norm',
+        hidden_act='silu',
+        hidden_act_param=0.03,
+        scale_depth=1.4,
+        scale_emb=12,
+        dim_model_base=256
+    )
+    2024-10-07 15:18:38.605 | SUCCESS  | yamain.command.llm_build:llm_build:101 - prepare llm model done!
+    tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3287/3287 0:00:44
+    build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7610/7610 0:04:09
+    build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 11485/11485 0:00:00
+    add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 253160/253160 0:00:42
+    calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 289230/289230 0:00:31
+    calc output dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 289230/289230 0:00:42
+    assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 289230/289230 0:00:51
+    assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 289230/289230 0:00:10
+    assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 289230/289230 0:00:12
+    building vision model   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:14:51
+    building llm decode layers   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40/40 0:04:24
+    building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:02:19
+    2024-10-07 15:40:14.676 | SUCCESS  | yamain.command.llm_build:llm_build:170 - build llm model done!
+    2024-10-07 15:40:48.246 | SUCCESS  | yamain.command.llm_build:llm_build:349 - check llm model done!
+
+上板运行
+
+.. figure:: ../media/ssd_dog.jpg
+    :alt: pipeline
+    :align: center
+
+.. code-block:: shell
+
+    root@ax650:/llm-test/minicpm-v-2.0# ./run_minicpmv-2.sh
+    [I][                            Init][ 125]: LLM init start
+    2% | █                                 |   1 /  44 [0.21s<9.11s, 4.83 count/s] tokenizer init ok
+    [I][                            Init][  26]: LLaMaEmbedSelector use mmap
+    100% | ████████████████████████████████ |  44 /  44 [33.54s<33.54s, 1.31 count/s] init vpm axmodel ok,remain_cmm(8086 MB)
+    [I][                            Init][ 284]: max_token_len : 1023
+    [I][                            Init][ 289]: kv_cache_size : 2304, kv_cache_num: 1023
+    [I][                            Init][ 297]: prefill_token_num : 128
+    [I][                            Init][ 306]: LLM init ok
+    Type "q" to exit, Ctrl+c to stop current running
+    prompt >> 描述下图片
+    image >> ssd_dog.jpg
+    [I][                          Encode][ 365]: image encode time : 728.507019 ms
+    [I][                             Run][ 589]: ttft: 520.94 ms
+    这幅图片展示了一只大而毛茸茸的狗，可能是拉布拉多或类似品种，坐在黄色和红色相间的门廊上。这只狗看起来在休息，它的目光朝向相机，表情平静。在狗的后面，有一辆红色自行车，车架上有黑色的装饰，停放在门廊上。自行车上挂着几个行李袋，表明它可能用于旅行或运输。背景中，可以看到一辆白色车辆，可能是汽车，停在门廊的后面。整个场景暗示了一个家庭环境，可能是在住宅区。
+
+    [N][                             Run][ 728]: hit eos,avg 5.55 token/s
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 调试说明
