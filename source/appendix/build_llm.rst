@@ -305,7 +305,7 @@ Tokenizer HTTP Server 的特点：
 MiniCPM-V 2.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-下载 MiniCPM-V 2.0
+**下载 MiniCPM-V 2.0**
 
 
 .. code-block:: shell
@@ -315,7 +315,7 @@ MiniCPM-V 2.0
     huggingface-cli download --resume-download openbmb/MiniCPM-V-2 --local-dir openbmb/MiniCPM-V-2
 
 
-获取 axmodel
+**获取 axmodel**
 
 .. code-block:: shell
 
@@ -363,7 +363,7 @@ log 参考信息
     2024-10-07 15:40:48.246 | SUCCESS  | yamain.command.llm_build:llm_build:349 - check llm model done!
 
 
-获取 embed 文件
+**获取 embed 文件**
 
 .. code-block:: shell
 
@@ -398,7 +398,11 @@ log 参考信息
     └── vpm_resampler.axmodel
 
 
-上板运行
+**上板运行**
+
+MiniCPM-V 的上板部署项目需要使用 ax-llm 的 minicpmv 的分支
+
+- `ax-llm/tree/minicpm-v <https://github.com/AXERA-TECH/ax-llm/tree/minicpm-v>`_
 
 .. figure:: ../media/ssd_dog.jpg
     :alt: pipeline
