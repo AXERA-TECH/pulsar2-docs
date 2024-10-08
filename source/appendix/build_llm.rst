@@ -13,7 +13,7 @@
 - TinyLlama-1.1B
 - Qwen1.5、Qwen2、Qwen2.5
 - Phi2、Phi3
-- MiniCPM
+- MiniCPM、MiniCPM-V 2.0
 - SmolLM
 - ChatGLM3
 - OpenBuddy
@@ -24,6 +24,17 @@
 **版本约束**
 
 本文档基于 Pulsar2 3.2 版本进行编写。
+
+**LLM ModelZoo**
+
+- `AX650N <https://pan.baidu.com/s/1_LG-sPKnLS_LTWF3Cmcr7A?pwd=ph0e>`_
+- `AX630C <https://pan.baidu.com/s/1X0aJTQM0bl8wsraspHnDUw?pwd=ifg5>`_
+
+**关联项目 AX-LLM**
+
+该项目用于探索业界常用 LLM(Large Language Model) 在已有芯片平台上落地的可行性和相关能力边界，方便社区开发者进行快速评估和二次开发自己的 LLM 应用。
+
+- `AX-LLM <https://github.com/AXERA-TECH/ax-llm>`_
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 命令说明
@@ -218,9 +229,7 @@ embed 提取和优化
     
     [N][                             Run][ 603]: hit eos,avg 27.22 token/s
 
-板端运行程序编译流程，请参考我们在 github 上的开源项目：
-
-- `AX-LLM <https://github.com/AXERA-TECH/ax-llm>`_
+板端运行程序编译流程，请参考我们在 github 上的开源项目 `AX-LLM <https://github.com/AXERA-TECH/ax-llm>`_
 
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -306,8 +315,7 @@ MiniCPM-V 2.0
     huggingface-cli download --resume-download openbmb/MiniCPM-V-2 --local-dir openbmb/MiniCPM-V-2
 
 
-编译执行
-
+获取 axmodel
 
 .. code-block:: shell
 
@@ -353,6 +361,40 @@ log 参考信息
     building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:02:19
     2024-10-07 15:40:14.676 | SUCCESS  | yamain.command.llm_build:llm_build:170 - build llm model done!
     2024-10-07 15:40:48.246 | SUCCESS  | yamain.command.llm_build:llm_build:349 - check llm model done!
+
+
+获取 embed 文件
+
+.. code-block:: shell
+
+    ./embed_process_vl.sh openbmb/MiniCPM-V-2/ openbmb/MiniCPM-V-2-ax650/
+
+最终生成文件如下
+
+.. code-block:: shell
+
+    root@xxx: tree openbmb/MiniCPM-V-2-ax650/
+    openbmb/MiniCPM-V-2-ax650/
+    ├── minicpmv_p128_l0_together.axmodel
+    ├── minicpmv_p128_l10_together.axmodel
+    ...
+    ├── minicpmv_p128_l19_together.axmodel
+    ├── minicpmv_p128_l1_together.axmodel
+    ├── minicpmv_p128_l20_together.axmodel
+    ...
+    ├── minicpmv_p128_l29_together.axmodel
+    ├── minicpmv_p128_l2_together.axmodel
+    ├── minicpmv_p128_l30_together.axmodel
+    ...
+    ├── minicpmv_p128_l39_together.axmodel
+    ├── minicpmv_p128_l3_together.axmodel
+    ...
+    ├── minicpmv_p128_l8_together.axmodel
+    ├── minicpmv_p128_l9_together.axmodel
+    ├── minicpmv_post.axmodel
+    ├── model.embed_tokens.weight.bfloat16.bin
+    └── vpm_resampler.axmodel
+
 
 上板运行
 
@@ -511,6 +553,4 @@ LOG：
     ====================================================================================================
     hit eos!
     2024-10-07 01:10:51.637 | SUCCESS  | yamain.command.llm_build:llm_build:349 - check llm model done!
-
-
 
