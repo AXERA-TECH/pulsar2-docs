@@ -367,7 +367,9 @@ log 参考信息
 
 .. code-block:: shell
 
-    ./embed_process_vl.sh openbmb/MiniCPM-V-2/ openbmb/MiniCPM-V-2-ax650/
+    chmod +x ./tools/fp32_to_bf16
+    chmod +x ./tools/embed_process.sh
+    ./tools/embed_process_vl.sh Qwen/Qwen2-0.5B-Instruct/ Qwen/Qwen2-0.5B-w8a16/
 
 最终生成文件如下
 
