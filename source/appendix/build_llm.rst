@@ -9,14 +9,17 @@
 
 **已验证模型**
 
-- Llama2、Llama3、Llama3.2
-- TinyLlama-1.1B
-- Qwen1.5、Qwen2、Qwen2.5
-- Phi2、Phi3
+- DeepSeek-R1-Distill
+- Qwen2.5
 - MiniCPM、MiniCPM-V 2.0
-- SmolLM
+- InternVL2
 - ChatGLM3
 - OpenBuddy
+- SmolLM
+- Llama3.2
+- Gemma2
+- Phi2、Phi3
+- TinyLlama
 
 本章节介绍如何将 Huggingface 上的模型转换的基本操作, 使用 ``pulsar2`` 工具将从 Huggingface 下载的项目中 ``*.safetensor`` 或 ``pytorch_model.bin``  模型编译成 ``axmodel`` 模型. 请先参考 :ref:`《开发环境准备》 <dev_env_prepare>` 章节完成开发环境搭建. 
 本节示例模型为 ``Qwen2-0.5B-Instruct``.
