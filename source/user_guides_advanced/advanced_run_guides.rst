@@ -32,8 +32,7 @@ pulsar2 run
 
     usage: main.py run [-h] [--config] [--model] [--input_dir] [--output_dir]
                        [--list] [--random_input ] [--batch_size]
-                       [--enable_perlayer_output ] [--dump_with_stride ]
-                       [--group_index] [--mode] [--target_hardware]
+                       [--enable_perlayer_output ] [--mode] [--target_hardware]
     
     optional arguments:
       -h, --help            show this help message and exit
@@ -56,8 +55,6 @@ pulsar2 run
       --enable_perlayer_output []
                             enable dump perlayer output. type: bool. required:
                             false. default: false.
-      --dump_with_stride []
-      --group_index 
       --mode                run mode, only work for QuantAxModel. type: enum.
                             required: false. default: Reference. option:
                             Reference, NPUBackend.

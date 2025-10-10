@@ -4,8 +4,8 @@ Quick Start(AX620E)
 
 **本章节适用于以下平台：**
 
-- AX630C
-- AX620Q
+- AX630C、AX631
+- AX620Q、AX620QP、AX620QZ
 
 本章节介绍 ``ONNX`` 模型转换的基本操作, 使用 ``pulsar2`` 工具将 ``ONNX``  模型编译成 ``axmodel`` 模型. 请先参考 :ref:`《开发环境准备》 <dev_env_prepare>` 章节完成开发环境搭建. 
 本节示例模型为开源模型 ``MobileNetv2``.
@@ -37,7 +37,7 @@ Pulsar2 工具链命令说明
 
 ``/data/config/`` 路径下的 ``mobilenet_v2_build_config.json`` 展示:
 
-.. code-block:: shell
+.. code-block:: json
 
     {
       "model_type": "ONNX",
@@ -46,10 +46,12 @@ Pulsar2 工具链命令说明
         "input_configs": [
           {
             "tensor_name": "input",
-            "calibration_dataset": "./dataset/imagenet-32-images.tar",
+            "calibration_dataset": "./dataset/imagenet-32-images.tar", 
             "calibration_size": 32,
-            "calibration_mean": [103.939, 116.779, 123.68],
-            "calibration_std": [58.0, 58.0, 58.0]
+            // 校验数据集归一化的各通道均值, 通道顺序与 tensor_format 一致
+            "calibration_mean": [103.939, 116.779, 123.68], 
+            // 校验数据集归一化的各通道标准差
+            "calibration_std": [58.0, 58.0, 58.0] 
           }
         ],
         "calibration_method": "MinMax",
@@ -59,9 +61,13 @@ Pulsar2 工具链命令说明
         {
           "tensor_name": "input",
           "tensor_format": "BGR",
+          // 运行时输入格式
           "src_format": "BGR",
+          // 运行时数据类型
           "src_dtype": "U8",
+          // 运行时数据布局格式
           "src_layout": "NHWC",
+          // 颜色空间转换
           "csc_mode": "NoCSC"
         }
       ],
@@ -300,7 +306,7 @@ log 参考信息
     -rw-r--r-- 1 root root  308 Dec  2 12:23 setup.cfg
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-仿真运行 示例``mobilenetv2``
+仿真运行 示例 ``mobilenetv2``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 将 :ref:`《编译执行》 <model_compile_20e>` 章节生成的 ``compiled.axmodel`` 拷贝 ``pulsar2-run-helper/models`` 路径下，并更名为 ``mobilenetv2.axmodel``
@@ -365,9 +371,9 @@ log 参考信息
 
 - 通过企业途径向 AXera 签署 NDA 后获取 **AX630C DEMO Board**.
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 使用 ax_run_model 工具快速测试模型推理速度
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 为了方便用户测评模型，在开发板上预制了 :ref:`ax_run_model <ax_run_model>` 工具，此工具有若干参数，可以很方便地测试模型速度和精度。
 
@@ -392,9 +398,9 @@ log 参考信息
       min =   1.093 ms   max =   1.098 ms   avg =   1.096 ms
       ------------------------------------------------------
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 使用 sample_npu_classification 示例测试单张图片推理结果
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. hint::
 

@@ -46,8 +46,14 @@
                          [--quant.smooth_quant_strength]
                          [--quant.transformer_opt_level]
                          [--quant.input_sample_dir] [--quant.ln_scale_data_type]
-                         [--quant.check] [--quant.disable_auto_refine_scale]
-                         [--compiler.static_batch_sizes [...]]
+                         [--quant.check] [--quant.disable_auto_refine_scale ]
+                         [--quant.enable_easy_quant ]
+                         [--quant.disable_quant_optimization ]
+                         [--quant.enable_brecq ] [--quant.enable_lsq ]
+                         [--quant.enable_adaround ] [--quant.finetune_epochs]
+                         [--quant.finetune_block_size]
+                         [--quant.finetune_batch_size] [--quant.finetune_lr]
+                         [--quant.device] [--compiler.static_batch_sizes [...]]
                          [--compiler.max_dynamic_batch_size]
                          [--compiler.ddr_bw_limit] [--compiler.disable_ir_fix ]
                          [--compiler.check] [--compiler.npu_perf ]
@@ -55,8 +61,12 @@
                          [--compiler.check_atol]
                          [--compiler.check_cosine_simularity]
                          [--compiler.check_tensor_black_list [...]]
+                         [--compiler.enable_slice_mode ]
+                         [--compiler.enable_tile_mode ]
+                         [--compiler.enable_data_soft_compression ]
                          [--compiler.input_sample_dir]
-    optional arguments:
+    
+    options:
       -h, --help            show this help message and exit
       --config              config file path, supported formats: json / yaml /
                             toml / prototxt. type: string. required: false.
@@ -71,10 +81,10 @@
       --model_type          input model type. type: enum. required: false.
                             default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
       --target_hardware     target hardware. type: enum. required: false. default:
-                            AX650. option: AX650, AX620E, M76H.
+                            AX650. option: AX650, AX620E, AX615, M76H, M57.
       --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
                             can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
-                            AX620E, npu mode can be NPU1 / NPU2. type: enum.
+                            AX620E or AX615, npu mode can be NPU1 / NPU2. type: enum.
                             required: false. default: NPU1.
       --input_shapes        modify model input shape of input model, this feature
                             will take effect before the `input_processors`
@@ -100,7 +110,7 @@
       --quant.calibration_method 
                             quantize calibration method. type: enum. required:
                             false. default: MinMax. option: MinMax, Percentile,
-                            MSE.
+                            MSE, KL.
       --quant.precision_analysis []
                             enable quantization precision analysis. type: bool.
                             required: false. default: false.
@@ -146,6 +156,35 @@
       --quant.disable_auto_refine_scale []
                             refine weight scale and input scale, type: bool.
                             required: false. default: false.
+      --quant.enable_easy_quant []
+                            enable easyquant; type bool. required: false. default:
+                            false.
+      --quant.disable_quant_optimization []
+                            disable quant optimization; type bool. required:
+                            false. default: false.
+      --quant.enable_brecq []
+                            enable brecq quantize strategy; type bool. required:
+                            false. default: false.
+      --quant.enable_lsq []
+                            enable lsq quantize strategy; type bool. required:
+                            false. default: false.
+      --quant.enable_adaround []
+                            enable adaround quantize strategy; type bool.
+                            required: false. default: false.
+      --quant.finetune_epochs 
+                            finetune epochs when enable finetune algorithm; type
+                            int32. required: false. default: 500.
+      --quant.finetune_block_size 
+                            finetune split block size when enable finetune
+                            algorithm; type int32. required: false. default: 4.
+      --quant.finetune_batch_size 
+                            finetune batch size when enable finetune algorithm;
+                            type int32. required: false. default: 1.
+      --quant.finetune_lr   learning rate when enable finetune algorithm; type
+                            float. required: false. default: 1e-3.
+      --quant.device        device for quant calibration. type: string. required:
+                            false. default: cpu. option: cpu, cuda:0, cuda:1, ...,
+                            cuda:7.
       --compiler.static_batch_sizes [ ...]
                             static batch sizes. type: int array. required: false.
                             default: [].
@@ -181,6 +220,15 @@
       --compiler.check_tensor_black_list [ ...]
                             tensor black list for per layer check, support regex.
                             type: list of string. required: false. default: [].
+      --compiler.enable_slice_mode []
+                            enable slice mode scheduler. type: bool. required:
+                            false. default: false.
+      --compiler.enable_tile_mode []
+                            enable tile mode scheduler. type: bool. required:
+                            false. default: false.
+      --compiler.enable_data_soft_compression []
+                            enable data soft compression. type: bool. required:
+                            false. default: false.
       --compiler.input_sample_dir 
                             input sample data dir for compiler check. type:
                             string. required: false. default: .
@@ -233,7 +281,7 @@
         - 数据类型：enum
         - 是否必选：否
         - 默认值：AX650
-        - 描述：模型编译的目标 soc 平台类型，支持 ``AX650``, ``AX620E``, ``M76H``
+        - 描述：模型编译的目标 soc 平台类型，支持 ``AX650``, ``AX620E``, ``AX615``, ``M76H``, ``M57``
 
     --npu_mode
 
@@ -244,6 +292,7 @@
 
             * soc 平台为 ``AX650`` 时，支持枚举: ``NPU1``, ``NPU2``, ``NPU3``
             * soc 平台为 ``AX620E`` 时，支持枚举: ``NPU1``, ``NPU2``
+            * soc 平台为 ``AX615`` 时，支持枚举: ``NPU1``, ``NPU2``
 
       .. warning:: npu_mode 指的是使用的 NPU 核数，而不是 vNPU 编号，请不要混淆。
 
@@ -293,7 +342,7 @@
             - 数据类型：enum
             - 是否必选：否
             - 默认值：MinMax
-            - 描述：量化算法，支持的枚举 ``MinMax``， ``Percentile``， ``MSE``，  结构体见 :ref:`《配置文件详细说明》 <config_details>`
+            - 描述：量化算法，支持的枚举 ``MinMax`` / ``Percentile`` / ``MSE`` / ``KL``，  结构体见 :ref:`《配置文件详细说明》 <config_details>`
 
         - precision_analysis
 
@@ -307,14 +356,14 @@
             - 数据类型：enum
             - 是否必选：否
             - 默认值：PerLayer
-            - 描述：精度分析方法，可选 PerLayer / EndToEnd。PerLayer 意味着每一层都采用浮点模型对应的层输入，计算每一层的输出与浮点模型输出的相似度。EndToEnd 代表首层采用浮点模型输入，然后进行完整模型的仿真，计算最终输出结果与浮点模型输出的相似度。
+            - 描述：精度分析方法，可选 ``PerLayer`` / ``EndToEnd``。``PerLayer`` 意味着每一层都采用浮点模型对应的层输入，计算每一层的输出与浮点模型输出的相似度。``EndToEnd`` 代表首层采用浮点模型输入，然后进行完整模型的仿真，计算最终输出结果与浮点模型输出的相似度。
 
         - precision_analysis_mode
 
             - 数据类型：enum
             - 是否必选：否
             - 默认值：Reference
-            - 描述：逐层仿真的实现，可选 Reference / NPUBackend。Reference 可以运行编译器支持的全部模型（支持包含 CPU 及 NPU 子图的模型），但是计算结果相比于最终上板结果会有少量误差（基本上差距在正负 1 内，且无系统性误差）。NPUBackend 可以运行仅包含 NPU 子图的模型，但是计算结果与上板结果比特对齐。
+            - 描述：逐层仿真的实现，可选 ``Reference`` / ``NPUBackend``。``Reference`` 可以运行编译器支持的全部模型（支持包含 CPU 及 NPU 子图的模型），但是计算结果相比于最终上板结果会有少量误差（基本上差距在正负 1 内，且无系统性误差）。``NPUBackend`` 可以运行仅包含 NPU 子图的模型，但是计算结果与上板结果比特对齐。
 
         - highest_mix_precision
 
@@ -343,6 +392,76 @@
             - 是否必选：否
             - 默认值：false
             - 描述：使能 smooth quant 量化策略以提升量化精度。
+
+        - enable_easy_quant
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：使能 easyquant 量化算法，是一种搜索权重和激活值的量化方法，精度较高。目前基于 cpu 实现，成功开启该功能后会占用一半的 cpu 并且耗时较长，建议在精度不足时开启该功能，量化数据集数量设置大于 32 张。该量化算法参考自 https://arxiv.org/abs/2006.16669。
+
+        - disable_quant_optimization
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：禁止量化部分的图优化功能，默认值为false. 量化时会对图做一定的变换来消除或者合并算子，该功能用于排查量化时图优化过程中可能存在的问题。需要注意，使能该功能时可能会导致模型性能下降。
+
+        - enable_brecq
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：是否使能 BRECQ 量化算法。
+
+        - enable_lsq
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：是否使能 LSQ 量化算法。
+
+        - enable_adaround
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：是否使能 ADAROUND 量化算法。
+
+        - finetune_epochs
+
+            - 数据类型：int
+            - 是否必选：否
+            - 默认值：500
+            - 描述：使能 BRECQ / LSQ / ADAROUND 量化算法时，微调轮次。
+
+        - finetune_block_size
+
+            - 数据类型：int
+            - 是否必选：否
+            - 默认值：4
+            - 描述：使能 BRECQ / LSQ / ADAROUND 量化算法时， block 大小。
+        
+        - finetune_batch_size
+
+            - 数据类型：int
+            - 是否必选：否
+            - 默认值：4
+            - 描述：使能 BRECQ / LSQ / ADAROUND 量化算法时， 设置的 batch size。
+
+        - finetune_lr
+
+            - 数据类型：float
+            - 是否必选：否
+            - 默认值：1e-3
+            - 描述：使能 BRECQ / LSQ / ADAROUND 量化算法时，学习率大小。 
+
+        - device
+
+            - 数据类型：float
+            - 是否必选：否
+            - 默认值：cpu
+            - 描述：量化过程中校准时使用的 device 类型，支持 "cpu" "cuda:0" "cuda:1" "cuda:2" 等。 
 
         - transformer_opt_level
 
@@ -442,6 +561,27 @@
             - 是否必选：否
             - 默认值：[]
             - 描述：不参与检查的 tensor 列表，支持正则表达式匹配。
+
+        - enable_slice_mode
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：使能 slice mode 调度策略，某些情况下可以极大减少 ddr swap 数据量以提高性能。
+
+        - enable_tile_mode
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：使能 tile mode 调度策略，某些情况下可以极大减少 ddr swap 数据量以提高性能。
+
+        - enable_data_soft_compression
+
+            - 数据类型：bool
+            - 是否必选：否
+            - 默认值：false
+            - 描述：使能 compiled.axmodel 中的 NPU 子模型软件压缩功能，可以减少 compiled.axmodel 的尺寸，但是会额外增加一些模型加载时间。
 
         - input_sample_dir
 
@@ -642,7 +782,7 @@ NPU 双核模式
       }
     }
 
-重新执行编译过程后，可得到如下带有 ``Quant Precision Table`` 的输出信息，包含了 **节点名、类型、输出名、数据类型、输出形状、余弦相似度** 等：
+重新执行编译过程后，可得到如下带有 ``Quant Precision Table`` 的输出信息，包含了 **节点名、类型、输出名、数据类型、输出形状、余弦相似度、均方误差** 等：
 同时会保存一个 mmd 格式的量化相似度图文件，通过颜色区分不同相似度，可以更直观的定位精度问题，可以通过日志中的 ``save precision analysis graph to`` 关键字找到文件路径。
 
 .. code-block:: bash
@@ -811,26 +951,35 @@ NPU 双核模式
 加载自定义数据集详解
 ------------------------------------
 
-``pulsar2 build`` 支持加载用户自定义的数据集用于量化，支持 ``.npy`` 以及 ``.bin`` 为后缀名的文件格式。
+一般情况下，模型输入是 ``RGB`` 色彩空间，默认或者设置 ``calibration_format`` 为 ``Image`` ， 在量化校准过程加载数据时会先对校准集中的图片做归一化和缩放。
+而如果是非 ``RGB`` 色彩空间的输入， 此时工具链难以感知到需要做哪些预处理， ``pulsar2 build`` 也支持加载用户自定义的数据集用于量化，支持 ``.npy`` 以及 ``.bin`` 为后缀名的文件格式。
+
+
+``calibration_format`` 一共支持 ``Image`` ``Numpy`` ``Binary`` ``NumpyObject`` 四种格式。
+
+.. note::
+
+    在使用 ``Numpy`` ``Binary`` ``NumpyObject`` 的量化数据格式时，工具链会直接加载数据进行量化，不再做预处理。需要用户自行完成数据的预处理，保证校准集中的数据可以直接输入到模型中进行推理并得到正确结果。
 
 ~~~~~~~~~~~~~~~~
 准备数据集
 ~~~~~~~~~~~~~~~~
 
-建议在处理图片时，尽量与推理时的预处理相同，尽量避免使用训练时的数据增强，一些参考步骤如下：
+在使用自定义数据集时，建议准备校准数据集的流程如下：
 
-    - 读取图片
-    - 将图片 ``rbg channel`` 顺序对齐到模型输入
-    - 缩放图片
-    - 归一化
+1. 对数据做预处理
 
-上述步骤仅供参考，可以根据实际情况进行调整与删减。如有些模型并不要求图片做归一化，对此类模型即可省去归一化的步骤。
+  - 预处理流程应与推理时的处理流程保持严格一致
 
-处理好图片后，将相应格式文件打包成压缩文件。
+  - 必须确保校准数据的数据类型和形状与模型输入完全一致
+
+2. 将校准数据保存成 ``.npy`` 或者 ``.bin`` 格式并压缩。
+
 
 .. note::
+    
 
-    ``npy`` 后缀名文件指以 ``Numpy`` 数组格式保存的文件，使用该文件格式时，需要保证保存时数组的数据类型、形状与相应的模型输入一致，后缀名为 ``.npy`` 。
+    ``npy`` 后缀名文件指以 ``Numpy`` 数组格式保存的文件，后缀名为 ``.npy`` 。
 
     ``bin`` 后缀名文件指以二进制格式保存的文件，使用该文件格式时，数据应以二进制保存，后缀名为 ``.bin`` 。
 
@@ -1023,7 +1172,15 @@ NPU 双核模式
               "data_type": "U16"
             },
             {
+              "op_types": ["Sub"], # 指定多种类型算子的量化精度
+              "data_type": "U16"
+            },
+            {
               "layer_name": "conv6_4", # 指定 conv6_4 算子的量化精度
+              "data_type": "U16"
+            },
+            {
+              "layer_names": ["conv4_3"], # 指定多个算子的量化精度
               "data_type": "U16"
             },
             {
@@ -1335,6 +1492,80 @@ NPU 双核模式
 
     2023-05-07 18:15:41.464 | WARNING  | yamain.command.load_model:const_patch:512 - update data of const tensor [reshape_0_shape], (-1,, 96, 48), S64
 
+.. _subgraph_compiler_option:
+
+------------------------------------
+对子图设置单独的编译选项
+------------------------------------
+
+通过修改配置文件，可以在模型转换过程中对指定的子图设置单独的编译选项。
+
+- 在配置文件的 ``compiler`` 节点下，新增一个 ``sub_configs`` 节点，通过在 ``sub_configs`` 下配置 ``start_tensor_names``, ``end_tensor_names`` 信息可以指定需要单独配置编译选项的子图范围。
+- 子图范围配置 ``start_tensor_names`` 和 ``end_tensor_names`` 需要是工具链前端图优化之后的模型中的 tensor 名称，编译时设置 ``--debug.dump_frontend_graph`` 可以将前端优化后的模型保存在输出目录下 ``frontend/optimzied_quant_axmodel.onnx``，通过 ``Netron`` 等工具查看模型信息，确定子图的起止 tensor 名称。
+- 在 ``compiler`` 节点下可配置的编译选项（除 ``sub_configs`` 外）均可以在子图编译选项中配置。
+- 子图编译选项没有显示配置的选项会继承 ``compiler`` 节点下的配置。比如在 ``compiler`` 节点中将 ``check`` 配置为 1，而在子图编译选项中没有显式配置 ``check`` 的话，子图会继承 ``compiler`` 节点的配置，``check`` 的值为 1。
+- 配置了单独编译选项的子图，会在编译结果 ``compiled.axmodel`` 中形成单独的一个子图。
+
+接下来以 ``mobilenetv2`` 为基础，演示子图单独编译选项功能：
+
+- 在原流程中添加编译选项 ``--debug.dump_frontend_graph`` 重新执行 pulsar2 build，然后使用 ``Netron`` 工具打开输出目录下的 ``frontend/optimzied_quant_axmodel.onnx`` 文件。
+- 确认单独配置编译选项的子图范围，示例中子图起始 tensor 名 ``op_37:AxQuantizedConv_out``，结束 tensor 名为 ``op_5:AxQuantizedConv_out``。
+
+.. figure:: ../media/compiler_sub_configs_subgraph.png
+        :alt: compiler_sub_configs_subgraph
+        :align: center
+
+- 在配置文件中的 ``compiler`` 节点下增加以下内容：
+
+.. code-block:: shell
+
+    "sub_configs": [
+      {
+        "start_tensor_names": ["op_37:AxQuantizedConv_out"],
+        "end_tensor_names": ["op_5:AxQuantizedConv_out"],
+        "check": 2
+      }
+    ]
+
+使用 ``pulsar2 build`` 转换模型会出现以下日志：
+
+.. code-block:: shell
+
+    2024-12-10 14:38:30.487 | INFO     | yamain.command.build:compile_ptq_model:1139 - subgraph [0], group: 0, type: GraphType.NPU
+    2024-12-10 14:38:30.487 | INFO     | yamain.command.build:compile_ptq_model:1139 - subgraph [1], group: 0, type: GraphType.NPU
+    2024-12-10 14:38:30.487 | INFO     | yamain.command.build:compile_ptq_model:1139 - subgraph [2], group: 0, type: GraphType.NPU
+
+说明因为子图配置编译选项，模型被分割为了 3 部分分别进行编译，并且在编译子图 1 时有如下日志：
+
+.. code-block:: shell
+
+    2024-12-10 14:38:30.694 | INFO     | yamain.command.npu_backend_compiler:compile:157 - compile npu subgraph [1]
+    tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6/6 0:00:00
+    new_ddr_tensor = []
+    build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 26/26 0:00:00
+    build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46/46 0:00:00
+    add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45/45 0:00:00
+    calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    calc output dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    2024-12-10 14:38:30.823 | INFO     | yasched.test_onepass:results2model:2593 - clear job deps
+    2024-12-10 14:38:30.823 | INFO     | yasched.test_onepass:results2model:2594 - max_cycle = 81,026
+    build jobs   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56/56 0:00:00
+    2024-12-10 14:38:30.847 | INFO     | yamain.command.npu_backend_compiler:compile:209 - assemble model [1] [subgraph_npu_1] b1
+    2024-12-10 14:38:30.890 | INFO     | yamain.command.npu_backend_compiler:compile:228 - generate gt of npu graph [subgraph_npu_1]
+    2024-12-10 14:38:31.797 | INFO     | yamain.command.npu_backend_compiler:check_assembled_model:376 - simulate npu graph [subgraph_npu_1_b1]
+    2024-12-10 14:38:32.352 | SUCCESS  | yamain.common.util:check_data:206 - check npu graph [subgraph_npu_1_b1] [op_5:AxQuantizedConv_out], (1, 56, 56, 144), uint8 successfully!
+
+可以看到编译子图 1 时，因为开启了 check 选项配置，进行了输出结果检查。
+
+- 最终输出的 ``compiled.axmodel`` 中也出现了三个 NPU 子模型，分割三个模型的 tensor 名即为子图编译选项中指定的名称。
+
+.. figure:: ../media/compiler_sub_configs_axmodel.png
+        :alt: compiler_sub_configs_axmodel
+        :align: center
+
 .. _transformer_optimize:
 
 ------------------------------------
@@ -1500,3 +1731,72 @@ Quantized ONNX 模型导入
         }
       ]
     }
+
+.. attention::
+
+    目前不支持 ``RGB`` 到 ``BGR`` 或者 ``BGR`` 到 ``RBG`` 的转换。
+
+
+------------------------------------
+高级量化策略配置详解
+------------------------------------
+
+支持客户配置高级量化策略，目前支持 ``ADAROUND`` ``LSQ`` ``BRECQ`` 等量化策略，这类量化策略通过在数据集上微调权重以及激活值，往往可以获得较好的精度。
+
+使用时需要机器中有支持 ``CUDA`` 的 ``GPU`` ，在启动 ``docker`` 也需要增加对 ``gpu`` 的支持，参考命令如下：
+
+.. code-block:: shell
+
+    sudo docker run -it --net host --rm --runtime=nvidia --gpus all -v $PWD:/data pulsar2:${version}
+
+配置参考如下：
+
+.. code-block:: shell
+  
+    {
+      "quant": {
+        "input_configs": [
+          {
+            "tensor_name": "DEFAULT",
+            "calibration_dataset": "dataset.tar",
+            "calibration_format": "Binary", # 建议使用 binary，以保证预处理与推理时一致，使得微调后与浮点模型接近，获得更好的精度
+            "calibration_size": 128, # calibration size, 建议128-512张
+          }
+        ],
+        "calibration_method": "MinMax",
+        "enable_adaround": true, # 使能 adaround量化策略
+        "finetune_block_size": 3, # 设置 block size
+        "finetune_lr": 1e-4, # 设置学习率
+        "finetune_epochs": 100, # 设置微调 epoch，lsq和brecq建议设置为10，adaround建议设置为50
+        "device": "cuda:0"
+    },
+
+当出现如下 ``log`` 时，说明该策略设置成功: 
+
+.. code-block:: shell
+
+    Calibration Progress(Phase 1): 100%|███████████████████████████████████████████████████████████████████| 128/128 [00:01<00:00, 20.16it/s]
+    [16:40:41] AX Adaround Reconstruction Running ...         
+
+    Check following parameters:
+    Is Scale Trainable:        True
+    Interested Layers:         []
+    Collecting Device:         cuda
+    Num of blocks:             51
+    Learning Rate:             0.0001
+    Steps:                     50
+    Gamma:                     1.0
+    Batch Size:                1
+
+    # Block [1 / 51]: [['207'] -> ['211']]
+    # Tuning Procedure : 100%|█████████████████████████████████████████████████████████████████████████████| 50/50 [00:11<00:00,  4.55it/s]
+    # Tuning Finished  : (0.0185 -> 0.0065) [Block Loss]
+
+    # Block [2 / 51]: [['211'] -> ['213']]
+    # Tuning Procedure : 100%|█████████████████████████████████████████████████████████████████████████████| 50/50 [00:06<00:00,  8.23it/s]
+    # Tuning Finished  : (0.0014 -> 0.0011) [Block Loss]
+
+
+.. attention::
+
+    当前 ``docker`` 中 ``torch`` 版本为 2.5， ``cuda`` 版本为 11.8 ， 使用时需要注意机器是否兼容。
