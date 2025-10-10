@@ -6,6 +6,7 @@ Quick Start(AX650)
 
 - AX650A
 - AX650N
+- AX8850
 - M76H
 
 本章节介绍 ``ONNX`` 模型转换的基本操作, 使用 ``pulsar2`` 工具将 ``ONNX``  模型编译成 ``axmodel`` 模型. 请先参考 :ref:`《开发环境准备》 <dev_env_prepare>` 章节完成开发环境搭建. 
@@ -38,7 +39,7 @@ Pulsar2 工具链命令说明
 
 ``/data/config/`` 路径下的 ``mobilenet_v2_build_config.json`` 展示:
 
-.. code-block:: shell
+.. code-block:: json
 
     {
       "model_type": "ONNX",
@@ -47,10 +48,12 @@ Pulsar2 工具链命令说明
         "input_configs": [
           {
             "tensor_name": "input",
-            "calibration_dataset": "./dataset/imagenet-32-images.tar",
+            "calibration_dataset": "./dataset/imagenet-32-images.tar", 
             "calibration_size": 32,
-            "calibration_mean": [103.939, 116.779, 123.68],
-            "calibration_std": [58.0, 58.0, 58.0]
+            // 校验数据集归一化的各通道均值, 通道顺序与 tensor_format 一致
+            "calibration_mean": [103.939, 116.779, 123.68], 
+            // 校验数据集归一化的各通道标准差
+            "calibration_std": [58.0, 58.0, 58.0] 
           }
         ],
         "calibration_method": "MinMax",
@@ -60,9 +63,13 @@ Pulsar2 工具链命令说明
         {
           "tensor_name": "input",
           "tensor_format": "BGR",
+          // 运行时输入格式
           "src_format": "BGR",
+          // 运行时数据类型
           "src_dtype": "U8",
+          // 运行时数据布局格式
           "src_layout": "NHWC",
+          // 颜色空间转换
           "csc_mode": "NoCSC"
         }
       ],
@@ -108,12 +115,29 @@ log 参考信息
 
 .. code-block::
 
-    2024-09-25 11:45:26.533 | WARNING  | yamain.command.build:fill_default:300 - apply default output processor configuration to ['output']
-    2024-09-25 11:45:26.533 | WARNING  | yamain.command.build:fill_default:364 - ignore input csc config because of src_format is AutoColorSpace or src_format and tensor_format are the same
-    2024-09-25 11:45:26.534 | INFO     | yamain.common.util:extract_archive:181 - extract [dataset/imagenet-32-images.tar] to [output/quant/dataset/input]...
+    2025-04-28 11:30:24.756 | WARNING  | yamain.command.build:fill_default:302 - apply default output processor configuration to ['output']
+    2025-04-28 11:30:24.756 | WARNING  | yamain.command.build:fill_default:382 - ignore input csc config because of src_format is AutoColorSpace or src_format and tensor_format are the same
+    2025-04-28 11:30:24.757 | INFO     | yamain.common.util:extract_archive:140 - extract [dataset/imagenet-32-images.tar] to [output/quant/dataset/input]...
+    +-------------------+----------------------------+
+    |    Model Name     |         OnnxModel          |
+    +-------------------+----------------------------+
+    |    Model Info     | Op Set: 10 / IR Version: 6 |
+    +-------------------+----------------------------+
+    |     IN: input     | float32: (1, 3, 224, 224)  |
+    |    OUT: output    |     float32: (1, 1000)     |
+    +-------------------+----------------------------+
+    |        Add        |             10             |
+    |       Clip        |             35             |
+    |       Conv        |             52             |
+    |       Gemm        |             1              |
+    | GlobalAveragePool |             1              |
+    |      Reshape      |             1              |
+    +-------------------+----------------------------+
+    |    Model Size     |          13.32 MB          |
+    +-------------------+----------------------------+
     32 File(s) Loaded.
     Building onnx ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
-    2024-09-25 11:45:27.422 | INFO     | yamain.command.build:quant:797 - save optimized onnx to [output/frontend/optimized.onnx]
+    2025-04-28 11:30:25.605 | INFO     | yamain.command.build:quant:806 - save optimized onnx to [output/frontend/optimized.onnx]
                                    Quant Config Table                               
     ┏━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┓
     ┃       ┃           ┃ Dataset   ┃ Data      ┃ Tensor    ┃           ┃          ┃
@@ -127,59 +151,59 @@ log 参考信息
     32 File(s) Loaded.
     
     Stastic Inf tensor:   0%|          | 0/1 [00:00<?, ?it/s]
-    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  9.09it/s]
-    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  9.06it/s]
-    [11:45:28] AX Set Float Op Table Pass Running ...         
-    [11:45:28] AX Set MixPrecision Pass Running ...           
-    [11:45:28] AX Set LN Quant dtype Quant Pass Running ...   
-    [11:45:28] AX Reset Mul Config Pass Running ...           
-    [11:45:28] AX Refine Operation Config Pass Running ...    
-    [11:45:28] AX Tanh Operation Format Pass Running ...      
-    [11:45:28] AX Confused Op Refine Pass Running ...         
-    [11:45:28] AX Quantization Fusion Pass Running ...        
-    [11:45:28] AX Quantization Simplify Pass Running ...      
-    [11:45:28] AX Parameter Quantization Pass Running ...     
-    [11:45:29] AX Runtime Calibration Pass Running ...        
+    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  7.93it/s]
+    Stastic Inf tensor: 100%|██████████| 1/1 [00:00<00:00,  7.92it/s]
+    [11:30:27] AX Set Float Op Table Pass Running ...         
+    [11:30:27] AX Set MixPrecision Pass Running ...           
+    [11:30:27] AX Set LN Quant dtype Quant Pass Running ...   
+    [11:30:27] AX Reset Mul Config Pass Running ...           
+    [11:30:27] AX Refine Operation Config Pass Running ...    
+    [11:30:27] AX Tanh Operation Format Pass Running ...      
+    [11:30:27] AX Confused Op Refine Pass Running ...         
+    [11:30:27] AX Quantization Fusion Pass Running ...        
+    [11:30:27] AX Quantization Simplify Pass Running ...      
+    [11:30:28] AX Parameter Quantization Pass Running ...     
+    [11:30:29] AX Runtime Calibration Pass Running ...        
     
     Calibration Progress(Phase 1):   0%|          | 0/32 [00:00<?, ?it/s]
-    Calibration Progress(Phase 1):   3%|▎         | 1/32 [00:00<00:03,  9.10it/s]
-    Calibration Progress(Phase 1):   6%|▋         | 2/32 [00:00<00:03,  9.09it/s]
-    Calibration Progress(Phase 1):   9%|▉         | 3/32 [00:00<00:03,  9.05it/s]
-    Calibration Progress(Phase 1):  12%|█▎        | 4/32 [00:00<00:03,  9.02it/s]
-    Calibration Progress(Phase 1):  16%|█▌        | 5/32 [00:00<00:02,  9.00it/s]
-    Calibration Progress(Phase 1):  19%|█▉        | 6/32 [00:00<00:02,  8.96it/s]
-    Calibration Progress(Phase 1):  22%|██▏       | 7/32 [00:00<00:02,  9.03it/s]
-    Calibration Progress(Phase 1):  25%|██▌       | 8/32 [00:00<00:02,  9.03it/s]
-    Calibration Progress(Phase 1):  28%|██▊       | 9/32 [00:00<00:02,  9.03it/s]
-    Calibration Progress(Phase 1):  31%|███▏      | 10/32 [00:01<00:02,  9.02it/s]
-    Calibration Progress(Phase 1):  34%|███▍      | 11/32 [00:01<00:02,  9.00it/s]
-    Calibration Progress(Phase 1):  38%|███▊      | 12/32 [00:01<00:02,  8.94it/s]
-    Calibration Progress(Phase 1):  41%|████      | 13/32 [00:01<00:02,  8.95it/s]
-    Calibration Progress(Phase 1):  44%|████▍     | 14/32 [00:01<00:02,  8.96it/s]
-    Calibration Progress(Phase 1):  47%|████▋     | 15/32 [00:01<00:01,  8.92it/s]
-    Calibration Progress(Phase 1):  50%|█████     | 16/32 [00:01<00:01,  8.89it/s]
-    Calibration Progress(Phase 1):  53%|█████▎    | 17/32 [00:01<00:01,  8.90it/s]
-    Calibration Progress(Phase 1):  56%|█████▋    | 18/32 [00:02<00:01,  8.89it/s]
-    Calibration Progress(Phase 1):  59%|█████▉    | 19/32 [00:02<00:01,  8.86it/s]
-    Calibration Progress(Phase 1):  62%|██████▎   | 20/32 [00:02<00:01,  8.93it/s]
-    Calibration Progress(Phase 1):  66%|██████▌   | 21/32 [00:02<00:01,  8.90it/s]
-    Calibration Progress(Phase 1):  69%|██████▉   | 22/32 [00:02<00:01,  8.93it/s]
-    Calibration Progress(Phase 1):  72%|███████▏  | 23/32 [00:02<00:01,  8.91it/s]
-    Calibration Progress(Phase 1):  75%|███████▌  | 24/32 [00:02<00:00,  8.89it/s]
-    Calibration Progress(Phase 1):  78%|███████▊  | 25/32 [00:02<00:00,  8.91it/s]
-    Calibration Progress(Phase 1):  81%|████████▏ | 26/32 [00:02<00:00,  8.87it/s]
-    Calibration Progress(Phase 1):  84%|████████▍ | 27/32 [00:03<00:00,  8.89it/s]
-    Calibration Progress(Phase 1):  88%|████████▊ | 28/32 [00:03<00:00,  8.91it/s]
+    Calibration Progress(Phase 1):   3%|▎         | 1/32 [00:00<00:03,  7.75it/s]
+    Calibration Progress(Phase 1):   6%|▋         | 2/32 [00:00<00:03,  8.33it/s]
+    Calibration Progress(Phase 1):   9%|▉         | 3/32 [00:00<00:03,  8.54it/s]
+    Calibration Progress(Phase 1):  12%|█▎        | 4/32 [00:00<00:03,  8.61it/s]
+    Calibration Progress(Phase 1):  16%|█▌        | 5/32 [00:00<00:03,  8.65it/s]
+    Calibration Progress(Phase 1):  19%|█▉        | 6/32 [00:00<00:02,  8.69it/s]
+    Calibration Progress(Phase 1):  22%|██▏       | 7/32 [00:00<00:02,  8.46it/s]
+    Calibration Progress(Phase 1):  25%|██▌       | 8/32 [00:00<00:02,  8.59it/s]
+    Calibration Progress(Phase 1):  28%|██▊       | 9/32 [00:01<00:02,  8.67it/s]
+    Calibration Progress(Phase 1):  31%|███▏      | 10/32 [00:01<00:02,  8.71it/s]
+    Calibration Progress(Phase 1):  34%|███▍      | 11/32 [00:01<00:02,  8.77it/s]
+    Calibration Progress(Phase 1):  38%|███▊      | 12/32 [00:01<00:02,  8.68it/s]
+    Calibration Progress(Phase 1):  41%|████      | 13/32 [00:01<00:02,  8.74it/s]
+    Calibration Progress(Phase 1):  44%|████▍     | 14/32 [00:01<00:02,  8.76it/s]
+    Calibration Progress(Phase 1):  47%|████▋     | 15/32 [00:01<00:01,  8.77it/s]
+    Calibration Progress(Phase 1):  50%|█████     | 16/32 [00:01<00:01,  8.80it/s]
+    Calibration Progress(Phase 1):  53%|█████▎    | 17/32 [00:01<00:01,  8.81it/s]
+    Calibration Progress(Phase 1):  56%|█████▋    | 18/32 [00:02<00:01,  8.76it/s]
+    Calibration Progress(Phase 1):  59%|█████▉    | 19/32 [00:02<00:01,  8.80it/s]
+    Calibration Progress(Phase 1):  62%|██████▎   | 20/32 [00:02<00:01,  8.84it/s]
+    Calibration Progress(Phase 1):  66%|██████▌   | 21/32 [00:02<00:01,  8.82it/s]
+    Calibration Progress(Phase 1):  69%|██████▉   | 22/32 [00:02<00:01,  8.86it/s]
+    Calibration Progress(Phase 1):  72%|███████▏  | 23/32 [00:02<00:01,  8.86it/s]
+    Calibration Progress(Phase 1):  75%|███████▌  | 24/32 [00:02<00:00,  8.84it/s]
+    Calibration Progress(Phase 1):  78%|███████▊  | 25/32 [00:02<00:00,  8.59it/s]
+    Calibration Progress(Phase 1):  81%|████████▏ | 26/32 [00:02<00:00,  8.69it/s]
+    Calibration Progress(Phase 1):  84%|████████▍ | 27/32 [00:03<00:00,  8.77it/s]
+    Calibration Progress(Phase 1):  88%|████████▊ | 28/32 [00:03<00:00,  8.82it/s]
     Calibration Progress(Phase 1):  91%|█████████ | 29/32 [00:03<00:00,  8.86it/s]
-    Calibration Progress(Phase 1):  94%|█████████▍| 30/32 [00:03<00:00,  8.85it/s]
-    Calibration Progress(Phase 1):  97%|█████████▋| 31/32 [00:03<00:00,  8.77it/s]
-    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.74it/s]
-    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.91it/s]
-    [11:45:32] AX Quantization Alignment Pass Running ...     
-    [11:45:32] AX Refine Int Parameter Pass Running ...       
-    [11:45:33] AX Refine Scale Pass Running ...               
-    [11:45:33] AX Passive Parameter Quantization Running ...  
-    [11:45:33] AX Parameter Baking Pass Running ...           
+    Calibration Progress(Phase 1):  94%|█████████▍| 30/32 [00:03<00:00,  8.89it/s]
+    Calibration Progress(Phase 1):  97%|█████████▋| 31/32 [00:03<00:00,  8.85it/s]
+    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.75it/s]
+    Calibration Progress(Phase 1): 100%|██████████| 32/32 [00:03<00:00,  8.73it/s]
+    [11:30:33] AX Quantization Alignment Pass Running ...     
+    [11:30:33] AX Refine Int Parameter Pass Running ...       
+    [11:30:33] AX Refine Scale Pass Running ...               
+    [11:30:33] AX Passive Parameter Quantization Running ...  
+    [11:30:33] AX Parameter Baking Pass Running ...           
     --------- Network Snapshot ---------
     Num of Op:                    [100]
     Num of Quantized Op:          [100]
@@ -194,29 +218,30 @@ log 参考信息
     PASSIVE_BAKED:                [53]
     FP32:                         [70]
     Network Quantization Finished.
+    Do quant optimization
     quant.axmodel export success: 
     	/data/deploy/data/quick_start_example/output/quant/quant_axmodel.onnx
     	/data/deploy/data/quick_start_example/output/quant/quant_axmodel.data
-    ===>export pb data to folder: output/quant/debug/test_data_set_0
     ===>export io data to folder: output/quant/debug/io
     Building native ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
-    2024-09-25 11:45:33.944 | INFO     | yamain.command.build:compile_ptq_model:1035 - group 0 compiler transformation
-    2024-09-25 11:45:33.946 | WARNING  | yamain.command.load_model:pre_process:608 - preprocess tensor [input]
-    2024-09-25 11:45:33.946 | INFO     | yamain.command.load_model:pre_process:609 - tensor: input, (1, 224, 224, 3), U8
-    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_dequant_1, AxDequantizeLinear, {'const_inputs': {'x_zeropoint': array(0, dtype=int32), 'x_scale': array(1., dtype=float32)}, 'output_dtype': <class 'numpy.float32'>, 'quant_method': 0}
-    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - tensor: tensor:pre_norm_1, (1, 224, 224, 3), FP32
-    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_norm_1, AxNormalize, {'dim': 3, 'mean': [103.93900299072266, 116.77899932861328, 123.68000030517578], 'std': [58.0, 58.0, 58.0], 'output_dtype': FP32}
-    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - tensor: tensor:pre_transpose_1, (1, 224, 224, 3), FP32
-    2024-09-25 11:45:33.947 | INFO     | yamain.command.load_model:pre_process:609 - op: op:pre_transpose_1, AxTranspose, {'perm': [0, 3, 1, 2]}
-    2024-09-25 11:45:33.947 | WARNING  | yamain.command.load_model:post_process:630 - postprocess tensor [output]
-    2024-09-25 11:45:34.159 | INFO     | yamain.command.build:compile_ptq_model:1060 - QuantAxModel macs: 280,262,480
-    2024-09-25 11:45:34.169 | INFO     | yamain.command.build:compile_ptq_model:1132 - subgraph [0], group: 0, type: GraphType.NPU
-    2024-09-25 11:45:34.187 | INFO     | yasched.test_onepass:test_onepass_ir:3221 - schedule npu subgraph [0]
-    tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68/68 0:00:00
+    2025-04-28 11:30:35.039 | INFO     | yamain.command.build:compile_ptq_model:1102 - group 0 compiler transformation
+    2025-04-28 11:30:35.041 | WARNING  | yamain.command.load_model:pre_process:615 - preprocess tensor [input]
+    2025-04-28 11:30:35.041 | INFO     | yamain.command.load_model:pre_process:617 - tensor: input, (1, 224, 224, 3), U8
+    2025-04-28 11:30:35.041 | INFO     | yamain.command.load_model:pre_process:618 - op: op:pre_dequant_1, AxDequantizeLinear, {'const_inputs': {'x_zeropoint': array(0, dtype=int32), 'x_scale': array(1., dtype=float32)}, 'output_dtype': <class 'numpy.float32'>, 'quant_method': 0}
+    2025-04-28 11:30:35.041 | INFO     | yamain.command.load_model:pre_process:617 - tensor: tensor:pre_norm_1, (1, 224, 224, 3), FP32
+    2025-04-28 11:30:35.041 | INFO     | yamain.command.load_model:pre_process:618 - op: op:pre_norm_1, AxNormalize, {'dim': 3, 'mean': [103.93900299072266, 116.77899932861328, 123.68000030517578], 'std': [58.0, 58.0, 58.0], 'output_dtype': FP32}
+    2025-04-28 11:30:35.041 | INFO     | yamain.command.load_model:pre_process:617 - tensor: tensor:pre_transpose_1, (1, 224, 224, 3), FP32
+    2025-04-28 11:30:35.041 | INFO     | yamain.command.load_model:pre_process:618 - op: op:pre_transpose_1, AxTranspose, {'perm': [0, 3, 1, 2]}
+    2025-04-28 11:30:35.042 | WARNING  | yamain.command.load_model:post_process:626 - postprocess tensor [output]
+    2025-04-28 11:30:35.042 | INFO     | yamain.command.load_model:ir_compiler_transformation:821 - use random data as gt input: input, uint8, (1, 224, 224, 3)
+    2025-04-28 11:30:35.434 | INFO     | yamain.command.build:compile_ptq_model:1123 - group 0 QuantAxModel macs: 300,774,272
+    2025-04-28 11:30:35.470 | INFO     | yamain.command.build:compile_ptq_model:1255 - subgraph [0], group: 0, type: GraphType.NPU
+    2025-04-28 11:30:35.470 | INFO     | yamain.command.npu_backend_compiler:compile:173 - compile npu subgraph [0]
+    tiling op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68/68 0:00:01
     <frozen backend.ax650npu.oprimpl.normalize>:186: RuntimeWarning: divide by zero encountered in divide
     <frozen backend.ax650npu.oprimpl.normalize>:187: RuntimeWarning: invalid value encountered in divide
     new_ddr_tensor = []
-    build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103/103 0:00:00
+    build op serially...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 103/103 0:00:01
     build op...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 188/188 0:00:00
     add ddr swap...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 497/497 0:00:00
     calc input dependencies...   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
@@ -224,11 +249,11 @@ log 参考信息
     assign eu heuristic   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
     assign eu onepass   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
     assign eu greedy   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
-    2024-09-25 11:45:36.467 | INFO     | yasched.test_onepass:results2model:2541 - clear job deps
-    2024-09-25 11:45:36.467 | INFO     | yasched.test_onepass:results2model:2542 - max_cycle = 450,154
+    2025-04-28 11:30:40.871 | INFO     | yasched.test_onepass:results2model:2699 - clear job deps
+    2025-04-28 11:30:40.871 | INFO     | yasched.test_onepass:results2model:2700 - max_cycle = 450,182
     build jobs   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 921/921 0:00:00
-    2024-09-25 11:45:36.796 | INFO     | yamain.command.build:compile_npu_subgraph:1332 - assembel model [subgraph_npu_0]
-    2024-09-25 11:45:38.075 | INFO     | yamain.command.build:compile_ptq_model:1142 - fuse 1 subgraph(s)
+    2025-04-28 11:30:41.796 | INFO     | yamain.command.npu_backend_compiler:compile:233 - assemble model [0] [subgraph_npu_0] b1
+    2025-04-28 11:30:43.942 | INFO     | yamain.command.build:compile_ptq_model:1297 - fuse 1 subgraph(s)
 
 .. note::
 
@@ -281,45 +306,36 @@ log 参考信息
 .. code-block:: shell
 
     root@xxx:/data# onnx inspect -m -n -t output/compiled.axmodel
+
+
     Failed to check model output/compiled.axmodel, statistic could be inaccurate!
-    Inpect of model output/compiled.axmodel
-    ================================================================================
-      Graph name: 8
-      Graph inputs: 1
-      Graph outputs: 1
-      Nodes in total: 1
-      ValueInfo in total: 4
-      Initializers in total: 2
-      Sparse Initializers in total: 0
-      Quantization in total: 0
-    
-    Meta information:
+    Meta information
     --------------------------------------------------------------------------------
-      IR Version: 8
+      IR Version: 10
       Opset Import: [domain: ""
-    version: 16
+    version: 18
     ]
       Producer name: Pulsar2
       Producer version: 
       Domain: 
-      Doc string: Pulsar2 Version:  2.4
-    Pulsar2 Commit: 2064a8ee
+      Doc string: Pulsar2 Version:  4.0
+    Pulsar2 Commit: 64a0e58f
       meta.{} = {} extra_data CgsKBWlucHV0EAEYAgoICgZvdXRwdXQSATEaQQoOc3ViZ3JhcGhfbnB1XzBSLwoVc3ViZ3JhcGhfbnB1XzBfYjFfbmV1EAEaFAoGcGFyYW1zGgpucHVfcGFyYW1zIgA=
-    
-    Node information:
+    Node information
     --------------------------------------------------------------------------------
       Node type "neu mode" has: 1
     --------------------------------------------------------------------------------
       Node "subgraph_npu_0": type "neu mode", inputs "['input']", outputs "['output']"
-    
-    Tensor information:
+    Tensor information
     --------------------------------------------------------------------------------
-      ValueInfo "input": type UINT8, shape [1, 224, 224, 3],
       ValueInfo "npu_params": type UINT8, shape [4085516],
-      ValueInfo "subgraph_npu_0_b1_neu": type UINT8, shape [56592],
+      ValueInfo "npu_dyn_params": type UINT8, shape [0],
+      ValueInfo "input": type UINT8, shape [1, 224, 224, 3],
+      ValueInfo "subgraph_npu_0_b1_neu": type UINT8, shape [57200],
       ValueInfo "output": type FLOAT, shape [1, 1000],
       Initializer "npu_params": type UINT8, shape [4085516],
-      Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [56592],
+      Initializer "npu_dyn_params": type UINT8, shape [0],
+      Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [57200],
 
 .. _model_simulator:
 
@@ -351,9 +367,9 @@ log 参考信息
     -rw-r--r-- 1 root root   29 Dec  2 12:23 requirements.txt
     -rw-r--r-- 1 root root  308 Dec  2 12:23 setup.cfg
 
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 仿真运行示例 ``mobilenetv2``
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 将 :ref:`《编译执行》 <model_compile>` 章节生成的 ``compiled.axmodel`` 拷贝 ``pulsar2-run-helper/models`` 路径下，并更名为 ``mobilenetv2.axmodel``
 
@@ -417,9 +433,9 @@ log 参考信息
 
 - 通过企业途径向 AXera 签署 NDA 后获取 **AX650 或 M76H EVB**.
 
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 使用 ax_run_model 工具快速测试模型推理速度
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 为了方便用户测评模型，在开发板上预制了 :ref:`ax_run_model <ax_run_model>` 工具，此工具有若干参数，可以很方便地测试模型速度和精度。
 
@@ -445,9 +461,9 @@ log 参考信息
       min =   0.719 ms   max =   0.726 ms   avg =   0.721 ms
       ------------------------------------------------------
 
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 使用 sample_npu_classification 示例测试单张图片推理结果
-^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. hint::
 

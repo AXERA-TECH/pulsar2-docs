@@ -12,6 +12,9 @@
 安装 Docker 开发环境
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Docker 开发环境可以在 MacOS, Linux, Windows 操作系统安装，不同操作系统下对安装环境的最低配置要求和具体安装流程请参考以下链接：
+
+
 - `MacOS 安装 Docker 环境 <https://docs.docker.com/desktop/mac/install/>`_
 
 - `Linux 安装 Docker 环境 <https://docs.docker.com/engine/install/##server>`_
@@ -39,8 +42,8 @@
 
 工具链获取途径：
 
-- `百度网盘 <https://pan.baidu.com/s/1FazlPdW79wQWVY-Qn--qVQ?pwd=sbru>`_
-- `Google Drive <https://drive.google.com/drive/folders/10rfQIAm5ktjJ1bRMsHbUanbAplIn3ium?usp=sharing>`_
+- `Hugging Face <https://huggingface.co/AXERA-TECH/Pulsar2/tree/main/4.2>`_
+- `HF Mirror <https://hf-mirror.com/AXERA-TECH/Pulsar2>`_
 
 ^^^^^^^^^^^^^^^^^^^^^^^
 载入 Docker Image
@@ -95,7 +98,7 @@
 
 .. hint::
 
-    后续内容 **模型编译**、 **仿真运行** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <https://github.com/xiguadong/assets/releases/download/v0.1/quick_start_example.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
+    后续内容 **模型编译**、 **仿真运行** 所需要的 **原始模型** 、 **数据** 、 **图片** 、 **仿真工具** 已在 ``quick_start_example`` 文件夹中提供 :download:`点击下载示例文件 <../examples/quick_start_example.zip>` 然后将下载的文件解压后拷贝到 ``docker`` 的 ``/data`` 路径下.
 
 .. code-block:: shell
 

@@ -1,21 +1,21 @@
 ======================
-大模型编译(实验阶段)
+大模型编译
 ======================
 
 **本章节适用于平台**
 
-- AX650N
+- AX650A/AX650N/AX8850
 - AX630C
 
 **已验证模型**
 
 - DeepSeek-R1-Distill
-- Qwen2.5
-- MiniCPM、MiniCPM-V 2.0
-- InternVL2
+- Qwen2.5、Qwen3
+- MiniCPM4
+- InternVL2_5、InternVL3
 - ChatGLM3
 - OpenBuddy
-- SmolLM
+- SmolLM2
 - Llama3.2
 - Gemma2
 - Phi2、Phi3
@@ -26,9 +26,11 @@
 
 **版本约束**
 
-本文档基于 Pulsar2 4.0 版本进行编写。
+本文档基于 Pulsar2 4.1 版本进行编写。
 
 **LLM ModelZoo**
+
+不定期更新业内关注度较高的大语言模型适配，包括预编译模型和上板运行示例。
 
 - `Huggingface <https://huggingface.co/AXERA-TECH>`_
 
@@ -94,9 +96,9 @@
 
     git clone https://github.com/AXERA-TECH/ax-llm-build.git
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 下载 Qwen2.5-0.5B-Instruct-GPTQ-Int8
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: shell
 
@@ -174,7 +176,7 @@ embed 提取和优化
 
     chmod +x ./tools/fp32_to_bf16
     chmod +x ./tools/embed_process.sh
-    ./tools/embed_process.sh Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8/ Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650
+    ./tools/embed_process.sh Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8/ Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650/
 
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 输出文件说明
@@ -182,11 +184,11 @@ embed 提取和优化
 
 .. code-block:: shell  
 
-    root@xxx:/data/ax-llm-build# tree Qwen/Qwen2-0.5B-w8a16
-    Qwen/Qwen2-0.5B-w8a16
+    root@xxx:/data/ax-llm-build# tree Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650/
+    Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650/
     ├── model.embed_tokens.weight.bfloat16.bin
     ├── model.embed_tokens.weight.float32.bin # 临时文件，可删掉
-    ├── model.embed_tokens.weight.npy # 临时文件，可删掉 
+    ├── model.embed_tokens.weight.npy # 临时文件，可删掉
     ├── qwen2_p128_l0_together.axmodel
     ├── qwen2_p128_l10_together.axmodel
     ├── qwen2_p128_l11_together.axmodel
@@ -212,6 +214,9 @@ embed 提取和优化
     ├── qwen2_p128_l8_together.axmodel
     ├── qwen2_p128_l9_together.axmodel
     └── qwen2_post.axmodel
+
+    0 directories, 28 files
+
 
 
 其中 ``model.embed_tokens.weight.bfloat16.bin``, ``qwen2_p128_l0_together.axmodel ~ qwen2_p128_l23_together.axmodel``, ``qwen_post.axmodel`` 文件是上板运行所需要
@@ -246,18 +251,18 @@ embed 提取和优化
     root@ax650:/mnt/qtang/llm-test/qwen2.5-0.5b-ctx# ./run_qwen2.5_0.5b_gptq_int8_ctx_ax650.sh
     [I][                            Init][ 110]: LLM init start
     [I][                            Init][  34]: connect http://127.0.0.1:12345 ok
-    [I][                            Init][  57]: uid: f0e935ec-2d40-45b5-807d-ecea4ed74296
+    [I][                            Init][  57]: uid: d9e84259-87a2-4c54-9b9b-7da266149e8b
     bos_id: -1, eos_id: 151645
-    100% | ████████████████████████████████ |  27 /  27 [10.02s<10.02s, 2.69 count/s] init post axmodel ok,remain_cmm(3960 MB)[I][                            Init][ 188]: max_token_len : 2560
-    [I][                            Init][ 193]: kv_cache_size : 128, kv_cache_num: 2560
+    100% | ████████████████████████████████ |  27 /  27 [10.21s<10.21s, 2.65 count/s] init post axmodel ok,remain_cmm(11292 MB)
+    [I][                            Init][ 188]: max_token_len : 1023
+    [I][                            Init][ 193]: kv_cache_size : 128, kv_cache_num: 1023
     [I][                            Init][ 201]: prefill_token_num : 128
     [I][                            Init][ 205]: grp: 1, prefill_max_token_num : 1
     [I][                            Init][ 205]: grp: 2, prefill_max_token_num : 128
-    [I][                            Init][ 205]: grp: 3, prefill_max_token_num : 512
-    [I][                            Init][ 205]: grp: 4, prefill_max_token_num : 1024
-    [I][                            Init][ 205]: grp: 5, prefill_max_token_num : 1536
-    [I][                            Init][ 205]: grp: 6, prefill_max_token_num : 2048
-    [I][                            Init][ 209]: prefill_max_token_num : 2048
+    [I][                            Init][ 205]: grp: 3, prefill_max_token_num : 256
+    [I][                            Init][ 205]: grp: 4, prefill_max_token_num : 384
+    [I][                            Init][ 205]: grp: 5, prefill_max_token_num : 512
+    [I][                            Init][ 209]: prefill_max_token_num : 512
     [I][                     load_config][ 282]: load config:
     {
         "enable_repetition_penalty": false,
@@ -270,24 +275,28 @@ embed 提取和优化
         "top_k": 1,
         "top_p": 0.8
     }
-    
+
     [I][                            Init][ 218]: LLM init ok
     Type "q" to exit, Ctrl+c to stop current running
     [I][          GenerateKVCachePrefill][ 271]: input token num : 21, prefill_split_num : 1 prefill_grpid : 2
     [I][          GenerateKVCachePrefill][ 308]: input_num_token:21
     [I][                            main][ 230]: precompute_len: 21
     [I][                            main][ 231]: system_prompt: You are Qwen, created by Alibaba Cloud. You are a helpful assistant.
-    prompt >> 你是谁
-    [I][                      SetKVCache][ 531]: prefill_grpid:2 kv_cache_num:128 precompute_len:21 input_num_token:10
-    [I][                      SetKVCache][ 534]: current prefill_max_token_num:1920
-    [I][                             Run][ 660]: input token num : 10, prefill_split_num : 1
-    [I][                             Run][ 686]: input_num_token:10
-    [I][                             Run][ 829]: ttft: 135.04 ms
-    我是Qwen，一个由阿里云开发的超大规模语言模型，我叫通义千问。我是通义系列的第二款超大规模语言模型，也是阿里云推出的一款大型语言模型。我的目标是帮助用户在各种场景下提供准确、流畅、自然的对话服务。
-    
-    [N][                             Run][ 943]: hit eos,avg 30.80 token/s
-    
-    [I][                      GetKVCache][ 500]: precompute_len:93, remaining:1955
+    prompt >> who are you?
+    [I][                      SetKVCache][ 531]: prefill_grpid:2 kv_cache_num:128 precompute_len:21 input_num_token:12
+    [I][                      SetKVCache][ 534]: current prefill_max_token_num:384
+    [I][                             Run][ 660]: input token num : 12, prefill_split_num : 1
+    [I][                             Run][ 686]: input_num_token:12
+    [I][                             Run][ 829]: ttft: 135.66 ms
+    I am Qwen, a large language model created by Alibaba Cloud. I am a language model that can generate human-like text based on the input I receive. 
+    I am designed to assist with a wide range of tasks, from simple questions to complex research papers, and I can even generate creative writing and speech. 
+    I am here to help you with your queries and provide you with the information you need.
+
+    [N][                             Run][ 943]: hit eos,avg 34.04 token/s
+
+    [I][                      GetKVCache][ 500]: precompute_len:113, remaining:399
+    prompt >> q
+    root@ax650:/mnt/qtang/llm-test/qwen2.5-0.5b-ctx#
 
 
 板端运行程序编译流程，请参考我们在 github 上的开源项目 `AX-LLM <https://github.com/AXERA-TECH/ax-llm>`_
