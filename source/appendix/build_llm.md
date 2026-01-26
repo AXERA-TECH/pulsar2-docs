@@ -209,7 +209,7 @@ Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650/
 
 运行该实例相关文件已上传网盘，请自行下载和参考
 
-> - [Huggingface](https://huggingface.co/AXERA-TECH/Qwen2.5-0.5B-Instruct-CTX-Int8)
+- [Huggingface](https://huggingface.co/AXERA-TECH/Qwen2.5-0.5B-Instruct-CTX-Int8)
 
 先运行 tokenizer 解析器
 
