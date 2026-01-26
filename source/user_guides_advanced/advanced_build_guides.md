@@ -641,13 +641,13 @@
 root@xxx:/data# pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir output --config config/mobilenet_v2_build_config.json
 ```
 
-(multi-batch-compile)=
+(multi_batch_compile)=
 
 ## 多 batch 编译详解
 
 `pulsar2 build` 支持用户配置模型的 batch_size，分为静态多 batch 及动态多 batch 编译两种模式，这两种模式互斥。本章节以 `AX650` 举例。
 
-(multi-batch-static-compile)=
+(multi_batch_static_compile)=
 
 ### 静态多 batch 模式
 
@@ -662,7 +662,7 @@ root@xxx:/data# pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir ou
 进行 `static_batch_sizes` 等于 [1, 2, 4] 的静态多 batch 编译后，shape 将变为 `[4, 224, 224, 3]`。
 :::
 
-(multi-batch-dynamic-compile)=
+(multi_batch_dynamic_compile)=
 
 ### 动态多 batch 模式
 
@@ -714,7 +714,7 @@ root@xxx:/data# pulsar2 build --input model/mobilenetv2-sim.onnx --output_dir ou
 pulsar2 支持在 `Reshape` 的 shape 中配置 `0` 或者 `-1`。`0` 代表与输入 tensor 对应维度的值相同；`-1` 代表根据输入 tensor 计算得出的未知维度大小。
 :::
 
-(perlayer-precision-debug)=
+(perlayer_precision_debug)=
 
 ## 逐层对分详解
 
@@ -923,7 +923,7 @@ Building native ━━━━━━━━━━━━━━━━━━━━━�
 如果配置文件中 `"precision_analysis": false`，编译命令包含 `--quant.precision_analysis 1`，此时依然会开启精度对比功能。
 :::
 
-(custom-calib-dataset)=
+(custom_calib_dataset)=
 
 ## 加载自定义数据集详解
 
@@ -1098,7 +1098,7 @@ np.save("data.npy", calib_data)
 
 在生产环境中，建议调用推理代码的 `dataloader` ， 对其进行遍历， 将遍历得到的数据转成 `Numpy.ndarray` 类型后按照字典保存为 `NumpyObject` ， 就可以直接获取到做完预处理后的数据。
 
-(mix-precision-quantization)=
+(mix_precision_quantization)=
 
 ## 混合精度量化详解
 
@@ -1297,7 +1297,7 @@ root@aa:/data/quick_start_example# pulsar2 build --input model/mobilenetv2-sim.o
 }
 ```
 
-(change-input-size)=
+(change_input_size)=
 
 ## 修改原始模型输入尺寸
 
@@ -1328,7 +1328,7 @@ INFO[0006] 2023-08-24 20:04:59.530 | WARNING  | yamain.command.load_model:optimi
 多组输入之间用半角分号分隔，详情参考参数详解部分。
 :::
 
-(multi-input-size)=
+(multi_input_size)=
 
 ## 配置模型额外输入尺寸
 
@@ -1382,7 +1382,7 @@ INFO[0006] 2023-08-24 20:04:59.530 | WARNING  | yamain.command.load_model:optimi
 - `pulsar2 run` 包含 `--group_index` 参数，用于选择不同尺寸的子图进行仿真，该参数默认值为 0，对应原始分辨率的子图（224\*224）。1 对应额外分辨率的子图（384\*384）。
 - `AXEngine` 推理包含额外输入尺寸的模型时选择不同尺寸的方式，请参考 `AXEngine 文档`。
 
-(op-attr-patch)=
+(op_attr_patch)=
 
 ## 算子属性修改
 
@@ -1407,7 +1407,7 @@ INFO[0006] 2023-08-24 20:04:59.530 | WARNING  | yamain.command.load_model:optimi
 2023-05-07 18:47:34.274 | INFO     | yamain.command.load_model:op_attr_patch:488 - set op [pool6] attr [ceil_mode] to 1
 ```
 
-(const-patch)=
+(const_patch)=
 
 ## 常量数据修改
 
@@ -1432,7 +1432,7 @@ INFO[0006] 2023-08-24 20:04:59.530 | WARNING  | yamain.command.load_model:optimi
 2023-05-07 18:15:41.464 | WARNING  | yamain.command.load_model:const_patch:512 - update data of const tensor [reshape_0_shape], (-1,, 96, 48), S64
 ```
 
-(subgraph-compiler-option)=
+(subgraph_compiler_option)=
 
 ## 对子图设置单独的编译选项
 
@@ -1506,7 +1506,7 @@ build jobs   ━━━━━━━━━━━━━━━━━━━━━━�
 :alt: compiler_sub_configs_axmodel
 :::
 
-(transformer-optimize)=
+(transformer_optimize)=
 
 ## Transformer模型配置详解
 

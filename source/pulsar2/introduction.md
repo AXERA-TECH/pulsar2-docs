@@ -26,7 +26,7 @@
 :alt: pipeline
 :::
 
-(soc-introduction)=
+(soc_introduction)=
 
 ## 虚拟 NPU 介绍
 

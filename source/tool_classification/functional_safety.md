@@ -1,4 +1,4 @@
-(tool-classification)=
+(tool_classification)=
 
 # 功能安全
 

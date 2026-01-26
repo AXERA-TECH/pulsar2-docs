@@ -4,7 +4,7 @@
 
 `Pulsar2` 使用 `Docker` 容器进行工具链集成, 用户可以通过 `Docker` 加载 `Pulsar2` 镜像文件, 然后进行模型转换、编译、仿真等工作, 因此开发环境准备阶段只需要正确安装 `Docker` 环境即可. 支持的系统 `MacOS`, `Linux`, `Windows`.
 
-(dev-env-prepare)=
+(dev_env_prepare)=
 
 ## 安装 Docker 开发环境
 
@@ -75,7 +75,7 @@ version: ${version}
 commit: xxxxxxxx
 ```
 
-(prepare-data)=
+(prepare_data)=
 
 #### 数据准备
 

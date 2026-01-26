@@ -80,7 +80,7 @@ optional arguments:
 
 更加详细的内容，请参考 {ref}`《配置文件详细说明》 <config_details>`.
 
-(model-compile-ax637)=
+(model_compile_ax637)=
 
 ## 编译执行
 
@@ -272,7 +272,7 @@ Tensor information
   Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [122368],
 ```
 
-(model-simulator-ax637)=
+(model_simulator_ax637)=
 
 ## 仿真运行
 

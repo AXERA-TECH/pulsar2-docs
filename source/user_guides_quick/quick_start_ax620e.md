@@ -81,7 +81,7 @@ optional arguments:
 
 更加详细的内容，请参考 {ref}`《配置文件详细说明》 <config_details>`.
 
-(model-compile-20e)=
+(model_compile_20e)=
 
 ## 编译执行
 
@@ -262,7 +262,7 @@ Tensor information:
   Initializer "npu_0_b1_data": type UINT8, shape [173256],
 ```
 
-(model-simulator-20e)=
+(model_simulator_20e)=
 
 ## 仿真运行
 
@@ -332,7 +332,7 @@ root@xxx:/data/pulsar2-run-helper# python3 cli_classification.py --post_processi
 [I] 6.8679, 463
 ```
 
-(onboard-running-20e)=
+(onboard_running_20e)=
 
 ## 开发板运行
 

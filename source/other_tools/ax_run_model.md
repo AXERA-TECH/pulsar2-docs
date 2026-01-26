@@ -1,4 +1,4 @@
-(ax-run-model)=
+(ax_run_model)=
 
 # 模型评测工具使用说明
 

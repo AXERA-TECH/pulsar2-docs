@@ -80,7 +80,7 @@ optional arguments:
 
 更加详细的内容，请参考 {ref}`《配置文件详细说明》 <config_details>`.
 
-(model-compile-615)=
+(model_compile_615)=
 
 ## 编译执行
 
@@ -289,7 +289,7 @@ Tensor information
   Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [111904],
 ```
 
-(model-simulator-615)=
+(model_simulator_615)=
 
 ## 仿真运行
 

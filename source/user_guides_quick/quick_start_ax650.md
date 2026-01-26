@@ -83,7 +83,7 @@ optional arguments:
 
 更加详细的内容，请参考 {ref}`《配置文件详细说明》 <config_details>`.
 
-(model-compile)=
+(model_compile)=
 
 ## 编译执行
 
@@ -325,7 +325,7 @@ Tensor information
   Initializer "subgraph_npu_0_b1_neu": type UINT8, shape [57200],
 ```
 
-(model-simulator)=
+(model_simulator)=
 
 ## 仿真运行
 
@@ -395,7 +395,7 @@ root@xxx:/data/pulsar2-run-helper# python3 cli_classification.py --post_processi
 [I] 7.6603, 287
 ```
 
-(onboard-running)=
+(onboard_running)=
 
 ## 开发板运行
 

@@ -9,7 +9,7 @@
 :alt: pipeline
 :::
 
-(pulsar-run)=
+(pulsar_run)=
 
 ## 仿真运行详解
 

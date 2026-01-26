@@ -1,4 +1,4 @@
-(config-details)=
+(config_details)=
 
 # 配置文件详细说明
 
@@ -261,7 +261,7 @@
 }
 ```
 
-(config-define)=
+(config_define)=
 
 ## 量化参数说明
 
@@ -272,7 +272,7 @@
 - `layer_configs` 中的 `layer_name` 及 `op_type` 选项不可以同时配置。
 - `transformer_opt_level` 设置 `Transformer` 模型的优化选项。
 
-(quant-precision-analysis-config-define)=
+(quant_precision_analysis_config_define)=
 
 ## 量化精度分析参数说明
 
@@ -286,7 +286,7 @@
   > - `PerLayer` 意味着每一层都采用浮点模型对应的层输入，计算每一层的输出与浮点模型输出的相似度。
   > - `EndToEnd` 代表首层采用浮点模型输入，然后进行完整模型的仿真，计算最终输出结果与浮点模型输出的相似度。
 
-(processing-arg-details)=
+(processing_arg_details)=
 
 ## 预处理、后处理参数说明
 
