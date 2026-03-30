@@ -62,7 +62,7 @@
 | Less                  | 无限制                                                                                            |
 | LessOrEqual           | 无限制                                                                                            |
 | LpNormalization       | - axis暂时只支持-1(即最后一维) <br> - p只支持1或2                                                                                                   |
-| LSTM                  | - activation_alpha: 暂时不支持 <br> - activation_beta: 暂时不支持 <br> - activations: 暂时不支持 <br> - clip: 暂时不支持 <br> - hidden_size: 无限制 <br> - input_forget: 暂时不支持 <br> - layout: 只支持设为0 <br> - B: 无限制 <br> - sequence_lens: 不支持 <br> - initial_h: 无限制 <br> - initial_c: 无限制 <br> - P: 暂时不支持direction: 支持“bidirectional”、“reverse”、“forward”                                                                                                   |
+| LSTM                  | - activation_alpha: 暂时不支持 <br> - activation_beta: 暂时不支持 <br> - activations: 暂时不支持 <br> - clip: 暂时不支持 <br> - hidden_size: 无限制 <br> - input_forget: 暂时不支持 <br> - layout: 只支持设为0 <br> - B: 无限制 <br> - sequence_lens: 不支持 <br> - initial_h: 无限制 <br> - initial_c: 无限制 <br> - P: 暂时不支持 <br> - direction: 支持“bidirectional”、“reverse”、“forward”                                                                                                   |
 | LogSoftmax            | 无限制                                                                                            |
 | MatMul                | 无限制                                                                                            |
 | Max                   | 无限制                                                                                            |
