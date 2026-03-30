@@ -1,7 +1,9 @@
 # NPU 算子支持列表(AX620E)
 
 本节介绍 `AX630C` `AX620Q` 中的 **NPU** 对 `ONNX` 算子支持的情况。
- <br> - 支持的 ONNX opset_version >= 11，详细算子描述可参考 [onnx Operators](https://github.com/onnx/onnx/blob/main/docs/Operators.md) 。 <br> - 部分支持的算子尚无标准的 ONNX 定义，如果模型中包含了此类算子，请咨询技术支持。
+
+- 支持的 ONNX opset_version >= 11，详细算子描述可参考 [onnx Operators](https://github.com/onnx/onnx/blob/main/docs/Operators.md) 。
+- 部分支持的算子尚无标准的 ONNX 定义，如果模型中包含了此类算子，请咨询技术支持。
 
 :::{note}
 "暂不支持": 表示当前版本算子实现还不支持，但NPU理论上可以支持，后续版本有可能会支持上。

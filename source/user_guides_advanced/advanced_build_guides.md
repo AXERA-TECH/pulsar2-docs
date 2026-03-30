@@ -1560,7 +1560,7 @@ INFO[0176] Transformer optimize level: 2
 
 下面以 resnet50 和 yolov5s 4w8f 模型为例，演示如何对 Quantized ONNX 格式的模型进行编译。
 
-首先请下载我们已经转换好的模型，{download}`点击下载 resnet50 <../examples/resnet50_qdq_4w8f.onnx>`，{download}`点击下载 yolov5s <../examples/yolov5s_qdq_4w8f.onnx>`
+首先请下载我们已经转换好的模型，{download}`点击下载 resnet50 <../examples/resnet50_qdq_4w4f.onnx>`，{download}`点击下载 yolov5s <../examples/yolov5s_qdq_4w8f.onnx>`
 
 然后对 resnet50 使用如下的配置文件：
 

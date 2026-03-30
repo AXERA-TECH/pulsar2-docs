@@ -3,12 +3,14 @@
 **本章节适用于平台**
 
 - AX650A/AX650N/AX8850
+  \- SDK ≥ v3.6.2
 - AX630C
+  \- SDK ≥ v3.0.0
 
 **已验证模型**
 
+- Qwen3、Qwen2.5
 - DeepSeek-R1-Distill
-- Qwen2.5、Qwen3
 - MiniCPM4
 - InternVL2_5、InternVL3
 - ChatGLM3
@@ -20,11 +22,11 @@
 - TinyLlama
 
 本章节介绍如何将 Huggingface 上的模型转换的基本操作, 使用 `pulsar2` 工具将从 Huggingface 下载的项目中 `*.safetensor` 或 `pytorch_model.bin` 模型编译成 `axmodel` 模型. 请先参考 {ref}`《开发环境准备》 <dev_env_prepare>` 章节完成开发环境搭建.
-本节示例模型为 `Qwen2.5-0.5B-Instruct-GPTQ-Int8`.
+本节示例模型为 `Qwen3-0.6B`.
 
 **版本约束**
 
-本文档基于 Pulsar2 4.1 版本进行编写。
+本文档基于 Pulsar2 5.2 版本进行编写。
 
 **LLM ModelZoo**
 
@@ -44,10 +46,11 @@
 
 ```shell
 root@xxx:/data# pulsar2 llm_build --help
-usage: pulsar2 llm_build [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--parallel PARALLEL] [--model_config MODEL_CONFIG]
-                         [--kv_cache_len KV_CACHE_LEN] [--post_topk POST_TOPK] [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}]
-                         [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL] [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE]
-                         [--last_kv_cache_len LAST_KV_CACHE_LEN] [--tensor_parallel_size TENSOR_PARALLEL_SIZE]
+usage: pulsar2 llm_build [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--parallel PARALLEL]
+                         [--model_config MODEL_CONFIG] [--model_type MODEL_TYPE] [--kv_cache_len KV_CACHE_LEN] [--post_topk POST_TOPK]
+                         [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL]
+                         [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE] [--last_kv_cache_len LAST_KV_CACHE_LEN]
+                         [--tensor_parallel_size TENSOR_PARALLEL_SIZE] [--ret_postnorm] [--ld_param_opt] [--npu_mode {NPU1,NPU2,NPU3}]
 
 options:
   -h, --help            show this help message and exit
@@ -59,6 +62,8 @@ options:
                         token length of prefill (default: 0)
   --parallel PARALLEL   build parallel (default: 1)
   --model_config MODEL_CONFIG
+                        config file (default: )
+  --model_type MODEL_TYPE
                         config file (default: )
   --kv_cache_len KV_CACHE_LEN
                         length of kv_cache (default: 127)
@@ -81,45 +86,52 @@ options:
                         last kv cache len (default: None)
   --tensor_parallel_size TENSOR_PARALLEL_SIZE
                         tensor parallel size (default: 0)
+  --ret_postnorm        weather to return post_norm value in post layer (default: False)
+  --ld_param_opt        ld_param_opt (default: False)
+  --npu_mode {NPU1,NPU2,NPU3}
 ```
 
 ## 下载 ax-llm-build 项目
+
+如需将原始 Huggingface 模型自行编译为 `axmodel` 文件，可使用 `ax-llm-build` 项目提供的辅助脚本完成下载、embed 处理等操作。
+若直接使用 [AXERA-TECH](https://huggingface.co/AXERA-TECH) 已提供的预编译模型目录在板端运行，则本步骤可跳过。
 
 ```shell
 git clone https://github.com/AXERA-TECH/ax-llm-build.git
 ```
 
-## 下载 Qwen2.5-0.5B-Instruct-GPTQ-Int8
+## 下载 Qwen3-0.6B
 
 ```shell
 cd ax-llm-build
 pip install -U huggingface_hub
-huggingface-cli download --resume-download Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8 --local-dir Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650
+hf download Qwen/Qwen3-0.6B --local-dir Qwen/Qwen3-0.6B
 ```
 
 ## 编译执行
 
 ```shell
-pulsar2 llm_build --input_path Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8/  --output_path Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
+pulsar2 llm_build --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
 ```
 
 ### log 参考信息
 
 ```
-pulsar2 llm_build --input_path Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8/  --output_path Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
+pulsar2 llm_build --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
 Config(
-    model_name='Qwen2.5-0.5B-Instruct-GPTQ-Int8',
-    model_type='qwen2',
-    num_hidden_layers=24,
-    num_attention_heads=14,
-    num_key_value_heads=2,
-    hidden_size=896,
-    head_dim=0,
-    intermediate_size=4864,
+    model_name='Qwen3-0.6B',
+    model_type='qwen3',
+    num_hidden_layers=28,
+    num_attention_heads=16,
+    num_key_value_heads=8,
+    hidden_size=1024,
+    head_dim=128,
+    intermediate_size=3072,
     vocab_size=151936,
-    rope_theta=1000000.0,
-    max_position_embeddings=32768,
+    rope_theta=1000000,
+    max_position_embeddings=40960,
     rope_partial_factor=1.0,
+    rope_local_base_freq=None,
     rms_norm_eps=1e-06,
     norm_type='rms_norm',
     hidden_act='silu',
@@ -128,21 +140,34 @@ Config(
     scale_emb=1,
     dim_model_base=256,
     origin_model_type='',
-    quant=True,
-    quant_sym=True,
-    quant_bits=8,
+    quant=False,
+    quant_sym=False,
+    quant_bits=4,
     quant_group_size=128,
     rs_factor=32,
     rs_high_freq_factor=4.0,
     rs_low_freq_factor=1.0,
     rs_original_max_position_embeddings=8192,
     rs_rope_type='',
-    rs_mrope_section=[16, 24, 24]
+    rs_alpha=None,
+    rs_beta_fast=None,
+    rs_beta_slow=None,
+    rs_mscale=None,
+    rs_mscale_all_dim=None,
+    rs_mrope_section=[16, 24, 24],
+    interleaved_mrope=False,
+    use_qk_norm=False,
+    qk_norm_after_rope=False,
+    layer_types=[],
+    kv_cache_len=1023
 )
-2025-06-17 19:43:58.341 | SUCCESS  | yamain.command.llm_build:llm_build:179 - prepare llm model done!
-building llm decode layers   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 24/24 0:01:57
-building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1 0:01:24
-2025-06-17 19:47:20.855 | SUCCESS  | yamain.command.llm_build:llm_build:275 - build llm model done!
+2026-03-23 21:05:42.252 | SUCCESS  | yamain.command.llm_build:llm_build:258 - prepare llm model done!
+building llm decode layers   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 28/28     0:02:50
+building llm post layer   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1/1     0:01:23
+2026-03-23 21:09:56.131 | SUCCESS  | yamain.command.llm_build:llm_build:368 - build llm model done!
+2026-03-23 21:10:01.591 | INFO     | yamain.command.llm_build:llm_build:519 - decode layer0_gt layer0_got cos_sim is: 1.0
+2026-03-23 21:10:12.356 | INFO     | yamain.command.llm_build:llm_build:553 - prefill layer0_gt layer0_got cos_sim is: 1.0
+2026-03-23 21:10:12.357 | SUCCESS  | yamain.command.llm_build:llm_build:578 - check llm model done!
 ```
 
 :::{note}
@@ -151,7 +176,7 @@ building llm post layer   ━━━━━━━━━━━━━━━━━━
 > - Intel(R) Xeon(R) Gold 6336Y CPU @ 2.40GHz
 > - Memory 32G
 
-全流程耗时大约 `6min` , 不同配置的主机转换时间略有差异.
+全流程耗时大约 `5min` , 不同配置的主机转换时间略有差异.
 :::
 
 ### embed 提取和优化
@@ -159,173 +184,233 @@ building llm post layer   ━━━━━━━━━━━━━━━━━━
 ```shell
 chmod +x ./tools/fp32_to_bf16
 chmod +x ./tools/embed_process.sh
-./tools/embed_process.sh Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8/ Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650/
+./tools/embed_process.sh Qwen/Qwen3-0.6B/ Qwen/Qwen3-0.6B-ax650/
 ```
 
 ### 输出文件说明
 
 ```shell
-root@xxx:/data/ax-llm-build# tree Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650/
-Qwen/Qwen2.5-0.5B-Instruct-GPTQ-Int8-ctx-ax650/
+root@xxx:/data/ax-llm-build# tree Qwen/Qwen3-0.6B-ax650/
+Qwen/Qwen3-0.6B-ax650/
 ├── model.embed_tokens.weight.bfloat16.bin
-├── model.embed_tokens.weight.float32.bin # 临时文件，可删掉
-├── model.embed_tokens.weight.npy # 临时文件，可删掉
-├── qwen2_p128_l0_together.axmodel
-├── qwen2_p128_l10_together.axmodel
-├── qwen2_p128_l11_together.axmodel
-├── qwen2_p128_l12_together.axmodel
-├── qwen2_p128_l13_together.axmodel
-├── qwen2_p128_l14_together.axmodel
-├── qwen2_p128_l15_together.axmodel
-├── qwen2_p128_l16_together.axmodel
-├── qwen2_p128_l17_together.axmodel
-├── qwen2_p128_l18_together.axmodel
-├── qwen2_p128_l19_together.axmodel
-├── qwen2_p128_l1_together.axmodel
-├── qwen2_p128_l20_together.axmodel
-├── qwen2_p128_l21_together.axmodel
-├── qwen2_p128_l22_together.axmodel
-├── qwen2_p128_l23_together.axmodel
-├── qwen2_p128_l2_together.axmodel
-├── qwen2_p128_l3_together.axmodel
-├── qwen2_p128_l4_together.axmodel
-├── qwen2_p128_l5_together.axmodel
-├── qwen2_p128_l6_together.axmodel
-├── qwen2_p128_l7_together.axmodel
-├── qwen2_p128_l8_together.axmodel
-├── qwen2_p128_l9_together.axmodel
-└── qwen2_post.axmodel
+├── model.embed_tokens.weight.float32.bin   # 临时文件，可删掉
+├── model.embed_tokens.weight.npy           # 临时文件，可删掉
+├── qwen3_p128_l0_together.axmodel
+├── qwen3_p128_l10_together.axmodel
+├── qwen3_p128_l11_together.axmodel
+├── qwen3_p128_l12_together.axmodel
+├── qwen3_p128_l13_together.axmodel
+├── qwen3_p128_l14_together.axmodel
+├── qwen3_p128_l15_together.axmodel
+├── qwen3_p128_l16_together.axmodel
+├── qwen3_p128_l17_together.axmodel
+├── qwen3_p128_l18_together.axmodel
+├── qwen3_p128_l19_together.axmodel
+├── qwen3_p128_l1_together.axmodel
+├── qwen3_p128_l20_together.axmodel
+├── qwen3_p128_l21_together.axmodel
+├── qwen3_p128_l22_together.axmodel
+├── qwen3_p128_l23_together.axmodel
+├── qwen3_p128_l24_together.axmodel
+├── qwen3_p128_l25_together.axmodel
+├── qwen3_p128_l26_together.axmodel
+├── qwen3_p128_l27_together.axmodel
+├── qwen3_p128_l2_together.axmodel
+├── qwen3_p128_l3_together.axmodel
+├── qwen3_p128_l4_together.axmodel
+├── qwen3_p128_l5_together.axmodel
+├── qwen3_p128_l6_together.axmodel
+├── qwen3_p128_l7_together.axmodel
+├── qwen3_p128_l8_together.axmodel
+├── qwen3_p128_l9_together.axmodel
+└── qwen3_post.axmodel
 
-0 directories, 28 files
+0 directories, 32 files
 ```
 
-其中 `model.embed_tokens.weight.bfloat16.bin`, `qwen2_p128_l0_together.axmodel ~ qwen2_p128_l23_together.axmodel`, `qwen_post.axmodel` 文件是上板运行所需要
+其中 `model.embed_tokens.weight.bfloat16.bin`, `qwen3_p128_l0_together.axmodel ~ qwen3_p128_l27_together.axmodel`, `qwen3_post.axmodel` 文件是上板运行所需要
 
 ## 开发板运行
 
 本章节介绍如何在 `AX650` 开发板上运行 LLM 模型.
 
-### 使用 ax-llm 运行大模型
+### 安装 axllm
 
-运行该实例相关文件已上传网盘，请自行下载和参考
-
-- [Huggingface](https://huggingface.co/AXERA-TECH/Qwen2.5-0.5B-Instruct-CTX-Int8)
-
-先运行 tokenizer 解析器
+推荐使用 `ax-llm` 项目提供的安装脚本在板端直接完成安装:
 
 ```shell
-root@ax650:/mnt/qtang/llm-test/qwen2.5-0.5b-ctx# python3 qwen2.5_tokenizer_uid.py
-Server running at http://0.0.0.0:12345
+curl -fsSL https://raw.githubusercontent.com/AXERA-TECH/ax-llm/axllm/install.sh | bash
 ```
 
-再运行示例
+安装完成后, 可直接执行如下命令确认 `axllm` 已成功安装:
 
 ```shell
-root@ax650:/mnt/qtang/llm-test/qwen2.5-0.5b-ctx# ./run_qwen2.5_0.5b_gptq_int8_ctx_ax650.sh
-[I][                            Init][ 110]: LLM init start
-[I][                            Init][  34]: connect http://127.0.0.1:12345 ok
-[I][                            Init][  57]: uid: d9e84259-87a2-4c54-9b9b-7da266149e8b
-bos_id: -1, eos_id: 151645
-100% | ████████████████████████████████ |  27 /  27 [10.21s<10.21s, 2.65 count/s] init post axmodel ok,remain_cmm(11292 MB)
-[I][                            Init][ 188]: max_token_len : 1023
-[I][                            Init][ 193]: kv_cache_size : 128, kv_cache_num: 1023
-[I][                            Init][ 201]: prefill_token_num : 128
-[I][                            Init][ 205]: grp: 1, prefill_max_token_num : 1
-[I][                            Init][ 205]: grp: 2, prefill_max_token_num : 128
-[I][                            Init][ 205]: grp: 3, prefill_max_token_num : 256
-[I][                            Init][ 205]: grp: 4, prefill_max_token_num : 384
-[I][                            Init][ 205]: grp: 5, prefill_max_token_num : 512
-[I][                            Init][ 209]: prefill_max_token_num : 512
+root@ax650:~/llm-test# axllm --help
+Usage:
+  axllm run <model_path> [options]    Run interactive chat mode
+  axllm serve <model_path> [options]  Run HTTP API server mode
+
+Arguments:
+  model_path    Path to model directory containing config.json and model files
+
+Serve options:
+  --port <port> Server port (default: 8080)
+
+Model directory structure:
+  model_path/
+    ├── config.json          # Model configuration
+    ├── tokenizer.txt        # Tokenizer model
+    ├── *.axmodel            # AXera model files
+    └── post_config.json     # Post-processing config (optional)
+```
+
+如需了解手动编译方式, 可参考 [AX-LLM](https://github.com/AXERA-TECH/ax-llm) 项目说明。
+
+### 使用 ax-llm 运行大模型
+
+运行该实例相关文件可从 Huggingface 上直接下载，当前 ModelZoo 已将 `tokenizer` 相关文件一并放入对应模型仓库中，例如：
+
+> - [Qwen3-0.6B](https://huggingface.co/AXERA-TECH/Qwen3-0.6B)
+
+因此当前版本不再需要单独运行 tokenizer 解析器，只需下载对应 Huggingface 模型目录后，直接将该目录作为参数传给 `axllm run` 或 `axllm serve` 即可自动加载运行，整体使用流程相比旧版本更为简洁。
+
+以 `AXERA-TECH/Qwen3-0.6B` 为例:
+
+```shell
+pip install -U huggingface_hub
+hf download AXERA-TECH/Qwen3-0.6B --local-dir Qwen3-0.6B
+```
+
+### 命令行运行
+
+```shell
+root@ax650:~/llm-test# axllm run Qwen3-0.6B/
+[I][                            Init][ 138]: LLM init start
+tokenizer_type = 1
+ 96% | ███████████████████████████████   |  30 /  31 [3.25s<3.36s, 9.23 count/s] init post axmodel ok,remain_cmm(8662 MB)
+[I][                            Init][ 199]: max_token_len : 2559
+[I][                            Init][ 202]: kv_cache_size : 1024, kv_cache_num: 2559
+[I][                            Init][ 205]: prefill_token_num : 128
+[I][                            Init][ 209]: grp: 1, prefill_max_kv_cache_num : 1
+[I][                            Init][ 209]: grp: 2, prefill_max_kv_cache_num : 512
+[I][                            Init][ 209]: grp: 3, prefill_max_kv_cache_num : 1024
+[I][                            Init][ 209]: grp: 4, prefill_max_kv_cache_num : 1536
+[I][                            Init][ 209]: grp: 5, prefill_max_kv_cache_num : 2048
+[I][                            Init][ 214]: prefill_max_token_num : 2048
+[I][                            Init][  27]: LLaMaEmbedSelector use mmap
+100% | ████████████████████████████████ |  31 /  31 [3.25s<3.25s, 9.54 count/s] embed_selector init ok
 [I][                     load_config][ 282]: load config:
 {
     "enable_repetition_penalty": false,
     "enable_temperature": false,
-    "enable_top_k_sampling": true,
+    "enable_top_k_sampling": false,
     "enable_top_p_sampling": false,
     "penalty_window": 20,
     "repetition_penalty": 1.2,
     "temperature": 0.9,
-    "top_k": 1,
+    "top_k": 10,
     "top_p": 0.8
 }
 
-[I][                            Init][ 218]: LLM init ok
-Type "q" to exit, Ctrl+c to stop current running
-[I][          GenerateKVCachePrefill][ 271]: input token num : 21, prefill_split_num : 1 prefill_grpid : 2
-[I][          GenerateKVCachePrefill][ 308]: input_num_token:21
-[I][                            main][ 230]: precompute_len: 21
-[I][                            main][ 231]: system_prompt: You are Qwen, created by Alibaba Cloud. You are a helpful assistant.
+[I][                            Init][ 272]: LLM init ok
+Type "q" to exit
+Ctrl+c to stop current running
+"reset" to reset kvcache
+"dd" to remove last conversation.
+"pp" to print history.
+----------------------------------------
 prompt >> who are you?
-[I][                      SetKVCache][ 531]: prefill_grpid:2 kv_cache_num:128 precompute_len:21 input_num_token:12
-[I][                      SetKVCache][ 534]: current prefill_max_token_num:384
-[I][                             Run][ 660]: input token num : 12, prefill_split_num : 1
-[I][                             Run][ 686]: input_num_token:12
-[I][                             Run][ 829]: ttft: 135.66 ms
-I am Qwen, a large language model created by Alibaba Cloud. I am a language model that can generate human-like text based on the input I receive.
-I am designed to assist with a wide range of tasks, from simple questions to complex research papers, and I can even generate creative writing and speech.
-I am here to help you with your queries and provide you with the information you need.
+[I][                      SetKVCache][ 406]: prefill_grpid:2 kv_cache_num:512 precompute_len:0 input_num_token:23
+[I][                      SetKVCache][ 408]: current prefill_max_token_num:2048
+[I][                      SetKVCache][ 409]: first run
+[I][                             Run][ 457]: input token num : 23, prefill_split_num : 1
+[I][                             Run][ 497]: prefill chunk p=0 history_len=0 grpid=1 kv_cache_num=0 input_tokens=23
+[I][                             Run][ 519]: prefill indices shape: p=0 idx_elems=128 idx_rows=1 pos_rows=0
+[I][                             Run][ 627]: ttft: 173.71 ms
+<think>
+Okay, the user asked, "Who are you?" I need to respond appropriately. Let me start by acknowledging their question. I should mention that I'm an AI assistant     designed to help with various tasks. It's important to keep the response friendly and open-ended so they feel comfortable sharing more. I should make sure to     highlight that I'm here to assist and that I'm not a person. Let me check if there's any additional information I should include to make the response more     helpful. Alright, that should cover it.
+</think>
 
-[N][                             Run][ 943]: hit eos,avg 34.04 token/s
+I'm an AI assistant designed to help with a wide range of tasks and questions. I'm here to assist you with anything you need! Let me know how I can help!
 
-[I][                      GetKVCache][ 500]: precompute_len:113, remaining:399
+[N][                             Run][ 709]: hit eos,avg 15.68 token/s
+
+[I][                      GetKVCache][ 380]: precompute_len:168, remaining:1880
 prompt >> q
-root@ax650:/mnt/qtang/llm-test/qwen2.5-0.5b-ctx#
 ```
 
-板端运行程序编译流程，请参考我们在 github 上的开源项目 [AX-LLM](https://github.com/AXERA-TECH/ax-llm)
+### 服务运行
 
-### Tokenizer 解析器说明
-
-ax-llm 项目中的 Tokenizer 解析器采用本地模块与 HTTP Server 两种方案，其中本地方案又尝试了 sentencepiece、tiktoken 两种方案。
-但是我们在实际调试过程中发现 sentencepiece 对于不同 LLM 模型的 special tokens 支持不友好，需要用户自行处理 special tokens 的拆分，容易导致板端 token id 与 transformers 库中的 AutoTokenizer 获得的 token id 存在差异，最终影响 LLM 的输出结果正确性。
-因此我们建议前期调试的时候使用 Tokenizer HTTP Server 的方式直接调用 transformers 库中的 AutoTokenizer 模块进行测试。
-
-Tokenizer HTTP Server 的特点：
-
-- 保证 token id 正确
-- 方便添加 chat template
-- 支持本地、远端部署
-- 支持多用户接入
-
-以在网盘中已提供基于 Qwen2.5 0.5B 的相关文件为例
+`axllm` 支持直接将模型目录启动为兼容 OpenAI API 的服务，这种方式对于二次开发和业务联调更为方便。
 
 ```shell
-root@ax650:/mnt/qtang/llm-test/qwen2.5-0.5b-ctx# tree -L 1
-.
-|-- main_ax650
-|-- main_axcl_aarch64
-|-- main_axcl_x86
-|-- post_config.json
-|-- qwen2.5-0.5b-gptq-int8-ctx-ax630c
-|-- qwen2.5-0.5b-gptq-int8-ctx-ax650
-|-- qwen2.5_tokenizer
-|-- qwen2.5_tokenizer_uid.py
-|-- run_qwen2.5_0.5b_gptq_int8_ctx_ax630c.sh
-`-- run_qwen2.5_0.5b_gptq_int8_ctx_ax650.sh
+root@ax650:~/llm-test# axllm serve Qwen3-0.6B/
+[I][                            Init][ 138]: LLM init start
+tokenizer_type = 1
+ 96% | ███████████████████████████████   |  30 /  31 [2.65s<2.74s, 11.30 count/s] init post axmodel ok,remain_cmm(8662 MB)
+[I][                            Init][ 199]: max_token_len : 2559
+[I][                            Init][ 202]: kv_cache_size : 1024, kv_cache_num: 2559
+[I][                            Init][ 205]: prefill_token_num : 128
+[I][                            Init][ 209]: grp: 1, prefill_max_kv_cache_num : 1
+[I][                            Init][ 209]: grp: 2, prefill_max_kv_cache_num : 512
+[I][                            Init][ 209]: grp: 3, prefill_max_kv_cache_num : 1024
+[I][                            Init][ 209]: grp: 4, prefill_max_kv_cache_num : 1536
+[I][                            Init][ 209]: grp: 5, prefill_max_kv_cache_num : 2048
+[I][                            Init][ 214]: prefill_max_token_num : 2048
+[I][                            Init][  27]: LLaMaEmbedSelector use mmap
+100% | ████████████████████████████████ |  31 /  31 [2.65s<2.65s, 11.68 count/s] embed_selector init ok
+[I][                     load_config][ 282]: load config:
+{
+    "enable_repetition_penalty": false,
+    "enable_temperature": false,
+    "enable_top_k_sampling": false,
+    "enable_top_p_sampling": false,
+    "penalty_window": 20,
+    "repetition_penalty": 1.2,
+    "temperature": 0.9,
+    "top_k": 10,
+    "top_p": 0.8
+}
+
+[I][                            Init][ 272]: LLM init ok
+Starting server on port 8000 with model 'AXERA-TECH/Qwen3-0.6B'...
+OpenAI API Server starting on http://0.0.0.0:8000
+Max concurrency: 1
+Models: AXERA-TECH/Qwen3-0.6B
 ```
 
-- qwen2.5_tokenizer：是 tokenizer 相关文件，从 Qwen/Qwen2.5-3B-Instruct/ 中提取
-- qwen2.5_tokenizer_uid.py：是用 python 实现的 Tokenizer HTTP Server
+服务启动完成后，即可通过标准 OpenAI 兼容接口进行调用。
 
-运行说明如下：
+### API 调用示例
 
-- python qwen2.5_tokenizer_uid.py --host xxx.xxx.xxx.xxx --port 12345，其中 --host xxx.xxx.xxx.xxx 设置 tokenizer 解析服务器的 IP 地址，确保 AX650N 能正常访问该地址
-- 可以在具备 python 环境的 AX650N 本地运行, 则直接运行 python qwen2.5_tokenizer_uid.py
-- 修改 ./run_qwen2.5_0.5b_gptq_int8_ctx_ax650.sh 中 --filename_tokenizer_model 的 IP 信息和步骤1中的一致
-- 运行 ./run_qwen2.5_0.5b_gptq_int8_ctx_ax650.sh 即可
+服务启动完成后，可直接使用标准 HTTP 请求访问 OpenAI 兼容接口。最简调用命令如下：
 
 ```shell
-root@ax650:/mnt/qtang/llm-test/qwen2.5-0.5b-ctx# cat run_qwen2.5_0.5b_gptq_int8_ctx_ax650.sh
-./main_ax650 \
---system_prompt "You are Qwen, created by Alibaba Cloud. You are a helpful assistant." \
---template_filename_axmodel "qwen2.5-0.5b-gptq-int8-ctx-ax650/qwen2_p128_l%d_together.axmodel" \
---axmodel_num 24 \
---tokenizer_type 2 \
---url_tokenizer_model "http://127.0.0.1:12345" \
---filename_post_axmodel "qwen2.5-0.5b-gptq-int8-ctx-ax650/qwen2_post.axmodel" \
---filename_tokens_embed "qwen2.5-0.5b-gptq-int8-ctx-ax650/model.embed_tokens.weight.bfloat16.bin" \
---tokens_embed_num 151936 \
---tokens_embed_size 896 \
---use_mmap_load_embed 0 \
---live_print 1
+curl http://127.0.0.1:8000/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"model":"AXERA-TECH/Qwen3-0.6B","messages":[{"role":"user","content":"你好"}]}'
 ```
+
+如需使用 `ax-llm` 项目中的示例脚本进行测试，可参考如下方式：
+
+```shell
+root@ax650:~/llm-test# curl -sOL https://raw.githubusercontent.com/AXERA-TECH/ax-llm/refs/heads/axllm/scripts/openai_demo.py
+
+root@ax650:~/llm-test# python openai_demo.py --model AXERA-TECH/Qwen3-0.6B --api_url http://127.0.0.1:8000/v1
+assistant:
+<think>
+Okay, the user just said "hello". I need to respond appropriately. Since they're greeting me, I should acknowledge their greeting. Maybe say "Hello!" in a friendly way. Let me check if there's any specific context I should consider, but the user didn't mention anything else. I should keep it simple and welcoming. Alright, time to send a response.
+</think>
+
+Hello! How can I assist you today? 😊
+```
+
+如需自定义 prompt，可参考如下命令：
+
+```shell
+root@ax650:~/llm-test# python openai_demo.py --model AXERA-TECH/Qwen3-0.6B --api_url http://127.0.0.1:8000/v1 --prompt "请介绍一下你自己"
+```
+
+需要说明的是，`openai_demo.py` 仅作为接口调用示例，实际应用中推荐直接按照 OpenAI 接口规范进行调用对接。
+
+板端运行程序编译流程，以及更多 `run` / `serve` / API 使用细节，请参考我们在 Github 上的开源项目 [AX-LLM](https://github.com/AXERA-TECH/ax-llm)

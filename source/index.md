@@ -38,7 +38,7 @@ tool_classification/functional_safety.md
 :name: Other Tools
 
 other_tools/caffe_to_onnx.md
-other_tools/convert_to_4w8f.md
+other_tools/convert_to_4w4f.md
 other_tools/polygrapy_extract.md
 other_tools/profiling.md
 :::
@@ -56,4 +56,6 @@ appendix/op_support_list_m57.md
 appendix/op_support_list_ax637.md
 appendix/precision_debug_guides.md
 appendix/build_llm.md
+appendix/model_convert_examples.md
+appendix/advanced_config_examples.md
 :::
