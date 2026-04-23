@@ -111,6 +111,7 @@ hf download Qwen/Qwen3-0.6B --local-dir Qwen/Qwen3-0.6B
 ## 编译执行
 
 ```shell
+export FLOAT_MATMUL_USE_CONV_EU=1
 pulsar2 llm_build --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
 ```
 
