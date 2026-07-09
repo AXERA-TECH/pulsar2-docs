@@ -9,7 +9,7 @@
 
 **已验证模型**
 
-- Qwen3、Qwen2.5
+- Qwen3.5、Qwen3、Qwen2.5
 - DeepSeek-R1-Distill
 - MiniCPM4
 - InternVL2_5、InternVL3
@@ -42,15 +42,15 @@
 
 ## 命令说明
 
-`Pulsar2` 工具链中使用 `pulsar2 llm_build` 命令来完成 LLM 模型的转换.
+`Pulsar2` 工具链中使用 `pulsar2 llm_build2` 命令来完成 LLM 模型的转换.
 
 ```shell
-root@xxx:/data# pulsar2 llm_build --help
-usage: pulsar2 llm_build [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--parallel PARALLEL]
-                         [--model_config MODEL_CONFIG] [--model_type MODEL_TYPE] [--kv_cache_len KV_CACHE_LEN] [--post_topk POST_TOPK]
-                         [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL]
-                         [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE] [--last_kv_cache_len LAST_KV_CACHE_LEN]
-                         [--tensor_parallel_size TENSOR_PARALLEL_SIZE] [--ret_postnorm] [--ld_param_opt] [--npu_mode {NPU1,NPU2,NPU3}]
+root@xxx:/data# pulsar2 llm_build2 -h
+usage: pulsar2 llm_build2 [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--prefill_step_size PREFILL_STEP_SIZE] [--max_context MAX_CONTEXT]
+                          [--decode_step_size DECODE_STEP_SIZE] [--parallel PARALLEL] [--model_config MODEL_CONFIG] [--model_type MODEL_TYPE] [--post_topk POST_TOPK]
+                          [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL]
+                          [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE] [--tensor_parallel_size TENSOR_PARALLEL_SIZE] [--ret_postnorm] [--ld_param_opt]
+                          [--npu_mode {NPU1,NPU2,NPU3}]
 
 options:
   -h, --help            show this help message and exit
@@ -59,14 +59,18 @@ options:
   --output_path OUTPUT_PATH
                         path of dumpped ax_model (default: .)
   --prefill_len PREFILL_LEN
-                        token length of prefill (default: 0)
+                        total token length of prefill (default: 0)
+  --prefill_step_size PREFILL_STEP_SIZE
+                        token length of each prefill subgraph; default is derived from prefill_len (default: None)
+  --max_context MAX_CONTEXT
+                        maximum decode attention length (default: 128)
+  --decode_step_size DECODE_STEP_SIZE
+                        decode context step size; default is derived from max_context, <=0 means one decode subgraph (default: None)
   --parallel PARALLEL   build parallel (default: 1)
   --model_config MODEL_CONFIG
                         config file (default: )
   --model_type MODEL_TYPE
                         config file (default: )
-  --kv_cache_len KV_CACHE_LEN
-                        length of kv_cache (default: 127)
   --post_topk POST_TOPK
                         post model output indices and prob (default: 0)
   --post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}
@@ -82,8 +86,6 @@ options:
   --prompt PROMPT       prompt for check_level==2 (default: 1+1=)
   --image_size IMAGE_SIZE
                         vlm vision_part input_size (default: 224)
-  --last_kv_cache_len LAST_KV_CACHE_LEN
-                        last kv cache len (default: None)
   --tensor_parallel_size TENSOR_PARALLEL_SIZE
                         tensor parallel size (default: 0)
   --ret_postnorm        weather to return post_norm value in post layer (default: False)
@@ -112,13 +114,13 @@ hf download Qwen/Qwen3-0.6B --local-dir Qwen/Qwen3-0.6B
 
 ```shell
 export FLOAT_MATMUL_USE_CONV_EU=1
-pulsar2 llm_build --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
+pulsar2 llm_build2 --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --max_context 1024 --prefill_len 512 --prefill_step_size 128 --chip AX650 --parallel 8
 ```
 
 ### log 参考信息
 
 ```
-pulsar2 llm_build --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --kv_cache_len 1023 --prefill_len 128 --last_kv_cache_len 128 --last_kv_cache_len 256 --last_kv_cache_len 384 --last_kv_cache_len 512  --chip AX650 -c 1 --parallel 8
+pulsar2 llm_build2 --input_path Qwen/Qwen3-0.6B/  --output_path Qwen/Qwen3-0.6B-ax650 --hidden_state_type bf16 --max_context 1024 --prefill_len 512 --prefill_step_size 128 --chip AX650 --parallel 8
 Config(
     model_name='Qwen3-0.6B',
     model_type='qwen3',
