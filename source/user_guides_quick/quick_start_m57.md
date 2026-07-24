@@ -30,7 +30,7 @@ optional arguments:
 
 `/data/config/` 路径下的 `mobilenet_v2_build_config.json` 展示:
 
-```json
+```shell
 {
   "model_type": "ONNX",
   "npu_mode": "NPU1",
@@ -40,9 +40,7 @@ optional arguments:
         "tensor_name": "input",
         "calibration_dataset": "./dataset/imagenet-32-images.tar",
         "calibration_size": 32,
-        // 校验数据集归一化的各通道均值, 通道顺序与 tensor_format 一致
         "calibration_mean": [103.939, 116.779, 123.68],
-        // 校验数据集归一化的各通道标准差
         "calibration_std": [58.0, 58.0, 58.0]
       }
     ],
@@ -53,13 +51,9 @@ optional arguments:
     {
       "tensor_name": "input",
       "tensor_format": "BGR",
-      // 运行时输入格式
       "src_format": "BGR",
-      // 运行时数据类型
       "src_dtype": "U8",
-      // 运行时数据布局格式
       "src_layout": "NHWC",
-      // 颜色空间转换
       "csc_mode": "NoCSC"
     }
   ],
@@ -91,12 +85,12 @@ pulsar2 build --target_hardware M57 --input model/mobilenetv2-sim.onnx --output_
 ```
 
 :::{warning}
-在编译模型前，需要确保已经对原始模型使用过 `onnxsim` 工具优化，主要目的是将模型转变成更利于 `Pulsar2` 编译的静态图及获得更好的推理性能。有以下两种方法：
+在编译模型前，需要确保已经对原始模型使用过 `onnxslim` 工具优化，主要目的是将模型转变成更利于 `Pulsar2` 编译的静态图及获得更好的推理性能。有以下两种方法：
 
-1. 在 `Pulsar2` docker 内部直接执行命令：`onnxsim in.onnx out.onnx`。
+1. 在 `Pulsar2` docker 内部直接执行命令：`onnxslim in.onnx out.onnx`。
 2. 使用 `pulsar2 build` 进行模型转换时，增加参数：`--onnx_opt.enable_onnxsim true` （默认值为 false)。
 
-如果想要进一步了解 `onnxsim` ，可访问 [官方网站](https://github.com/daquexian/onnx-simplifier) 。
+如果想要进一步了解 `onnxslim` ，可访问 [官方网站](https://github.com/inisis/OnnxSlim) 。
 :::
 
 ### log 参考信息

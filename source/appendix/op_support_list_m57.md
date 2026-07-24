@@ -30,7 +30,7 @@
 | Constant              | 无限制                                                                                            |
 | ConstantOfShape       | 无限制                                                                                            |
 | Conv                  | - auto_pad: 只支持NOTSET <br> - dilations: 无限制 <br> - group: 无限制 <br> - kernel_shape: 无限制 <br> - pads: 无限制 <br> - strides: 无限制 <br> - note: 当使用DepthWise/Group Conv， 并且dilation不为1时效率较低。                                                                                                   |
-| ConvTranspose         | - auto_pad: 只支持NOTSET <br> - dilations: 暂时只能设为1 <br> - group: 无限制 <br> - kernel_shape: 无限制 <br> - output_shape: 暂不支持 <br> - pads: 无限制 <br> - strides: 无限制 <br> - note: DepthWise ConvTranspose 效率较低。output_padding: output_padding_h \<= pads_bottom, output_padding_w \<= pads_right                                                                                                   |
+| ConvTranspose         | - auto_pad: 只支持NOTSET <br> - dilations: 暂时只能设为1 <br> - group: 无限制 <br> - kernel_shape: 无限制 <br> - output_shape: 暂不支持 <br> - pads: 无限制 <br> - strides: 无限制 <br> - note: DepthWise ConvTranspose 效率较低。 <br> - output_padding: output_padding_h \<= pads_bottom, output_padding_w \<= pads_right                                                                                                   |
 | Cos                   | 无限制                                                                                            |
 | CumSum                | - exclusive: 暂时仅支持 0 <br> - reverse: 暂时仅支持 0                                                                                                   |
 | DepthToSpace          | - blocksize: 无限制 <br> - mode: 无限制                                                                                                   |
@@ -83,7 +83,7 @@
 | ReduceSum             | - axes: 无限制 <br> - keepdims: 无限制 <br> - noop_with_empty_axes: 该参数暂不支持                                                                                                   |
 | Relu                  | 无限制                                                                                            |
 | Reshape               | shape: 无限制                                                                                     |
-| Resize                | - mode: 支持"nearest"、”linear“可选 <br> - scales: 无限制nearest_mode: 只支持设为round_prefer_ceil                                                                                                   |
+| Resize                | - mode: 支持"nearest"、”linear“可选 <br> - scales: 无限制 <br> - nearest_mode: 只支持设为round_prefer_ceil                                                                                                   |
 | RMSNormalization      | 无限制                                                                                            |
 | RoiAlign              | sampling_ratio: 只支持不为0                                                                       |
 | RotaryEmbedding       | 无限制                                                                                            |

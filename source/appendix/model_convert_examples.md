@@ -4,7 +4,7 @@
 
 :::{note}
 - 本章节中的模型和配置文件均来自 [AXERA-TECH HuggingFace](https://huggingface.co/AXERA-TECH)
-- 转换前请确保已使用 `onnxsim` 工具对原始模型进行优化
+- 转换前请确保已使用 `onnxslim` 工具对原始模型进行优化
 - 模型的输入输出 tensor 名称需与 ONNX 模型实际定义一致, 可通过 `onnx inspect --io model.onnx` 查看
 :::
 
@@ -323,7 +323,7 @@ build op...   ━━━━━━━━━━━━━━━━━━━━━━
 YOLO11 相比 YOLOv5 采用了注意力机制 (含 `MatMul` 和 `Softmax` 算子), 模型更大但检测精度更高. 板端推理耗时约 `25 ms` (AX650). 完整的板端运行示例参考 [AXERA-TECH/YOLO11](https://huggingface.co/AXERA-TECH/YOLO11).
 :::
 
-(convert-depth-anything_v2)=
+(convert_depth_anything_v2)=
 
 ## Depth-Anything-V2 (单目深度估计)
 
@@ -504,7 +504,7 @@ add ddr swap...   ━━━━━━━━━━━━━━━━━━━━�
 
 - **HuggingFace**: [AXERA-TECH/cnclip](https://huggingface.co/AXERA-TECH/cnclip)
 - **模型来源**: [OFA-Sys/Chinese-CLIP](https://github.com/OFA-Sys/Chinese-CLIP)
-- **ONNX导出参考**: [cnclip.axera](https://github.com/AXERA-TECH/cnclip.axera?tab=readme-ov-file#%E5%AF%BC%E5%87%BA%E6%A8%A1%E5%9E%8Bpytorch---onnx)
+- **ONNX导出参考**: [cnclip.axera](https://github.com/AXERA-TECH/cnclip.axera)
 - **AxSamples**: [CLIP-ONNX-AX650-CPP](https://github.com/AXERA-TECH/CLIP-ONNX-AX650-CPP)
 
 ### 配置文件

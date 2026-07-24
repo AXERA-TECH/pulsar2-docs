@@ -497,7 +497,7 @@ pulsar2 build --target_hardware AX650 --input model.onnx --output_dir output --c
 
 (skip_onnxsim_config)=
 
-## 跳过 onnxslim (onnxsim)
+## 跳过 onnxslim
 
 `pulsar2 build` 默认会先用开源的 `onnxslim` 工具对 ONNX 模型执行内部图优化. 在某些场景下 (如模型已手动优化、包含自定义算子、图优化导致编译失败等), 可能需要跳过这些优化步骤.
 

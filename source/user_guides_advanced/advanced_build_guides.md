@@ -76,11 +76,14 @@
     --model_type          input model type. type: enum. required: false.
                           default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
     --target_hardware     target hardware. type: enum. required: false. default:
-                          AX650. option: AX650, AX620E, AX615, M76H, M57.
+                          AX650. option: AX650, AX620E, AX615, AX637, AX8860,
+                          M76H, M57.
     --npu_mode            npu mode. while ${target_hardware} is AX650, npu mode
                           can be NPU1 / NPU2 / NPU3. while ${target_hardware} is
-                          AX620E or AX615, npu mode can be NPU1 / NPU2. type: enum.
-                          required: false. default: NPU1.
+                          AX620E or AX615, npu mode can be NPU1 / NPU2.
+                          while ${target_hardware} is AX8860, npu mode can be
+                          NPU1 / NPU2 / NPU4. type: enum. required: false.
+                          default: NPU1.
     --input_shapes        modify model input shape of input model, this feature
                           will take effect before the `input_processors`
                           configuration. format:
@@ -91,7 +94,7 @@
                           false. default: false.
     --onnx_opt.enable_onnxsim []
                           enable onnx simplify by
-                          https://github.com/daquexian/onnx-simplifier. type:
+                          https://github.com/inisis/OnnxSlim. type:
                           bool. required: false. default: false.
     --onnx_opt.model_check []
                           enable model check. type: bool. required: false.
@@ -276,20 +279,22 @@
         - 数据类型：enum
         - 是否必选：否
         - 默认值：AX650
-        - 描述：模型编译的目标 soc 平台类型，支持 ``AX650``, ``AX620E``, ``AX615``, ``M76H``, ``M57``
+        - 描述：模型编译的目标 soc 平台类型，支持 ``AX650``, ``AX620E``, ``AX615``, ``AX637``, ``AX8860``, ``M76H``, ``M57``
 
     --npu_mode
 
         - 数据类型：enum
         - 是否必选：否
         - 默认值：NPU1
-        - 描述：模型编译模式
+        - 描述：模型编译模式。各芯片平台可选的 ``npu_mode`` 参数及硬件资源说明请参考 :ref:`《芯片平台信息及可选 npu_mode》 <neutron_platform_npu_mode>`。
 
-            * soc 平台为 ``AX650`` 时，支持枚举: ``NPU1``, ``NPU2``, ``NPU3``
-            * soc 平台为 ``AX620E`` 时，支持枚举: ``NPU1``, ``NPU2``
-            * soc 平台为 ``AX615`` 时，支持枚举: ``NPU1``, ``NPU2``
+            * 平台为 ``AX650`` / ``M76H`` 时，支持枚举: ``NPU1``, ``NPU2``, ``NPU3``
+            * 平台为 ``AX620E`` / ``AX630C`` / ``AX620Q`` 时，支持枚举: ``NPU1``, ``NPU2``
+            * 平台为 ``AX615`` 时，支持枚举: ``NPU1``, ``NPU2``
+            * 平台为 ``M57`` / ``AX637`` 时，支持枚举: ``NPU1``
+            * 平台为 ``AX8860`` 时，支持枚举: ``NPU1``, ``NPU2``, ``NPU4``
 
-      .. warning:: npu_mode 指的是使用的 NPU 核数，而不是 vNPU 编号，请不要混淆。
+      .. warning:: npu_mode 指的是使用的 NPU 资源规模，而不是 vNPU 编号，请不要混淆。
 
     --input_shapes
 
@@ -312,7 +317,7 @@
             - 数据类型：bool
             - 是否必选：否
             - 默认值：false
-            - 描述：是否使用 `onnxsim` 工具简化浮点 ONNX，https://github.com/daquexian/onnx-simplifier。
+            - 描述：是否使用 `onnxslim` 工具简化浮点 ONNX，https://github.com/inisis/OnnxSlim。
 
         - model_check
 
@@ -1001,6 +1006,164 @@ root@aa:/data/quick_start_example# pulsar2 build --input model/mobilenetv2-sim.o
 └───────┴──────────────────┴───────────────────┴─────────────┴───────────────┴──────────────────────────────────────────────────────────────┴────────────────────┘
 ...
 ```
+
+(cascade_model_input_scale_zp)=
+
+## 级联模型适配
+
+在级联模型场景中，后级模型的输入通常来自前级模型的量化输出。此时运行时输入已经是 `U8` / `S8` / `U16` / `S16` 等量化整数数据，需要在后级模型的 `input_processors` 中显式描述这一路输入的量化参数，使编译后的 `compiled.axmodel` 能按上游输出的 `scale` / `zeropoint` 解释输入数据。
+
+`input_processors.scale` 与 `input_processors.zeropoint` 用于描述运行时输入数据的反量化参数。当 `scale` 配置为 `0` 或不配置时，工具链保持历史默认行为，按 `scale=1`、`zeropoint=0` 处理；`zeropoint` 仅在 `scale` 非 0 时生效。
+
+:::{attention}
+`quant.input_configs.calibration_mean` / `calibration_std` 用于量化校准数据的归一化配置，不应用来表达级联模型运行时输入的量化参数。级联输入的 `scale` / `zeropoint` 应配置在 `input_processors` 中。
+:::
+
+### 基础配置
+
+以下示例表示后级模型原始输入 `input` 为 `FP32` NCHW Tensor，但运行时由前级模型传入 `U8` NCHW Tensor，且该 Tensor 的量化参数为 `scale=0.25`、`zeropoint=9`：
+
+```shell
+{
+  "model_type": "ONNX",
+  "npu_mode": "NPU1",
+  "quant": {
+    "input_configs": [
+      {
+        "tensor_name": "input",
+        "calibration_dataset": "./dataset/input_tensor.tar",
+        "calibration_size": 32,
+        "calibration_format": "Numpy"
+      }
+    ],
+    "calibration_method": "MinMax",
+    "precision_analysis": false
+  },
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "BGR",
+      "src_layout": "NCHW",
+      "src_dtype": "U8",
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ],
+  "compiler": {
+    "check": 0
+  }
+}
+```
+
+:::{note}
+生产环境应使用与后级模型真实输入分布一致的校准集。若校准数据已经是模型输入 Tensor，建议使用 `Numpy` / `Binary` / `NumpyObject` 格式，并不要再配置 `calibration_mean` / `calibration_std`。
+:::
+
+### 与预处理算子的关系
+
+`scale` / `zeropoint` 可以与 `input_processors` 中的 Layout 转换、归一化等预处理配置共同使用：
+
+- 当 `src_layout` 与 `tensor_layout` 不一致时，工具链会插入 `AxTranspose`，`scale` / `zeropoint` 仍会保留在后续量化输入处理算子中。
+- 当 `input_processors` 中配置 `mean` / `std` 时，工具链会插入 `AxQuantizedNormalizeV2`，并将 `input_scales` / `input_zeropoints` 写入该算子。
+- 级联模型适配场景中，不建议将后级模型运行时输入配置为 `YUV420SP` / `YVU420SP`。后级模型通常应直接接收上游模型输出的量化 Tensor，并按该 Tensor 的实际 layout、dtype、`scale` 和 `zeropoint` 配置。
+
+例如运行时输入为 `NHWC`，原始模型输入为 `NCHW` 时，只需要将 `src_layout` 配置为 `NHWC`：
+
+```shell
+{
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "BGR",
+      "src_layout": "NHWC",
+      "src_dtype": "U8",
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ]
+}
+```
+
+如果还需要在模型中嵌入归一化，则在同一个 `input_processors` 条目中增加 `mean` / `std`：
+
+```shell
+{
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "BGR",
+      "src_layout": "NHWC",
+      "src_dtype": "U8",
+      "mean": [0, 0, 0],
+      "std": [255, 255, 255],
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ]
+}
+```
+
+如果后级模型不是接收上游模型输出，而是确实需要直接接收传感器或解码器产生的 YUV 图像输入，则可以配置 YUV + CSC；但这类配置不作为级联模型的推荐用法。YUV 输入需要同时配置合法的 CSC 模式：
+
+```shell
+{
+  "input_processors": [
+    {
+      "tensor_name": "input",
+      "tensor_format": "BGR",
+      "tensor_layout": "NCHW",
+      "src_format": "YUV420SP",
+      "src_layout": "NHWC",
+      "src_dtype": "U8",
+      "csc_mode": "LimitedRange",
+      "scale": 0.25,
+      "zeropoint": 9
+    }
+  ]
+}
+```
+
+:::{warning}
+`YUV420SP` / `YVU420SP` 输入必须配置 `csc_mode` 为 `Matrix` / `FullRange` / `LimitedRange` 之一，不可保持为 `NoCSC`。YUV 输入路径会将运行时输入 Layout 视为 `NHWC`，并将输入 shape 调整为 NV12 / NV21 形式，例如 `224x224` 输入对应 `[1, 336, 224, 1]`。
+:::
+
+### 结果确认
+
+编译时可以通过 `Quant Config Table` 确认 `calibration_mean` / `calibration_std` 未参与输入归一化。例如未配置 `calibration_mean` / `calibration_std` 时，`Mean` 与 `Std` 显示为空数组：
+
+```bash
+Quant Config Table
+┏━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┳━━━━━━┳━━━━━┓
+┃ Input ┃ Shape            ┃ Dataset Directory ┃ Data Format ┃ Tensor Format ┃ Mean ┃ Std ┃
+┡━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━╇━━━━━━╇━━━━━┩
+│ input │ [1, 3, 224, 224] │ input             │ Numpy       │ BGR           │ []   │ []  │
+└───────┴──────────────────┴───────────────────┴─────────────┴───────────────┴──────┴─────┘
+```
+
+如需进一步确认 `scale` / `zeropoint` 是否写入量化 frontend graph，可在配置文件中开启 `debug.dump_frontend_graph`，编译后检查 `output/frontend/optimized_quant_axmodel.onnx`：
+
+```shell
+{
+  "debug": {
+    "dump_frontend_graph": true
+  }
+}
+```
+
+可以使用 Netron 打开导出的 frontend graph，点击输入后的 `AxRequantizeLinear` 节点查看右侧 `ATTRIBUTES`。如果配置已生效，可以看到 `input_scales` 与 `input_zeropoints` 分别为配置中的 `scale` 和 `zeropoint`：
+
+:::{figure} ../media/input_processors_scale_zp_netron.png
+:align: center
+:alt: input_processors scale zeropoint in frontend graph
+
+`AxRequantizeLinear` 节点中显示 `input_scales=0.25`、`input_zeropoints=9`，说明 `input_processors.scale` / `input_processors.zeropoint` 已写入量化 frontend graph。
+:::
 
 ## 多输入模型配置量化数据集
 

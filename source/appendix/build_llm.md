@@ -47,50 +47,50 @@
 ```shell
 root@xxx:/data# pulsar2 llm_build2 -h
 usage: pulsar2 llm_build2 [-h] [--input_path INPUT_PATH] [--output_path OUTPUT_PATH] [--prefill_len PREFILL_LEN] [--prefill_step_size PREFILL_STEP_SIZE] [--max_context MAX_CONTEXT]
-                          [--decode_step_size DECODE_STEP_SIZE] [--parallel PARALLEL] [--model_config MODEL_CONFIG] [--model_type MODEL_TYPE] [--post_topk POST_TOPK]
-                          [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL]
-                          [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE] [--tensor_parallel_size TENSOR_PARALLEL_SIZE] [--ret_postnorm] [--ld_param_opt]
-                          [--npu_mode {NPU1,NPU2,NPU3}]
+                      [--decode_step_size DECODE_STEP_SIZE] [--parallel PARALLEL] [--model_config MODEL_CONFIG] [--model_type MODEL_TYPE] [--post_topk POST_TOPK]
+                      [--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}] [-t {fp16,bf16,fp32}] [-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}] [-c CHECK_LEVEL]
+                      [--chip {AX620E,AX650,LAMBERT}] [--prompt PROMPT] [--image_size IMAGE_SIZE] [--tensor_parallel_size TENSOR_PARALLEL_SIZE] [--ret_postnorm] [--ld_param_opt]
+                      [--npu_mode {NPU1,NPU2,NPU3}]
 
 options:
-  -h, --help            show this help message and exit
-  --input_path INPUT_PATH
+-h, --help            show this help message and exit
+--input_path INPUT_PATH
                         path of model or npy path (default: )
-  --output_path OUTPUT_PATH
+--output_path OUTPUT_PATH
                         path of dumpped ax_model (default: .)
-  --prefill_len PREFILL_LEN
+--prefill_len PREFILL_LEN
                         total token length of prefill (default: 0)
-  --prefill_step_size PREFILL_STEP_SIZE
+--prefill_step_size PREFILL_STEP_SIZE
                         token length of each prefill subgraph; default is derived from prefill_len (default: None)
-  --max_context MAX_CONTEXT
+--max_context MAX_CONTEXT
                         maximum decode attention length (default: 128)
-  --decode_step_size DECODE_STEP_SIZE
+--decode_step_size DECODE_STEP_SIZE
                         decode context step size; default is derived from max_context, <=0 means one decode subgraph (default: None)
-  --parallel PARALLEL   build parallel (default: 1)
-  --model_config MODEL_CONFIG
+--parallel PARALLEL   build parallel (default: 1)
+--model_config MODEL_CONFIG
                         config file (default: )
-  --model_type MODEL_TYPE
+--model_type MODEL_TYPE
                         config file (default: )
-  --post_topk POST_TOPK
+--post_topk POST_TOPK
                         post model output indices and prob (default: 0)
-  --post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}
+--post_weight_type {bf16,s8,fp8_e5m2,fp8_e4m3}
                         post weight type (default: s8)
-  -t {fp16,bf16,fp32}, --hidden_state_type {fp16,bf16,fp32}
+-t {fp16,bf16,fp32}, --hidden_state_type {fp16,bf16,fp32}
                         hidden_state dtype (default: bf16)
-  -w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}, --weight_type {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}
+-w {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}, --weight_type {fp16,bf16,fp32,s8,s4,fp8_e5m2,fp8_e4m3}
                         weight dtype (default: s8)
-  -c CHECK_LEVEL, --check_level CHECK_LEVEL
+-c CHECK_LEVEL, --check_level CHECK_LEVEL
                         check level 0:run 1:layer_check 2: cal 1+1 (default: 0)
-  --chip {AX620E,AX650,LAMBERT}
+--chip {AX620E,AX650,LAMBERT}
                         chip (default: AX650)
-  --prompt PROMPT       prompt for check_level==2 (default: 1+1=)
-  --image_size IMAGE_SIZE
+--prompt PROMPT       prompt for check_level==2 (default: 1+1=)
+--image_size IMAGE_SIZE
                         vlm vision_part input_size (default: 224)
-  --tensor_parallel_size TENSOR_PARALLEL_SIZE
+--tensor_parallel_size TENSOR_PARALLEL_SIZE
                         tensor parallel size (default: 0)
-  --ret_postnorm        weather to return post_norm value in post layer (default: False)
-  --ld_param_opt        ld_param_opt (default: False)
-  --npu_mode {NPU1,NPU2,NPU3}
+--ret_postnorm        weather to return post_norm value in post layer (default: False)
+--ld_param_opt        ld_param_opt (default: False)
+--npu_mode {NPU1,NPU2,NPU3}
 ```
 
 ## 下载 ax-llm-build 项目
@@ -286,7 +286,7 @@ hf download AXERA-TECH/Qwen3-0.6B --local-dir Qwen3-0.6B
 
 ### 命令行运行
 
-```shell
+```text
 root@ax650:~/llm-test# axllm run Qwen3-0.6B/
 [I][                            Init][ 138]: LLM init start
 tokenizer_type = 1
@@ -396,7 +396,7 @@ curl http://127.0.0.1:8000/v1/chat/completions \
 
 如需使用 `ax-llm` 项目中的示例脚本进行测试，可参考如下方式：
 
-```shell
+```text
 root@ax650:~/llm-test# curl -sOL https://raw.githubusercontent.com/AXERA-TECH/ax-llm/refs/heads/axllm/scripts/openai_demo.py
 
 root@ax650:~/llm-test# python openai_demo.py --model AXERA-TECH/Qwen3-0.6B --api_url http://127.0.0.1:8000/v1
