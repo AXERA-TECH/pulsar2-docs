@@ -34,14 +34,15 @@ git clone https://github.com/AXERA-TECH/pulsar2-docs.git
     ├── conf.py
     ├── doc_update_info
     ├── examples                # 以 .zip 格式保存了一些例子, 由于git pages的限制, 在线文档不支持点击下载操作
-    ├── faq
-    ├── index.rst
+    ├── index.md
     ├── media
+    ├── neutron
+    ├── other_tools
     ├── pulsar2
+    ├── tool_classification
     ├── user_guides_advanced
     ├── user_guides_config
     ├── user_guides_quick
-    └── user_guides_runtime
 ```
 
 ### 2.2 编译

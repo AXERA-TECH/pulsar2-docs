@@ -17,11 +17,11 @@ import sys
 # -- Project information -----------------------------------------------------
 
 project = 'Pulsar2'
-copyright = '2025, AXERA Semiconductor Co., Ltd. All rights reserved'
+copyright = '2026, AXERA Semiconductor Co., Ltd. All rights reserved'
 author = 'AXera-Tech'
 
 # The full version, including alpha/beta/rc tags
-release = 'V5.1'
+release = 'V7.0'
 
 # -- General configuration ---------------------------------------------------
 
@@ -51,7 +51,7 @@ html_theme = 'sphinx_book_theme'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['_static'] if os.path.isdir(os.path.join(os.path.dirname(__file__), '_static')) else []
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:

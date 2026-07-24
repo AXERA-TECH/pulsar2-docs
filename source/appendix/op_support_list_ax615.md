@@ -27,7 +27,7 @@
 | Concat                | axis: 无限制                                                                                      |
 | Constant              | 无限制                                                                                            |
 | Conv                  | - auto_pad: 只支持NOTSET <br> - dilations: 无限制 <br> - group: 无限制 <br> - kernel_shape: 无限制 <br> - pads: 无限制 <br> - strides: 无限制 <br> - note: 当使用DepthWise/Group Conv， 并且dilation不为1时效率较低。                                                                                                   |
-| ConvTranspose         | - auto_pad: 只支持NOTSET <br> - dilations: 暂时只能设为1 <br> - group: 无限制 <br> - kernel_shape: 无限制 <br> - output_shape: 暂不支持 <br> - pads: 无限制 <br> - strides: 无限制 <br> - note: DepthWise ConvTranspose 效率较低。output_padding: output_padding_h \<= pads_bottom, output_padding_w \<= pads_right                                                                                                   |
+| ConvTranspose         | - auto_pad: 只支持NOTSET <br> - dilations: 暂时只能设为1 <br> - group: 无限制 <br> - kernel_shape: 无限制 <br> - output_shape: 暂不支持 <br> - pads: 无限制 <br> - strides: 无限制 <br> - note: DepthWise ConvTranspose 效率较低。 <br> - output_padding: output_padding_h \<= pads_bottom, output_padding_w \<= pads_right                                                                                                   |
 | DepthToSpace          | - blocksize: 无限制 <br> - mode: 暂时只支持DCR                                                                                                   |
 | Div                   | 无限制                                                                                            |
 | Elu                   | 无限制                                                                                            |
@@ -50,7 +50,7 @@
 | LayerNormalization    | axis暂时只支持为-1(即最后一维) 仅限小尺寸                                                         |
 | Less                  | 无限制                                                                                            |
 | LessOrEqual           | 无限制                                                                                            |
-| LpNormalization       | - axis暂时只支持-1(即最后一维) <br> - p只支持1或2仅限小尺寸                                                                                                   |
+| LpNormalization       | - axis暂时只支持-1(即最后一维) <br> - p只支持1或2 <br> - 仅限小尺寸                                                                                                   |
 | LSTM                  | - activation_alpha: 暂时不支持 <br> - activation_beta: 暂时不支持 <br> - activations: 暂时不支持 <br> - clip: 暂时不支持 <br> - hidden_size: 无限制 <br> - input_forget: 暂时不支持 <br> - layout: 只支持设为0 <br> - B: 无限制 <br> - sequence_lens: 不支持 <br> - initial_h: 无限制 <br> - initial_c: 无限制 <br> - P: 暂时不支持 <br> - direction: 支持“bidirectional”、“reverse”、“forward”                                                                                                   |
 | LeakyRelu             | 无限制                                                                                            |
 | MatMul                | 无限制                                                                                            |
@@ -69,7 +69,7 @@
 | ReduceMean            | - axes: 无限制 <br> - keepdims: 无限制 <br> - noop_with_empty_axes: 该参数暂不支持                                                                                                   |
 | Relu                  | 无限制                                                                                            |
 | Reshape               | shape: 无限制                                                                                     |
-| Resize                | - mode: 支持"nearest"、”linear“可选 <br> - scales: 无限制nearest_mode: 只支持设为round_prefer_ceil                                                                                                   |
+| Resize                | - mode: 支持"nearest"、”linear“可选 <br> - scales: 无限制 <br> - nearest_mode: 只支持设为round_prefer_ceil                                                                                                   |
 | Sigmoid               | 无限制                                                                                            |
 | Slice                 | - starts: 无限制 <br> - ends: 无限制 <br> - axes: 无限制 <br> - steps: 无限制                                                                                                   |
 | SpatialTransformer    | 插值方式为 "bilinear", 边界处理方式为 "constant"（值为0） 仅限小尺寸                              |

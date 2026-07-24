@@ -28,16 +28,16 @@
   "work_dir": "",
   // input model type. type: enum. required: false. default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
   "model_type": "ONNX",
-  // target hardware. type: enum. required: false. default: AX650. option: AX650, AX620E, M76H, M57.
+  // target hardware. type: enum. required: false. default: AX650. option: AX650, AX620E, AX615, AX637, AX8860, M76H, M57.
   "target_hardware": "AX650",
-  // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E, npu mode can be NPU1 / NPU2. type: enum. required: false. default: NPU1.
+  // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E or AX615, npu mode can be NPU1 / NPU2. while ${target_hardware} is AX8860, npu mode can be NPU1 / NPU2 / NPU4, corresponding to 1 / 2 / 4 NPU Core(s). type: enum. required: false. default: NPU1.
   "npu_mode": "NPU1",
   // modify model input shape of input model, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .
   "input_shapes": "input:1x1x28x28",
   "onnx_opt": {
     // disable onnx optimization. type: bool. required: false. default: false.
     "disable_onnx_optimization": false,
-    // enable onnx simplify by https://github.com/daquexian/onnx-simplifier. type: bool. required: false. default: false.
+    // enable onnx simplify by https://github.com/inisis/OnnxSlim. type: bool. required: false. default: false.
     "enable_onnxsim": false,
     // enable model check. type: bool. required: false. default: false.
     "model_check": false,
@@ -516,7 +516,7 @@ message LayerConfig {
 message OnnxOptimizeOption {
   // disable onnx optimization. type: bool. required: false. default: false.
   bool disable_onnx_optimization = 1;
-  // enable onnx simplify by https://github.com/daquexian/onnx-simplifier. type: bool. required: false. default: false.
+  // enable onnx simplify by https://github.com/inisis/OnnxSlim. type: bool. required: false. default: false.
   bool enable_onnxsim = 2;
   // enable model check. type: bool. required: false. default: false.
   bool model_check = 3;
@@ -705,9 +705,9 @@ message BuildConfig {
   // input model type. type: enum. required: false. default: ONNX. option: ONNX, QuantAxModel, QuantONNX.
   ModelType model_type = 5;
 
-  // target hardware. type: enum. required: false. default: AX650. option: AX650, AX620E, M76H, M57.
+  // target hardware. type: enum. required: false. default: AX650. option: AX650, AX620E, AX615, AX637, AX8860, M76H, M57.
   common.HardwareType target_hardware = 6;
-  // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E, npu mode can be NPU1 / NPU2. type: enum. required: false. default: NPU1.
+  // npu mode. while ${target_hardware} is AX650, npu mode can be NPU1 / NPU2 / NPU3. while ${target_hardware} is AX620E or AX615, npu mode can be NPU1 / NPU2. while ${target_hardware} is AX8860, npu mode can be NPU1 / NPU2 / NPU4, corresponding to 1 / 2 / 4 NPU Core(s). type: enum. required: false. default: NPU1.
   common.NPUMode npu_mode = 7;
 
   // modify model input shape of input model, this feature will take effect before the `input_processors` configuration. format: input1:1x3x224x224;input2:1x1x112x112. type: string. required: false. default: .

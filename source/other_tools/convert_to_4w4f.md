@@ -5,5 +5,5 @@ QAT (Quantization-Aware Training) 量化感知训练是指在模型训练过程�
 在反向传播时仍使用 FP32 计算梯度.
 
 4bit 量化位宽时参考 [resnet50/config_4w4f](https://github.com/AXERA-TECH/QAT.axera/blob/cc4c50293317e21dc1b7f52854d992df48d4ffd8/resnet50/config_4w4f.json) 配置，
-并用 [simplify_and_fix_4bit_dtype](https://github.com/AXERA-TECH/QAT.axera/blob/cc4c50293317e21dc1b7f52854d992df48d4ffd8/utils/quant_utils.py#L12)
-替代 onnxsim/onnxslim .
+并用 [simplify_and_fix_4bit_dtype](https://github.com/AXERA-TECH/QAT.axera/blob/cc4c50293317e21dc1b7f52854d992df48d4ffd8/utils/quant_utils.py)
+替代 onnxslim .

@@ -10,9 +10,9 @@
 
 Docker 开发环境可以在 MacOS, Linux, Windows 操作系统安装，不同操作系统下对安装环境的最低配置要求和具体安装流程请参考以下链接：
 
-- [MacOS 安装 Docker 环境](https://docs.docker.com/desktop/mac/install/)
-- [Linux 安装 Docker 环境](https://docs.docker.com/engine/install/##server)
-- [Windows 安装 Docker 环境](https://docs.docker.com/desktop/windows/install/)
+- [MacOS 安装 Docker 环境](https://docs.docker.com/desktop/setup/install/mac-install/)
+- [Linux 安装 Docker 环境](https://docs.docker.com/engine/install/)
+- [Windows 安装 Docker 环境](https://docs.docker.com/desktop/setup/install/windows-install/)
 
 `Docker` 安装成功后, 输入 `sudo docker -v`
 
@@ -33,9 +33,7 @@ Docker version 20.10.7, build f0df350
 
 工具链获取途径：
 
-- [Hugging Face](https://huggingface.co/AXERA-TECH/Pulsar2/)
-- [HF Mirror](https://hf-mirror.com/AXERA-TECH/Pulsar2)
-- [Modelscope](https://www.modelscope.cn/models/AXERA-TECH/Pulsar2/)
+- 通过企业途径向 AXera 签署 NDA 后由其技术支持人员释放。
 
 ### 载入 Docker Image
 
@@ -89,7 +87,7 @@ root@xxx:~/data# ls
 config  dataset  model  output  pulsar2-run-helper
 ```
 
-- `model`: 存放原始的 `ONNX` 模型 `mobilenetv2-sim.onnx` (预先已使用 `onnxsim` 将 `mobilenetv2.onnx` 进行计算图优化)
+- `model`: 存放原始的 `ONNX` 模型 `mobilenetv2-sim.onnx` (预先已使用 `onnxslim` 将 `mobilenetv2.onnx` 进行计算图优化)
 - `dataset`: 存放离线量化校准 (PTQ Calibration) 需求的数据集压缩包 (支持 tar、tar.gz、gz 等常见压缩格式)
 - `config`: 存放运行依赖的配置文件 `config.json`
 - `output`: 存放结果输出
