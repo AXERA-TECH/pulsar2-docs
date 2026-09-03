@@ -53,6 +53,25 @@ html_theme = 'sphinx_book_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static'] if os.path.isdir(os.path.join(os.path.dirname(__file__), '_static')) else []
 
+# The documentation assistant is hosted separately from this Sphinx project.
+# RTD only builds the static client; the client calls the public assistant API.
+docs_assistant_api_url = os.environ.get(
+    'DOCS_ASSISTANT_API_URL',
+    'https://chatbot.hlleng.xx.kg/api/docs-assistant',
+).strip()
+docs_assistant_language = os.environ.get('READTHEDOCS_LANGUAGE', 'zh_CN')
+html_css_files = ['assistant/assistant.css']
+html_js_files = [
+    (
+        'assistant/assistant.js',
+        {
+            'defer': 'defer',
+            'data-api-url': docs_assistant_api_url,
+            'data-language': docs_assistant_language,
+        },
+    ),
+]
+
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 
