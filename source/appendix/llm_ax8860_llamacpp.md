@@ -22,7 +22,7 @@
 | `run.sh` | 运行脚本 |
 
 :::{note}
-kernel 中不含权重，加载时会从 GGUF 转换到 NPU，耗时约 70 秒。
+kernel 中不含权重，加载时会从 GGUF 转换到 NPU。
 :::
 
 ## 运行
@@ -66,10 +66,7 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 | --- | --- |
 | 4k prompt（3908 token）prefill | 3.18 s（1231 tokens/s） |
 | decode（4k 上下文） | 72.8 ms/token（13.7 tokens/s） |
-| 16k prompt prefill | 1168 tokens/s |
-| decode（16k 上下文） | 81.0 ms/token（12.3 tokens/s） |
 | 图像编码（3072 patch = 768 图像 token） | 0.28 s |
-| 模型加载 | 约 70 s |
 
 ## 已知限制
 
