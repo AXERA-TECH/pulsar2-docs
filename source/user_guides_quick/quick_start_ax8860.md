@@ -192,3 +192,8 @@ root@xxx:/data/pulsar2-run-helper# python3 cli_classification.py --post_processi
 :::{note}
 `AX8860` 板端运行方式与对应 SDK、AXEngine 运行环境及开发板镜像版本相关。完成 `compiled.axmodel` 编译后，可结合目标平台 SDK 文档和 {ref}`《模型部署进阶指南》 <model_deploy_advanced>` 完成板端集成。
 :::
+
+:::{hint}
+`AX8860` 支持使用 `AXDSL` 编写自定义 NPU kernel。AXDSL 的编程模型、PYRUN 仿真、算子与完整示例请参考
+[AXDSL 社区教程](https://axdsl-community-tutorial.readthedocs.io/zh-cn/latest/)。
+:::
