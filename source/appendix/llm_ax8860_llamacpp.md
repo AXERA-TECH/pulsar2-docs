@@ -3,8 +3,10 @@
 `AX8860` 使用 `llama.cpp` + `ggml-axera` 在 4 核 NPU 上运行大模型。官方已提供预置 NPU kernel
 与板端程序，模型下载后即可运行，**不需要使用 `pulsar2 llm_build2` 编译**。
 
-本文以 [AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp](https://huggingface.co/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
-为例说明。
+本文以 `Qwen3.8-27B-AX8860-llama.cpp` 为例说明，模型可从以下任意渠道获取：
+
+- [Hugging Face](https://huggingface.co/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
+- [ModelScope](https://modelscope.cn/models/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
 
 ## 适用范围
 
@@ -83,6 +85,8 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 
 ## 相关链接
 
-- 模型与程序：[AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp](https://huggingface.co/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
+- 模型与程序：
+  - [Hugging Face](https://huggingface.co/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
+  - [ModelScope](https://modelscope.cn/models/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
 - llama.cpp 源码：[ZHEQIUSHUI/llama.cpp](https://github.com/ZHEQIUSHUI/llama.cpp)
 - NPU kernel 源码：[ZHEQIUSHUI/ax-dsl-kernels](https://github.com/ZHEQIUSHUI/ax-dsl-kernels)
