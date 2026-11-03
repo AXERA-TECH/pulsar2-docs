@@ -53,8 +53,8 @@ other_tools/profiling.md
 appendix/op_support_list.md
 appendix/precision_debug_guides.md
 appendix/build_llm.md
-appendix/llm_ax8860_sglang.md
-appendix/llm_ax8860_llamacpp.md
 appendix/model_convert_examples.md
 appendix/advanced_config_examples.md
+appendix/llm_ax8860_sglang.md
+appendix/llm_ax8860_llamacpp.md
 ```
