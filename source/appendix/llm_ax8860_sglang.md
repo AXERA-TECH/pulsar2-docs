@@ -1,7 +1,6 @@
 # AX8860 大模型部署（SGLang）
 
-`AX8860` 使用 `SGLang-axera` 部署大模型。官方已提供预置 NPU kernel 与推理适配，模型准备好后即可运行，
-**不需要使用 `pulsar2 llm_build2` 编译**。
+`AX8860` 使用 `SGLang-axera` 部署大模型。官方已提供预置 NPU kernel 与推理适配，模型准备好后即可运行。
 
 ## 前置条件
 

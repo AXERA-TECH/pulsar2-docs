@@ -1,7 +1,7 @@
 # AX8860 大模型部署（llama.cpp）
 
 `AX8860` 使用 `llama.cpp` + `ggml-axera` 在 4 核 NPU 上运行大模型。官方已提供预置 NPU kernel
-与板端程序，模型下载后即可运行，**不需要使用 `pulsar2 llm_build2` 编译**。
+与板端程序，模型下载后即可运行。
 
 本文以 `Qwen3.8-27B-AX8860-llama.cpp` 为例说明，模型可从以下任意渠道获取：
 
