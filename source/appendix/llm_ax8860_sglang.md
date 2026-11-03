@@ -31,7 +31,7 @@ AXCL 本体（驱动 / 运行库）的安装步骤待补充；若 Debian rootfs 
 `pyaxcl` 与其余原生扩展一起安装：
 
 ```shell
-uv pip install --no-deps pyaxcl-0.5.1-py3-none-any.whl
+pip install --no-deps pyaxcl-0.5.1-py3-none-any.whl
 ```
 
 ## 板端环境准备
@@ -39,29 +39,31 @@ uv pip install --no-deps pyaxcl-0.5.1-py3-none-any.whl
 ### 安装 Miniforge3 并创建 Python 3.12 环境
 
 ```shell
-# 安装 Miniforge3 后执行
+# 下载并安装 Miniforge3（板端为 aarch64）
+wget https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh
+bash Miniforge3-Linux-aarch64.sh -b -p $HOME/miniforge3
+
+# 初始化当前 shell
+source $HOME/miniforge3/etc/profile.d/conda.sh
+
+# 创建并激活 Python 3.12 环境
 conda create -y -n sglang python=3.12
 conda activate sglang
-pip install uv
 ```
-
-:::{hint}
-后续命令使用 `uv pip install`；没有 `uv` 时，替换为等价的 `pip install` 即可。
-:::
 
 ### 安装软件栈
 
 ```shell
 # 1) torch CPU 版
-uv pip install torch==2.13.0+cpu torchvision torchaudio \
+pip install torch==2.13.0+cpu torchvision torchaudio \
   --index-url https://download.pytorch.org/whl/cpu
 
 # 2) sglang_axera
-uv pip install sglang_axera-0.5.18-py3-none-any.whl
-uv pip install transformers==5.12.1 pillow
+pip install sglang_axera-0.5.18-py3-none-any.whl
+pip install transformers==5.12.1 pillow
 
 # 3) 原生扩展 + kernel + AXCL 绑定
-uv pip install --no-deps \
+pip install --no-deps \
   axnn-8.0-cp312-cp312-linux_aarch64.whl \
   torch_axera-0.1.0-cp312-cp312-linux_aarch64.whl \
   sgl_kernel_axera-0.1.0-py3-none-any.whl \
