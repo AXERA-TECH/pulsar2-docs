@@ -101,9 +101,6 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 
 ## 相关链接
 
-- 模型与程序：
-  - [Hugging Face](https://huggingface.co/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
-  - [ModelScope](https://modelscope.cn/models/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
 - llama.cpp 源码：[ZHEQIUSHUI/llama.cpp](https://github.com/ZHEQIUSHUI/llama.cpp)
   （`feat/qwen38-27b-prefill` @ `1811df5`）
 - NPU kernel 源码：[ZHEQIUSHUI/ax-dsl-kernels](https://github.com/ZHEQIUSHUI/ax-dsl-kernels)
