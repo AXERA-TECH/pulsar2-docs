@@ -5,6 +5,7 @@
 
 - 模型：`Qwen3.8-27B`（GGUF MXFP4 量化）
 - 能力：支持文本与图像输入
+- 解码：使用模型自带的 MTP 头做投机解码（每轮 3 个 draft token）
 - 性能：持续优化中
 
 本文以 `Qwen3.8-27B-AX8860-llama.cpp` 为例说明，模型可从以下任意渠道获取：
@@ -24,7 +25,7 @@
 | `qwen3.8-27b-mxfp4.gguf` | 模型权重（GGUF MXFP4，约 14.8 GB，md5 `32f5a603d4f75edb16ccf7ff3a35bdd6`） |
 | `mmproj-qwen3.8-27b-bf16.gguf` | 视觉编码器权重（BF16，约 931 MB，md5 `d2b989d06a0eb9109bab182ec2ff03f2`） |
 | `bin/` | llama.cpp 板端程序（静态链接，仅依赖系统 `/opt/lib` 与 libc） |
-| `kernels/` | NPU kernel：decode、prefill、ViT、输出头各一个，以及 `manifest.json` |
+| `kernels/` | NPU kernel：prefill、decode、verify（投机解码的 4 行验证）、ViT、输出头、MTP 头（3 个）、草稿词表头，以及 `manifest.json` |
 | `run.sh` | 运行脚本 |
 
 :::{note}
@@ -62,6 +63,7 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 - `GGML_AXERA_KERNEL_DIR=<repo>/kernels`
 - `-ngl 99`
 - 上下文 `-c` 最大 `16384`，服务端需 `-np 1`
+- 启用 MTP 投机解码：`--spec-type draft-mtp --spec-draft-n-max 3`（不加则为普通解码）
 - 设置 `GGML_AXERA_PROF=1` 可在退出时打印各阶段耗时
 
 ## 性能参考
@@ -71,7 +73,9 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 | 项目 | 结果 |
 | --- | --- |
 | 4k prompt（3908 token）prefill | 3.18 s（1231 tokens/s） |
-| decode（4k 上下文） | 72.8 ms/token（13.7 tokens/s） |
+| decode（MTP 投机解码，短回答） | 22–24 tokens/s |
+| decode（MTP 投机解码，400 token 长回答） | 20 tokens/s（每轮接受 2.0–2.4 个 token） |
+| decode（普通，4k 上下文） | 73 ms/token（13.5 tokens/s） |
 | 图像编码（3072 patch = 768 图像 token） | 0.28 s |
 
 以上为当前版本数据，性能持续优化中。
