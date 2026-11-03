@@ -100,21 +100,79 @@ free -m   # Swap 行应看到约 16383
 
 <!-- TODO: 27B / 35B-A3B 模型文件清单、scp/rsync 示例、板端存放目录 -->
 
-## 运行与 Benchmark
+## 启动服务
 
-:::{note}
-本节内容正在补充中。
+::: {note}
+以下示例中的模型路径 `/home/ai01/sglang-axera/models/Qwen3.5-35B-A3B-NVFP4` 请替换为开发板上的实际路径。
 :::
 
-<!-- TODO: SGLang 启动命令、TTFT / decode 指标获取与评测方法 -->
+```shell
+RUN_MODE=BRUN \
+SGLANG_PLATFORM=axera \
+SGLANG_AXERA_INFERENCE_MODE=dynamic \
+SGLANG_AXERA_KERNEL_CORE_NUM=4 \
+python -m sglang.launch_server \
+    --model-path /home/ai01/sglang-axera/models/Qwen3.5-35B-A3B-NVFP4 \
+    --device axera \
+    --attention-backend axera \
+    --kv-cache-dtype bfloat16 \
+    --context-length 2044 \
+    --max-total-tokens 4096 \
+    --max-running-requests 1 \
+    --chunked-prefill-size 256 \
+    --page-size 256 \
+    --host 127.0.0.1 \
+    --port 30001 \
+    --sampling-defaults openai \
+    --disable-radix-cache \
+    --disable-cuda-graph \
+    --watchdog-timeout 7200
+```
 
-## 启动 OpenAI 兼容服务
+关键环境变量：
 
-:::{note}
-本节内容正在补充中。
+| 变量 | 说明 |
+| --- | --- |
+| `RUN_MODE=BRUN` | 板端运行模式 |
+| `SGLANG_PLATFORM=axera` | 指定 AX 平台 |
+| `SGLANG_AXERA_INFERENCE_MODE=dynamic` | 动态推理模式 |
+| `SGLANG_AXERA_KERNEL_CORE_NUM=4` | 使用 4 个 NPU Core |
+
+服务启动后即可通过 OpenAI 兼容接口调用：
+
+```shell
+curl http://127.0.0.1:30001/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{"model":"Qwen3.5-35B-A3B-NVFP4","messages":[{"role":"user","content":"你好"}]}'
+```
+
+:::{hint}
+`model` 字段使用模型目录名（即 `--model-path` 的最后一级），如示例中的 `Qwen3.5-35B-A3B-NVFP4`。
 :::
 
-<!-- TODO: server 启动命令、端口、curl 调用示例 -->
+## Benchmark 评测
+
+服务启动后，另开一个终端执行：
+
+```shell
+python3 -m sglang.bench_serving \
+  --backend sglang \
+  --host 127.0.0.1 --port 30001 \
+  --num-prompts 1 \
+  --model /home/ai01/sglang-axera/models/Qwen3.5-35B-A3B-NVFP4 \
+  --dataset-name random --random-range-ratio 1 \
+  --random-input-len 2048 --random-output-len 2048 \
+  --max-concurrency 1
+```
+
+评测结果重点看以下指标：
+
+| 指标 | 说明 |
+| --- | --- |
+| `Mean TTFT` | 首 token 延迟，反映 prefill 性能 |
+| `Mean TPOT` / `Mean ITL` | 相邻输出 token 的间隔，反映 decode 性能 |
+| `Output token throughput` | 输出 token 吞吐（tokens/s） |
+| `Request throughput` | 每秒完成的请求数 |
 
 ## 与 llama.cpp 的差异
 
