@@ -5,7 +5,7 @@
 
 - 模型：`Qwen3.8-27B`（GGUF MXFP4 量化）
 - 能力：支持文本与图像输入
-- 解码：使用模型自带的 MTP 头做投机解码（每轮 3 个 draft token）
+- 服务端解码：使用模型自带的 MTP 头做投机解码（每轮 3 个 draft token）
 - 性能：持续优化中
 
 本文以 `Qwen3.8-27B-AX8860-llama.cpp` 为例说明，模型可从以下任意渠道获取：
@@ -29,7 +29,7 @@
 | `run.sh` | 运行脚本 |
 
 :::{note}
-kernel 中不含权重，加载时会从 GGUF 转换到 NPU。
+kernel 中不含权重，加载时会从 GGUF 转换到 NPU；NPU 内存中只保留一份权重，prefill 与 decode 共用。
 :::
 
 ## 运行
@@ -44,6 +44,12 @@ kernel 中不含权重，加载时会从 GGUF 转换到 NPU。
 
 ```shell
 ./run.sh -i bus.jpg "Describe this image." 256
+```
+
+命令行多轮对话：
+
+```shell
+./run.sh -c
 ```
 
 启动 OpenAI 兼容服务：
@@ -63,7 +69,7 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 - `GGML_AXERA_KERNEL_DIR=<repo>/kernels`
 - `-ngl 99`
 - 上下文 `-c` 最大 `16384`，服务端需 `-np 1`
-- 启用 MTP 投机解码：`--spec-type draft-mtp --spec-draft-n-max 3`（不加则为普通解码）
+- 服务端启用 MTP 投机解码：`--spec-type draft-mtp --spec-draft-n-max 3`（不加则为普通解码；文本补全与对话默认不走 MTP）
 - 设置 `GGML_AXERA_PROF=1` 可在退出时打印各阶段耗时
 
 ## 性能参考
@@ -73,7 +79,7 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 | 项目 | 结果 |
 | --- | --- |
 | 4k prompt（3908 token）prefill | 3.18 s（1231 tokens/s） |
-| decode（MTP 投机解码） | 24 tokens/s |
+| decode（MTP 投机解码，服务端） | 24 tokens/s |
 | decode（普通，4k 上下文） | 73 ms/token（13.5 tokens/s） |
 | 图像编码（3072 patch = 768 图像 token） | 0.28 s |
 
@@ -84,6 +90,7 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 - `"The capital of France is"` → `"Paris. …"`
 - 图像描述正确（车辆、文字、人物）
 - 中文 PPL：10.85（内部测试集，`-c 512`）
+- 投机解码的输出与普通贪心解码一致（每个草稿 token 都经目标模型验证）
 - 同一输入多次运行结果偶有极小差异（NPU 累加顺序不固定），不影响输出质量
 
 ## 已知限制
@@ -102,6 +109,6 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 ## 相关链接
 
 - llama.cpp 源码：[ZHEQIUSHUI/llama.cpp](https://github.com/ZHEQIUSHUI/llama.cpp)
-  （`feat/qwen38-27b-prefill` @ `1811df5`）
+  （`axera-dev` @ `8407994`）
 - NPU kernel 源码：[ZHEQIUSHUI/ax-dsl-kernels](https://github.com/ZHEQIUSHUI/ax-dsl-kernels)
-  （`feat/qwen38-27b-vit` @ `18346cb`）
+  （`main` @ `d6e5301`）
