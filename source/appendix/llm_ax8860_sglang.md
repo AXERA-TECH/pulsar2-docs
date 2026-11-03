@@ -98,12 +98,12 @@ free -m   # Swap 行应看到约 16383
 本节内容正在补充中。
 :::
 
-<!-- TODO: 27B / 35B-A3B 模型文件清单、scp/rsync 示例、板端存放目录 -->
+<!-- TODO: 27B 模型文件清单、scp/rsync 示例、板端存放目录 -->
 
 ## 启动服务
 
 ::: {note}
-以下示例中的模型路径 `/home/ai01/sglang-axera/models/Qwen3.5-35B-A3B-NVFP4` 请替换为开发板上的实际路径。
+以下示例中的模型路径 `/home/ai01/sglang-axera/models/Qwen3.8-27B-NVFP4` 请替换为开发板上的实际路径。
 :::
 
 ```shell
@@ -112,7 +112,7 @@ SGLANG_PLATFORM=axera \
 SGLANG_AXERA_INFERENCE_MODE=dynamic \
 SGLANG_AXERA_KERNEL_CORE_NUM=4 \
 python -m sglang.launch_server \
-    --model-path /home/ai01/sglang-axera/models/Qwen3.5-35B-A3B-NVFP4 \
+    --model-path /home/ai01/sglang-axera/models/Qwen3.8-27B-NVFP4 \
     --device axera \
     --attention-backend axera \
     --kv-cache-dtype bfloat16 \
@@ -143,11 +143,11 @@ python -m sglang.launch_server \
 ```shell
 curl http://127.0.0.1:30001/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -d '{"model":"Qwen3.5-35B-A3B-NVFP4","messages":[{"role":"user","content":"你好"}]}'
+  -d '{"model":"Qwen3.8-27B-NVFP4","messages":[{"role":"user","content":"你好"}]}'
 ```
 
 :::{hint}
-`model` 字段使用模型目录名（即 `--model-path` 的最后一级），如示例中的 `Qwen3.5-35B-A3B-NVFP4`。
+`model` 字段使用模型目录名（即 `--model-path` 的最后一级），如示例中的 `Qwen3.8-27B-NVFP4`。
 :::
 
 ## Benchmark 评测
@@ -159,7 +159,7 @@ python3 -m sglang.bench_serving \
   --backend sglang \
   --host 127.0.0.1 --port 30001 \
   --num-prompts 1 \
-  --model /home/ai01/sglang-axera/models/Qwen3.5-35B-A3B-NVFP4 \
+  --model /home/ai01/sglang-axera/models/Qwen3.8-27B-NVFP4 \
   --dataset-name random --random-range-ratio 1 \
   --random-input-len 2048 --random-output-len 2048 \
   --max-concurrency 1
