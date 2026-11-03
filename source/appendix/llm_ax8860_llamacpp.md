@@ -3,6 +3,10 @@
 `AX8860` 使用 `llama.cpp` + `ggml-axera` 在 4 核 NPU 上运行大模型。官方已提供预置 NPU kernel
 与板端程序，模型下载后即可运行。
 
+- 模型：`Qwen3.8-27B`（GGUF MXFP4 量化）
+- 能力：支持文本与图像输入
+- 性能：持续优化中
+
 本文以 `Qwen3.8-27B-AX8860-llama.cpp` 为例说明，模型可从以下任意渠道获取：
 
 - [Hugging Face](https://huggingface.co/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
@@ -17,8 +21,8 @@
 
 | 文件 | 说明 |
 | --- | --- |
-| `qwen3.8-27b-mxfp4.gguf` | 模型权重（GGUF MXFP4，约 14.8 GB） |
-| `mmproj-qwen3.8-27b-bf16.gguf` | 视觉编码器权重（BF16，约 931 MB） |
+| `qwen3.8-27b-mxfp4.gguf` | 模型权重（GGUF MXFP4，约 14.8 GB，md5 `32f5a603d4f75edb16ccf7ff3a35bdd6`） |
+| `mmproj-qwen3.8-27b-bf16.gguf` | 视觉编码器权重（BF16，约 931 MB，md5 `d2b989d06a0eb9109bab182ec2ff03f2`） |
 | `bin/` | llama.cpp 板端程序（静态链接，仅依赖系统 `/opt/lib` 与 libc） |
 | `kernels/` | NPU kernel：decode、prefill、ViT、输出头各一个，以及 `manifest.json` |
 | `run.sh` | 运行脚本 |
@@ -70,6 +74,15 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 | decode（4k 上下文） | 72.8 ms/token（13.7 tokens/s） |
 | 图像编码（3072 patch = 768 图像 token） | 0.28 s |
 
+以上为当前版本数据，性能持续优化中。
+
+## 验证结果
+
+- `"The capital of France is"` → `"Paris. …"`
+- 图像描述正确（车辆、文字、人物）
+- 中文 PPL：10.85（内部测试集，`-c 512`）
+- 同一输入多次运行结果偶有极小差异（NPU 累加顺序不固定），不影响输出质量
+
 ## 已知限制
 
 - 运行时独占 NPU 4 核，不能同时运行其他 NPU 程序
@@ -89,4 +102,6 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
   - [Hugging Face](https://huggingface.co/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
   - [ModelScope](https://modelscope.cn/models/AXERA-TECH/Qwen3.8-27B-AX8860-llama.cpp)
 - llama.cpp 源码：[ZHEQIUSHUI/llama.cpp](https://github.com/ZHEQIUSHUI/llama.cpp)
+  （`feat/qwen38-27b-prefill` @ `1811df5`）
 - NPU kernel 源码：[ZHEQIUSHUI/ax-dsl-kernels](https://github.com/ZHEQIUSHUI/ax-dsl-kernels)
+  （`feat/qwen38-27b-vit` @ `18346cb`）
