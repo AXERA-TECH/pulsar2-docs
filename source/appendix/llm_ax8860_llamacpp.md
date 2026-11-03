@@ -73,8 +73,7 @@ curl http://<board>:8080/v1/chat/completions -H 'Content-Type: application/json'
 | 项目 | 结果 |
 | --- | --- |
 | 4k prompt（3908 token）prefill | 3.18 s（1231 tokens/s） |
-| decode（MTP 投机解码，短回答） | 22–24 tokens/s |
-| decode（MTP 投机解码，400 token 长回答） | 20 tokens/s（每轮接受 2.0–2.4 个 token） |
+| decode（MTP 投机解码） | 24 tokens/s |
 | decode（普通，4k 上下文） | 73 ms/token（13.5 tokens/s） |
 | 图像编码（3072 patch = 768 图像 token） | 0.28 s |
 
