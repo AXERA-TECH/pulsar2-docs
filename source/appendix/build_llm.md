@@ -11,8 +11,8 @@
 
 :::{note}
 - `AX615` 不支持 `llm_build2`。
-- `AX8860` 不需要编译，模型开箱即用，请参考 {doc}`《AX8860 大模型部署（SGLang）》 <llm_ax8860_sglang>`
-  与 {doc}`《AX8860 大模型部署（llama.cpp）》 <llm_ax8860_llamacpp>`。
+- `AX8860` 不需要编译，模型开箱即用，请参考 {doc}`《大模型部署（AX8860，SGLang）》 <llm_ax8860_sglang>`
+  与 {doc}`《大模型部署（AX8860，llama.cpp）》 <llm_ax8860_llamacpp>`。
 :::
 
 **已验证模型**

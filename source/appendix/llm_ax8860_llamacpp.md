@@ -1,4 +1,4 @@
-# AX8860 大模型部署（llama.cpp）
+# 大模型部署（AX8860，llama.cpp）
 
 `AX8860` 使用 `llama.cpp` + `ggml-axera` 在 4 核 NPU 上运行大模型。官方已提供预置 NPU kernel
 与板端程序，模型下载后即可运行。
