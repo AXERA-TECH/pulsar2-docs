@@ -94,16 +94,30 @@ free -m   # Swap 行应看到约 16383
 
 ## 拷贝模型到开发板
 
-:::{note}
-本节内容正在补充中。
-:::
+### Qwen3-0.6B-FP4
 
-<!-- TODO: 27B 模型文件清单、scp/rsync 示例、板端存放目录 -->
+可先下载较小的 NVFP4 模型验证环境。Hugging Face 仓库为 [`NVFP4/Qwen3-0.6B-FP4`](https://huggingface.co/NVFP4/Qwen3-0.6B-FP4)，完整模型目录约 550 MB。
+
+在开发板或可联网的主机上下载：
+
+```shell
+python3 -m pip install -U huggingface_hub
+hf download NVFP4/Qwen3-0.6B-FP4 \
+  --local-dir ./Qwen3-0.6B-FP4
+```
+
+若在主机下载，传到开发板：
+
+```shell
+ssh root@<板ip> 'mkdir -p /home/axera/sglang-axera/models'
+rsync -avP ./Qwen3-0.6B-FP4/ \
+  root@<板ip>:/home/axera/sglang-axera/models/Qwen3-0.6B-FP4/
+```
 
 ## 启动服务
 
 ::: {note}
-以下示例中的模型路径 `/home/ai01/sglang-axera/models/Qwen3.8-27B-NVFP4` 请替换为开发板上的实际路径。
+以下示例中的模型路径 `/home/axera/sglang-axera/models/Qwen3-0.6B-FP4` 请替换为开发板上的实际路径。
 :::
 
 ```shell
@@ -112,7 +126,7 @@ SGLANG_PLATFORM=axera \
 SGLANG_AXERA_INFERENCE_MODE=dynamic \
 SGLANG_AXERA_KERNEL_CORE_NUM=4 \
 python -m sglang.launch_server \
-    --model-path /home/ai01/sglang-axera/models/Qwen3.8-27B-NVFP4 \
+    --model-path /home/axera/sglang-axera/models/Qwen3-0.6B-FP4 \
     --device axera \
     --attention-backend axera \
     --kv-cache-dtype bfloat16 \
@@ -143,11 +157,11 @@ python -m sglang.launch_server \
 ```shell
 curl http://127.0.0.1:30001/v1/chat/completions \
   -H 'Content-Type: application/json' \
-  -d '{"model":"Qwen3.8-27B-NVFP4","messages":[{"role":"user","content":"你好"}]}'
+  -d '{"model":"Qwen3-0.6B-FP4","messages":[{"role":"user","content":"你好"}]}'
 ```
 
 :::{hint}
-`model` 字段使用模型目录名（即 `--model-path` 的最后一级），如示例中的 `Qwen3.8-27B-NVFP4`。
+`model` 字段使用模型目录名（即 `--model-path` 的最后一级），如示例中的 `Qwen3-0.6B-FP4`。
 :::
 
 ## Benchmark 评测
@@ -158,12 +172,14 @@ curl http://127.0.0.1:30001/v1/chat/completions \
 python3 -m sglang.bench_serving \
   --backend sglang \
   --host 127.0.0.1 --port 30001 \
-  --num-prompts 1 \
-  --model /home/ai01/sglang-axera/models/Qwen3.8-27B-NVFP4 \
+  --num-prompts 5 \
+  --model /home/axera/sglang-axera/models/Qwen3-0.6B-FP4 \
   --dataset-name random --random-range-ratio 1 \
-  --random-input-len 2048 --random-output-len 2048 \
+  --random-input-len 128 --random-output-len 128 \
   --max-concurrency 1
 ```
+
+上面的参数适合对 `Qwen3-0.6B-FP4` 做 smoke benchmark；测试较长上下文或持续吞吐时，再按目标场景调整输入和输出长度。
 
 评测结果重点看以下指标：
 
@@ -184,3 +200,7 @@ python3 -m sglang.bench_serving \
 ## 常见问题
 
 <!-- TODO -->
+
+- **设备初始化或 NPU 调用失败**：确认 AXCL 运行库已注册（`ldconfig -p | grep axcl_rt`）且 `slave_daemon` 正在运行（`ps aux | grep '[s]lave_daemon'`）。
+- **`torch_axera._C` 报 `undefined symbol: axclrtPeekAtLastError`**：板端 AXCL 运行库与当前 `torch_axera` wheel 不匹配或固件过旧，应检查并升级对应 AXCL release。
+- **`BRUN cache miss, compiling model`**：首次运行或修改输入 shape、context、page size 等参数时会触发编译；等待完成后，同一配置可复用缓存。
